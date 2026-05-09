@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#111111">
+    <meta name="theme-color" content="#000000">
     <title>DAFTAR HARGA</title>
     <link rel="manifest" href="manifest.json">
     
     <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     
     <style>
-        /* === VARIABEL TEMA famBARLA === */
+        /* === 1. VARIABEL TEMA === */
         :root {
             --wa-bg: #000000; 
             --wa-card: #151515; 
@@ -19,20 +21,21 @@
             --text-light: #ffffff;
             --text-muted: #888888; 
             --border-color: #333333;
-            --wa-green: #00C853; 
             --danger: #ff3b30;   
-            --wa-blue: #00BFFF;
-            --highlight-bg: rgba(0, 200, 83, 0.3);
+            --warning: #FFD700;
+            --highlight-bg: rgba(255, 255, 255, 0.2);
+            --mono-main: #ffffff;
+            --mono-sec: #aaaaaa;
         }
 
-        /* === RESET & BASE === */
+        /* === 2. RESET & BASE === */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; background: var(--wa-bg); color: var(--text-light); font-family: 'Montserrat', sans-serif; font-weight: 500; overflow-x: hidden; }
         body.modal-open { overflow: hidden; } 
         .hidden { display: none !important; }
         .audiowide-regular { font-family: "Audiowide", sans-serif !important; font-weight: 400 !important; }
 
-        /* === HEADER & DROPDOWN === */
+        /* === 3. HEADER & DROPDOWN === */
         .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--wa-header); backdrop-filter: blur(10px); z-index: 100; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); }
         .header-left { display: flex; flex-direction: column; justify-content: center; }
         .header h1 { font-size: 18px; margin: 0; color: var(--text-light); }
@@ -41,51 +44,89 @@
         .top-btns { display: flex; gap: 15px; color: var(--text-light); align-items: center; }
         .icon-btn { cursor: pointer; background: none; border: none; padding: 4px; color: inherit; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; position: relative; width: 32px; height: 32px; outline: none; }
         .icon-btn:active { transform: scale(0.9); opacity: 0.8; }
+        
         .header-upload-btn { display: flex; flex-direction: column; gap: 2px; color: #87CEFA; width: auto; height: auto; padding: 0; }
         
         .dropdown-wrapper { position: relative; display: flex; align-items: center; }
         .dropdown-content { position: absolute; top: 40px; right: 0; background: rgba(21, 21, 21, 0.9); backdrop-filter: blur(15px); min-width: 180px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.9); z-index: 10000; overflow: hidden; border: 1px solid var(--border-color); animation: slideDownGlass 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); transform-origin: top right; border-top: 1px solid rgba(255,255,255,0.15); border-left: 1px solid rgba(255,255,255,0.05); }
         @keyframes slideDownGlass { 0% { opacity: 0; transform: scale(0.9) translateY(-10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+        
         .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 15px 16px; color: var(--text-light); font-size: 13px; font-weight: 500; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s; }
         .dropdown-item:last-child { border-bottom: none; }
         .dropdown-item:active { background-color: rgba(255,255,255,0.15); }
         .dropdown-item input[type="file"] { display: none; }
 
-        /* === IKON LASER & GLOW === */
+        /* === 4. ANIMASI IKON === */
         @keyframes laser-updown-header { 0% { transform: translateY(-4px); } 50% { transform: translateY(4px); } 100% { transform: translateY(-4px); } }
         .laser-beam-header { animation: laser-updown-header 1.5s infinite ease-in-out; filter: drop-shadow(0 0 2px red); }
         .glow-cloud { filter: drop-shadow(0 0 6px rgba(135, 206, 250, 0.8)); }
 
-        /* === SEARCH AREA === */
+        /* === 5. SEARCH AREA & SARAN === */
         .search-area { padding: 10px 16px; background: var(--wa-bg); position: sticky; top: 68px; z-index: 90; }
         .search-box { display: flex; align-items: center; background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 0 12px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .search-box input { width: 100%; background: transparent; border: none; padding: 12px 35px 12px 5px; color: var(--text-light); font-size: 13px; font-family: 'Montserrat', sans-serif; font-weight: 600; outline: none; }
         .search-icon { width: 18px; height: 18px; color: var(--text-muted); pointer-events: none; margin-right: 5px; }
         .q-clear { position: absolute; right: 6px; top: 6px; display: none; padding: 5px; cursor: pointer; align-items: center; justify-content: center; }
-        .search-summary { font-size: 10px; color: var(--wa-green); margin-top: 6px; margin-left: 5px; font-weight: 600; letter-spacing: 0.5px; }
+        .search-summary { font-size: 10px; color: var(--mono-main); margin-top: 6px; margin-left: 5px; font-weight: 600; letter-spacing: 0.5px; }
         .highlight { background-color: var(--highlight-bg); color: #ffffff; border-radius: 3px; padding: 0 2px; }
 
-        /* === TABS & SORT === */
+        .search-dropdown-box { position: absolute; top: 100%; left: 0; right: 0; margin-top: 8px; background: rgba(21, 21, 21, 0.95); backdrop-filter: blur(15px); border-radius: 12px; border: 1px solid var(--border-color); border-top: 1px solid rgba(255,255,255,0.15); box-shadow: 0 15px 35px rgba(0,0,0,0.9); z-index: 1000; overflow: hidden; animation: slideDownGlass 0.2s ease-out; }
+        .sd-title { font-size: 10px; color: var(--text-muted); padding: 12px 16px 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
+        .sd-title span.clear-btn { color: var(--danger); cursor: pointer; font-size: 9px; opacity: 0.8; }
+        .sd-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: var(--text-light); font-size: 13px; font-weight: 600; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s; }
+        .sd-item:last-child { border-bottom: none; }
+        .sd-item:active { background-color: rgba(255,255,255,0.15); }
+        .sd-icon { color: var(--text-muted); width: 14px; height: 14px; }
+        .sd-icon.trend { color: var(--mono-sec); }
+
+        /* === 6. TABS & SORT === */
         .tabs-row { display: flex; align-items: center; padding: 5px 16px 15px 16px; gap: 10px; }
         .tab { padding: 8px 18px; border-radius: 8px; background: var(--wa-card); border: 1px solid var(--border-color); font-size: 11px; color: var(--text-muted); cursor: pointer; font-weight: 700; font-family: 'Montserrat', sans-serif; text-transform: uppercase; transition: 0.2s; }
-        .tab.active { background: rgba(0, 200, 83, 0.15); color: var(--wa-green); border-color: var(--wa-green); }
+        .tab.active { background: rgba(255, 255, 255, 0.15); color: var(--mono-main); border-color: var(--mono-main); }
         .sort-btn { margin-left: auto; color: var(--text-muted); background: transparent; border: none; cursor: pointer; display: flex; flex-direction: column; gap: 4px; align-items: flex-end; padding: 8px 4px; transition: 0.2s; outline: none; }
         .sort-btn span { display: block; height: 2px; background: currentColor; border-radius: 2px; }
         .sort-btn span:nth-child(1) { width: 18px; }
         .sort-btn span:nth-child(2) { width: 12px; }
         .sort-btn span:nth-child(3) { width: 6px; }
-        .sort-btn.active { color: var(--wa-blue); }
+        .sort-btn.active { color: var(--mono-main); }
 
-        /* === CARD LIST === */
-        .list { position: relative; padding-bottom: 150px; padding-left: 16px; padding-right: 16px; min-height: 60vh; }
-        .card { position: relative; display: flex; align-items: flex-start; padding: 15px 18px; padding-right: 60px; background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: padding 0.3s ease; }
+        /* === 7. VIRTUAL SCROLL CONTAINER & CARDS === */
+        .list { 
+            height: calc(100vh - 175px); 
+            overflow-y: auto; 
+            position: relative; 
+            padding-bottom: 15px; 
+            scroll-behavior: auto; 
+        }
+        .spacer { position: absolute; top: 0; left: 0; width: 1px; }
+        .render-container { position: absolute; top: 0; left: 0; width: 100%; padding-left: 16px; padding-right: 16px; }
+        
+        .card { 
+            position: relative; display: flex; align-items: flex-start; padding: 15px 18px; padding-right: 60px; 
+            background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; 
+            margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            height: 125px; 
+            overflow: hidden; box-sizing: border-box;
+        }
+
+        /* CLASS KHUSUS UNTUK CARD EXPIRED */
+        .card-exp-mode {
+            height: auto !important;
+            min-height: 70px !important;
+            padding-bottom: 15px !important;
+            align-items: center !important;
+            padding-right: 18px !important;
+        }
+        
         .info { flex: 1; min-width: 0; }
-        .name { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--text-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .card-price-ecer { font-size: 13px; color: var(--wa-green); font-weight: 700; margin-bottom: 3px; }
-        .card-price-grosir { font-size: 12px; color: var(--wa-blue); font-weight: 700; margin-bottom: 6px; }
-        .card-barcode { font-size: 11px; color: var(--text-muted); font-family: monospace; letter-spacing: 0.5px; margin-bottom: 3px; }
+        .name { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--text-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center;}
+        
+        .card-badge { font-size: 11px; color: #777777; margin-left: 8px; font-weight: 500; font-style: italic; letter-spacing: 0.5px; }
+        .card-price-ecer { font-size: 13px; color: var(--mono-sec); font-weight: 700; margin-bottom: 3px; }
+        .card-price-grosir { font-size: 12px; color: var(--mono-sec); font-weight: 700; margin-bottom: 6px; }
+        .card-barcode { font-size: 11px; color: var(--text-muted); font-family: monospace; letter-spacing: 0.5px; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
         .card-exp { font-size: 11px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 4px; }
-        .card-exp.warning { color: #FFD700; }
+        .card-exp.warning { color: var(--warning); }
         .card-exp.danger { color: var(--danger); }
         
         .btn-del-absolute { position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--danger); cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; opacity: 0.85; outline: none; }
@@ -93,30 +134,40 @@
         .action-btns-absolute { position: absolute; bottom: 12px; right: 12px; display: flex; gap: 8px; }
         .card-action-btn { padding: 5px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0.85; transition: transform 0.2s; border-radius: 8px; outline: none; }
         .card-action-btn:active { transform: scale(0.8); background: rgba(255,255,255,0.1); }
-        .btn-edit-icon { color: var(--wa-blue); }
+        .btn-edit-icon { color: var(--mono-main); }
+        
+        .empty-msg { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 100%; color: #555555; font-size: 12px; font-weight: 600; text-align: center; letter-spacing: 0.5px; z-index: 5; }
 
-        /* === EMPTY STATE === */
-        .empty-msg { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 100%; color: #555555; font-size: 12px; font-weight: 600; text-align: center; letter-spacing: 0.5px; }
+        /* INDIKATOR HURUF JEMPOL */
+        .scroll-letter {
+            position: fixed; right: 20px; top: 50%;
+            color: rgba(255, 255, 255, 0.95); font-size: 45px; font-weight: 900;
+            z-index: 100; opacity: 0; pointer-events: none;
+            text-shadow: 0px 4px 15px rgba(0, 0, 0, 1), 0px 0px 5px rgba(0, 0, 0, 0.8);
+            transform: translateY(-50%) scale(0.7);
+            transition: opacity 0.15s ease, transform 0.15s ease-out;
+        }
+        .scroll-letter.show { opacity: 1; transform: translateY(-50%) scale(1); }
 
-        /* === BOUNCY MODAL === */
+        /* === 8. MODAL KONTROL === */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-box { background: #181818; padding: 25px 20px; border-radius: 16px; width: 100%; max-width: 320px; border: 1px solid var(--border-color); border-top: 3px solid var(--wa-green); box-shadow: 0 20px 50px rgba(0,0,0,0.9); text-align: left; animation: popInBouncy 0.3s ease-out; max-height: 85vh; overflow-y: auto; }
+        .modal-box { background: #181818; padding: 25px 20px; border-radius: 16px; width: 100%; max-width: 320px; border: 1px solid var(--border-color); border-top: 3px solid var(--mono-main); box-shadow: 0 20px 50px rgba(0,0,0,0.9); text-align: left; animation: popInBouncy 0.3s ease-out; max-height: 85vh; overflow-y: auto; }
         @keyframes popInBouncy { 0% { transform: scale(0.85); opacity: 0; } 60% { transform: scale(1.03); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
         .modal-box label { display: block; font-size: 10px; color: var(--text-muted); margin-bottom: 6px; margin-top: 14px; font-weight: 600; }
         .modal-box input { width: 100%; padding: 12px 10px; background: var(--wa-bg); border: 1px solid var(--border-color); color: var(--text-light); font-size: 13px; font-family: 'Montserrat', sans-serif; font-weight: 600; outline: none; border-radius: 8px; transition: border-color 0.3s; }
         .modal-box input:focus { border-color: var(--text-light); box-shadow: 0 0 0 2px rgba(255,255,255,0.1); }
+        
         .modal-btns { display: flex; gap: 10px; justify-content: center; margin-top: 25px; }
         .btn-main { width: 100%; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; font-family: 'Montserrat', sans-serif; text-transform: uppercase; background-color: #222222 !important; transition: transform 0.15s ease, opacity 0.2s; border: 1px solid transparent; color: white; display: flex; justify-content: center; align-items: center; }
         .btn-main:active { transform: scale(0.96); opacity: 0.9; }
-        .btn-green-neon { border-color: var(--wa-green) !important; color: var(--wa-green) !important; }
+        .btn-mono { border-color: var(--mono-main) !important; color: var(--mono-main) !important; }
         .btn-cancel { border-color: var(--text-muted) !important; color: var(--text-muted) !important; }
 
-        /* === FAB BUTTON === */
-        .fab { position: fixed; bottom: 30px; right: 20px; background: var(--wa-green); width: 55px; height: 55px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: none; box-shadow: 0 4px 15px rgba(0, 200, 83, 0.4); z-index: 500; cursor: pointer; transition: transform 0.2s; }
-        .fab:active { transform: scale(0.9); }
-        .fab-icon { color: var(--wa-bg); font-size: 24px; font-weight: bold; font-family: 'Montserrat', sans-serif; }
+        /* === 9. FAB BUTTON === */
+        .fab { position: fixed; bottom: 30px; right: 20px; background: #000000; width: 55px; height: 55px; border-radius: 18px; display: flex; justify-content: center; align-items: center; border: 2px solid var(--border-color); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8); z-index: 500; cursor: pointer; transition: transform 0.2s, border-color 0.2s; outline: none; }
+        .fab:active { transform: scale(0.9); border-color: var(--mono-sec); }
 
-        /* === SCANNER OVERLAY === */
+        /* === 10. SCANNER === */
         #scanner-wrap { display: none; background: #000; position: fixed; inset: 0; z-index: 3500; }
         #reader { width: 100%; height: 100%; }
         .scanner-overlay { position: absolute; inset: 0; pointer-events: none; display: flex; justify-content: center; align-items: center; z-index: 3510; box-shadow: inset 0 0 0 4000px rgba(0,0,0,0.6); }
@@ -125,22 +176,23 @@
         @keyframes scan-anim { 0% { top: 5%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 95%; opacity: 0; } }
         .scan-stop { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); background: #000000; color: var(--danger); border: 1px solid var(--danger); padding: 15px 40px; border-radius: 12px; font-weight: 700; font-family: 'Montserrat', sans-serif; z-index: 3520; cursor: pointer; }
 
-        /* === TOAST NOTIFICATION === */
-        #toast-notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-30px); background: rgba(21, 21, 21, 0.9); backdrop-filter: blur(15px); border: 1px solid var(--border-color); border-bottom: 2px solid #fff; color: var(--text-light); padding: 12px 24px; border-radius: 30px; font-size: 12px; font-weight: 700; z-index: 99999; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.9); opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; white-space: nowrap; }
+        /* === 11. TOAST === */
+        #toast-notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-30px); background: rgba(21, 21, 21, 0.9); backdrop-filter: blur(15px); border: 1px solid var(--border-color); border-bottom: 2px solid var(--mono-main); color: var(--text-light); padding: 12px 24px; border-radius: 30px; font-size: 12px; font-weight: 700; z-index: 99999; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.9); opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; white-space: nowrap; }
         #toast-notification.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-        /* === KALENDER & ALERT === */
-        .picker-box { background: rgba(21, 21, 21, 0.85); backdrop-filter: blur(15px); padding: 20px; border-radius: 16px; width: 85%; max-width: 320px; border: 1px solid var(--border-color); box-shadow: 0 20px 50px rgba(0,0,0,0.9); animation: popInBouncy 0.3s ease-out; }
-        .picker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .picker-nav { background: none; border: none; color: var(--text-light); font-size: 16px; cursor: pointer; padding: 10px; margin: -5px; font-weight: bold; border-radius: 8px; transition: transform 0.2s; }
-        .picker-nav:active { background: rgba(255,255,255,0.1); transform: scale(0.9); }
-        .picker-title { font-weight: 600; font-size: 15px; color: var(--text-light); transition: color 0.3s; }
-        .picker-days-header { display: flex; width: 100%; text-align: center; font-size: 11px; color: var(--text-muted); font-weight: 600; margin-bottom: 10px; }
-        .picker-days-header span { flex: 1; }
-        .picker-grid { display: flex; flex-wrap: wrap; width: 100%; }
-        .picker-item { padding: 10px 0; text-align: center; font-size: 13px; font-weight: 500; cursor: pointer; border-radius: 8px; transition: 0.2s; color: var(--text-light); box-sizing: border-box; width: 14.28%; }
-        .picker-item:active { transform: scale(0.9); }
-        .picker-item.selected { font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+        /* === 12. KALENDER === */
+        .picker-box-new { background: #111111; padding: 24px 20px; border-radius: 18px; width: 90%; max-width: 330px; border: 1px solid var(--border-color); box-shadow: 0 20px 50px rgba(0,0,0,0.9); text-align: center; margin: auto; animation: popInBouncy 0.3s ease-out; }
+        .picker-header-new { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 0 10px; }
+        .picker-nav-new { background: none; border: none; color: white; font-size: 20px; font-weight: 800; cursor: pointer; padding: 5px; outline: none; transition: 0.2s; }
+        .picker-nav-new:active { opacity: 0.5; }
+        .picker-year-new { font-size: 16px; font-weight: 700; color: var(--mono-main); font-family: 'Montserrat', sans-serif; }
+        .picker-grid-new { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px 10px; margin-bottom: 30px; }
+        .month-item { color: white; font-size: 14px; font-weight: 600; padding: 12px 0; border-radius: 12px; cursor: pointer; transition: background 0.2s, transform 0.1s; user-select: none; }
+        .month-item:active { transform: scale(0.9); }
+        .month-item.active { background: var(--mono-main); color: #000; font-weight: 700; }
+        .picker-footer-new { display: flex; gap: 10px; justify-content: space-between; }
+        .btn-picker-new { flex: 1; background: transparent; border: 1.5px solid var(--mono-main); color: var(--mono-main); border-radius: 12px; padding: 12px 0; font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; transition: 0.2s; font-family: 'Montserrat', sans-serif; outline: none; }
+        .btn-picker-new:active { background: rgba(255, 255, 255, 0.1); transform: scale(0.95); }
     </style>
 </head>
 <body>
@@ -148,63 +200,47 @@
     <!-- HEADER SECTION -->
     <div class="header">
         <div class="header-left">
-            <h1 class="audiowide-regular"><span style="color:var(--wa-green);">DAFTAR</span> HARGA</h1>
-            <!-- Elemen tanggal otomatis -->
+            <h1 class="audiowide-regular"><span style="color:var(--text-light);">DAFTAR</span> <span style="color:var(--text-muted);">HARGA</span></h1>
             <span id="current-date-location" class="header-date-location">Boyolali, Memuat...</span>
         </div>
         <div class="top-btns">
-            <!-- Scan Pencarian -->
             <button class="icon-btn" onclick="openScanner('search')" title="Scan Pencarian Cepat">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="none">
                     <rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke="white" stroke-width="1.5"></rect>
                     <line class="laser-beam-header" x1="5" y1="12" x2="19" y2="12" stroke="red" stroke-width="2" stroke-linecap="round"></line>
                 </svg>
             </button>
-            
-            <!-- Upload Cloud -->
             <button class="icon-btn header-upload-btn" onclick="backupToCloud()">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#87CEFA" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="glow-cloud">
                     <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
                     <path d="M12 16V8"></path>
                     <path d="M9 11l3-3 3 3"></path>
                 </svg>
-                <span style="font-size: 8px; font-weight: 700; letter-spacing: 0.5px;">UPLOAD</span>
+                <span style="font-size: 8px; font-weight: 700; letter-spacing: 0.5px; color:#87CEFA;">UPLOAD</span>
             </button>
-            
-            <!-- Dropdown Menu -->
             <div class="dropdown-wrapper">
                 <button class="icon-btn" id="kebab-btn" onclick="toggleMenu(event)">
                     <svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
                         <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
                     </svg>
                 </button>
-                
                 <div id="dropdown-menu" class="dropdown-content hidden">
                     <div class="dropdown-item" onclick="loadFromCloud()" style="color: #87CEFA;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#87CEFA" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
-                            <path d="M12 8v8"></path>
-                            <path d="M9 13l3 3 3-3"></path>
+                            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path><path d="M12 8v8"></path><path d="M9 13l3 3 3-3"></path>
                         </svg> Load Cloud
                     </div>
                     <div style="border-top: 1px solid rgba(255,255,255,0.05); margin: 4px 0;"></div>
                     <div class="dropdown-item" onclick="exportData()" style="color: #3CB371;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3CB371" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <rect x="8" y="13" width="8" height="6" rx="0.5"></rect>
-                            <line x1="12" y1="13" x2="12" y2="19"></line>
-                            <line x1="8" y1="16" x2="16" y2="16"></line>
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><rect x="8" y="13" width="8" height="6" rx="0.5"></rect><line x1="12" y1="13" x2="12" y2="19"></line><line x1="8" y1="16" x2="16" y2="16"></line>
                         </svg> Save Excel
                     </div>
                     <label class="dropdown-item" style="color: #3CB371;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3CB371" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <path d="M12 18v-6"></path>
-                            <path d="M9 15l3-3 3 3"></path>
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M12 18v-6"></path><path d="M9 15l3-3 3 3"></path>
                         </svg> Load Excel
-                        <input type="file" accept=".csv, text/csv, application/csv, text/plain, .txt" onchange="importData(event)">
+                        <input type="file" accept=".xlsx, .xls" onchange="importData(event)">
                     </label>
                 </div>
             </div>
@@ -214,28 +250,23 @@
     <!-- SCANNER OVERLAY -->
     <div id="scanner-wrap">
         <div id="reader"></div>
-        <div class="scanner-overlay">
-            <div class="scanner-box">
-                <div class="scanner-laser"></div>
-            </div>
-        </div>
+        <div class="scanner-overlay"><div class="scanner-box"><div class="scanner-laser"></div></div></div>
         <button class="scan-stop" onclick="closeScanner()">BATAL SCAN</button>
     </div>
 
-    <!-- SEARCH BAR -->
+    <!-- SEARCH AREA -->
     <div class="search-area">
         <div class="search-box">
             <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"/>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            <input type="text" id="q" placeholder="search..." autocomplete="off" oninput="handleSearch()">
+            <input type="text" id="q" placeholder="search..." autocomplete="off">
             <div id="q-x" class="q-clear" onclick="clearSearch()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="m15 9-6 6M9 9l6 6"></path>
+                    <circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6M9 9l6 6"></path>
                 </svg>
             </div>
+            <div id="search-dropdown" class="search-dropdown-box hidden"><div id="sd-content"></div></div>
         </div>
         <div id="search-summary" class="search-summary hidden"></div>
     </div>
@@ -245,31 +276,34 @@
         <button class="tab active" id="t-all" onclick="setTab('all')">SEMUA</button>
         <button class="tab" id="t-fav" onclick="setTab('fav')">FAVORIT</button>
         <button class="tab" id="t-exp" onclick="setTab('exp')">EXPIRED</button>
-        <button class="sort-btn" id="s-btn" onclick="toggleSort()">
-            <span></span><span></span><span></span>
-        </button>
+        <button class="sort-btn" id="s-btn" onclick="toggleSort()"><span></span><span></span><span></span></button>
     </div>
 
-    <!-- DATA LIST -->
-    <div id="list" class="list"></div>
+    <!-- WADAH DATA VIRTUAL LIST -->
+    <div id="list" class="list">
+        <div id="spacer" class="spacer"></div>
+        <div id="render-container" class="render-container"></div>
+        <div id="empty-message-container" class="hidden"></div>
+    </div>
+    
+    <!-- INDIKATOR HURUF JEMPOL -->
+    <div class="scroll-letter" id="scroll-letter">A</div>
 
-    <!-- FLOATING ACTION BUTTON (ADD) -->
+    <!-- FAB -->
     <button class="fab" onclick="showMod()">
-        <span class="fab-icon">+</span>
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
     </button>
 
-    <!-- MODAL INPUT / EDIT BARANG -->
+    <!-- MODAL INPUT / EDIT -->
     <div id="mod" class="modal" onclick="if(event.target===this) hideMod()">
         <div class="modal-box">
-            <h3 id="m-tit" class="audiowide-regular" style="color:var(--wa-green); margin-top:0; margin-bottom:15px; font-size:16px;">Tambah Barang</h3>
-            
-            <label>Nama Barang</label>
-            <input type="text" id="i-n" placeholder="Nama Barang" autocomplete="off" style="text-transform: capitalize;">
-            
+            <h3 id="m-tit" class="audiowide-regular" style="color:var(--mono-main); margin-top:0; margin-bottom:15px; font-size:16px;">Tambah Barang</h3>
+            <label>Nama Barang</label><input type="text" id="i-n" placeholder="Nama Barang" autocomplete="off" style="text-transform: capitalize;">
             <label>Barcode</label>
             <div style="display: flex; gap: 8px;">
-                <input type="text" id="i-b" inputmode="numeric" placeholder="Kode Barcode" autocomplete="off" style="flex: 1;">
-                
+                <input type="text" id="i-b" placeholder="Kode Barcode" autocomplete="off" style="flex: 1;">
                 <button type="button" onclick="openScanner('input')" style="background: transparent; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; outline: none;">
                     <svg viewBox="0 0 24 24" width="28" height="28" fill="none">
                         <rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke="white" stroke-width="1.5"></rect>
@@ -277,471 +311,694 @@
                     </svg>
                 </button>
             </div>
-
-            <label>Tanggal Kedaluwarsa (Opsional)</label>
-            <input type="text" id="i-exp" placeholder="- Tidak Ada -" readonly onclick="openPicker('i-exp', 'date', 'var(--wa-green)')" style="cursor: pointer; caret-color: transparent;">
-            
-            <label>Harga Eceran</label>
-            <input type="text" id="i-p1" inputmode="numeric" placeholder="0" oninput="formatRp(this)">
-            
-            <label>Harga Grosir</label>
-            <input type="text" id="i-p2" inputmode="numeric" placeholder="0" oninput="formatRp(this)">
-            
+            <label>Tanggal Kedaluwarsa (Bulan Tahun)</label>
+            <input type="text" id="i-exp" placeholder="- Tidak Ada -" readonly onclick="openPicker('i-exp', 'date', 'var(--mono-main)')" style="cursor: pointer; caret-color: transparent;">
+            <label>Harga Eceran</label><input type="text" id="i-p1" inputmode="numeric" placeholder="0" oninput="formatRp(this)">
+            <label>Harga Grosir</label><input type="text" id="i-p2" inputmode="numeric" placeholder="0" oninput="formatRp(this)">
             <div class="modal-btns">
                 <button class="btn-main btn-cancel" onclick="hideMod()">BATAL</button>
-                <button class="btn-main btn-green-neon" onclick="save()">SIMPAN</button>
+                <button class="btn-main btn-mono" onclick="save()">SIMPAN</button>
             </div>
         </div>
     </div>
 
     <!-- KALENDER CUSTOM -->
     <div id="custom-picker" class="modal hidden" style="z-index: 30000; align-items: center;" onclick="if(event.target===this) hidePicker()">
-        <div class="picker-box">
-            <div class="picker-header">
-                <button class="picker-nav" onclick="cpChangeYear(-1)" title="Mundur 1 Tahun">&#10094;&#10094;</button>
-                <button class="picker-nav" onclick="cpChange(-1)" title="Mundur 1 Bulan">&#10094;</button>
-                <div id="cp-title" class="picker-title">2026</div>
-                <button class="picker-nav" onclick="cpChange(1)" title="Maju 1 Bulan">&#10095;</button>
-                <button class="picker-nav" onclick="cpChangeYear(1)" title="Maju 1 Tahun">&#10095;&#10095;</button>
+        <div class="picker-box-new">
+            <div class="picker-header-new">
+                <button class="picker-nav-new" onclick="cpChangeYear(-1)">❮</button>
+                <div id="cp-year" class="picker-year-new">2026</div>
+                <button class="picker-nav-new" onclick="cpChangeYear(1)">❯</button>
             </div>
-            <div id="cp-day-view">
-                <div class="picker-days-header">
-                    <span>Min</span><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span>
-                </div>
-                <div id="cp-grid-days" class="picker-grid"></div>
-            </div>
-            <div class="modal-btns" style="margin-top: 15px; gap: 8px;">
-                <button class="btn-main btn-cancel" onclick="hidePicker()" style="font-size: 11px; padding: 10px;">BATAL</button>
-                <button class="btn-main btn-green-neon" id="cp-setel-btn" onclick="setPickerDate()" style="font-size: 11px; padding: 10px;">SETEL</button>
+            <div id="cp-grid" class="picker-grid-new"></div>
+            <div class="picker-footer-new">
+                <button class="btn-picker-new" onclick="hidePicker()">BATAL</button>
+                <button class="btn-picker-new" onclick="cpSelectCurrentMonth()">BULAN INI</button>
+                <button class="btn-picker-new" onclick="setPickerDate()">SETEL</button>
             </div>
         </div>
     </div>
 
-    <!-- CUSTOM ALERT MODAL -->
+    <!-- CUSTOM ALERT -->
     <div id="custom-alert" class="modal hidden" style="z-index: 40000; align-items: center;">
-        <div class="picker-box" id="alert-box">
+        <div class="picker-box" id="alert-box" style="background: rgba(21, 21, 21, 0.85); padding: 20px; border-radius: 16px; border-top: 3px solid var(--mono-main); width: 85%; max-width: 320px;">
             <h3 id="alert-title" style="margin-top:0; font-size:15px; font-weight:700;">Notifikasi</h3>
             <p id="alert-msg" style="font-size:13px; color:var(--text-light); opacity:0.9; line-height:1.5; margin-bottom:20px;"></p>
             <div class="modal-btns" id="alert-btns"></div>
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION -->
+    <!-- TOAST -->
     <div id="toast-notification" class="hidden"><span id="toast-message"></span></div>
 
-    <!-- SCRIPT UTAMA -->
+    <!-- JS SCRIPT -->
     <script>
-        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbyPxT3kZ1Krj7cHRUaVRT6O4EsWhgHU8tSw6vMwn1JTgbjkcX6CNMv1VSYa9JpiecvAEg/exec";
+        // === 1. UTILITAS DOM & GLOBAL ===
+        const $ = (id) => document.getElementById(id);
+        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbyzGeaPWdknV_Xbukbh5SIetlnw7Gnsge_KKJJfHsAB88StKKRZppIhXx4fn_okT5euCA/exec";
+        const NamaBln = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        const NamaBlnPendek = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 
-        let db = [];
-        const rawDb = JSON.parse(localStorage.getItem('DB_WA_MASTER_PRO')) || [];
+        let db = [], idb;
+        let worker, workerResult = null; 
+        let filteredData = []; 
+        let currentSearchReqId = 0; 
         
-        if (rawDb.length > 0) {
-            db = rawDb.map(i => ({ 
-                ...i, 
-                exp: i.exp ? normalizeDateYMD(i.exp) : '' 
-            }));
-            localStorage.setItem('DB_WA_MASTER_PRO', JSON.stringify(db));
+        let tab = 'all', activeId = null, html5QrCode = null, isScanning = false, isStartingScan = false, sortAZ = false, scanMode = 'search'; 
+        let toastTimeoutHide, toastTimeoutRemove;
+        const Picker = { sel: new Date(), targetId: '', tempYear: new Date().getFullYear(), tempMonth: new Date().getMonth() };
+        
+        let recentSearches = JSON.parse(localStorage.getItem('DB_WA_RECENT')) || [];
+        let trendingSearches = JSON.parse(localStorage.getItem('DB_WA_TRENDING')) || {};
+
+        // === 2. INDEXEDDB ===
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('HargaDB_Pro', 1);
+                request.onupgradeneeded = (e) => {
+                    const database = e.target.result;
+                    if (!database.objectStoreNames.contains('items')) {
+                        database.createObjectStore('items', { keyPath: 'id' });
+                    }
+                };
+                request.onsuccess = (e) => resolve(idb = e.target.result);
+                request.onerror = (e) => reject(e.target.error);
+            });
+        }
+        function loadAllFromIDB() {
+            return new Promise((resolve, reject) => {
+                const req = idb.transaction('items', 'readonly').objectStore('items').getAll();
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject("Gagal memuat data");
+            });
+        }
+        function saveItemToIDB(item) {
+            return new Promise((resolve, reject) => {
+                const tx = idb.transaction('items', 'readwrite');
+                tx.objectStore('items').put(item);
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject("Gagal menyimpan data");
+            });
         }
 
-        let tab = 'all', activeId = null, html5QrCode = null, isScanning = false, sortAZ = false, scanMode = 'search'; 
-        let toastTimeoutHide, toastTimeoutRemove;
+        // === 3. UTILITAS FORMAT ===
+        function generateAcronym(name) {
+            let kataKata = String(name).trim().split(/\s+/);
+            if (kataKata.length === 1) return kataKata[0].substring(0, 2).toUpperCase();
+            return kataKata.map(kata => kata[0]).join('').toUpperCase().substring(0, 5);
+        }
+
+        function updateFuseEngine() {
+            worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) });
+            const qVal = $('q').value.trim();
+            if (qVal) { 
+                worker.postMessage({ type: 'search', query: qVal, reqId: ++currentSearchReqId }); 
+            } else { 
+                workerResult = null; 
+                applyFiltersAndRender(); 
+            }
+        }
 
         function normalizeDateYMD(dStr) {
-            if (!dStr) return '';
-            const d = new Date(dStr);
-            if (isNaN(d.getTime())) return dStr;
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${y}-${m}-${day}`;
+            if (!dStr) return ''; const d = new Date(dStr); if (isNaN(d.getTime())) return String(dStr);
+            d.setHours(12, 0, 0, 0); 
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate() || 1).padStart(2, '0')}`;
         }
-
+        function formatBulanTahun(dStr) {
+            if (!dStr) return ''; const d = new Date(dStr); if (isNaN(d.getTime())) return String(dStr);
+            return `${NamaBln[d.getMonth()]} ${d.getFullYear()}`;
+        }
+        function parseBulanTahunExcel(str) {
+            if (!str) return ""; const parts = String(str).trim().split(/[\s-]+/);
+            if (parts.length === 2) { 
+                const b = NamaBln.findIndex(x => x.toLowerCase() === parts[0].toLowerCase()); 
+                if (b !== -1) return `${parts[1]}-${String(b + 1).padStart(2, '0')}-01`; 
+            }
+            return normalizeDateYMD(str);
+        }
         function fmt(n) { return n ? new Intl.NumberFormat('id-ID').format(n) : "0"; }
-        
-        function formatTgl(dStr) { 
-            if (!dStr) return ''; 
-            const d = new Date(dStr);
-            if (isNaN(d.getTime())) return dStr;
-            const day = String(d.getDate()).padStart(2, '0');
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            return `${day}/${month}/${d.getFullYear()}`; 
-        }
-
         function escapeHTML(str) { return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)); }
-        function prop(s) { return s.trim().split(/([\s/-])/).map(w => { if (!w || /[\s/-]/.test(w)) return w; return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }).join('').replace(/\s+/g, ' '); }
-
-        function highlightMatch(text, searchTerms) {
-            if (!searchTerms || searchTerms.length === 0) return text;
-            let highlightedText = text;
-            searchTerms.forEach(term => {
-                if(term.trim() === '') return;
-                const regex = new RegExp(`(${term})`, 'gi');
-                highlightedText = highlightedText.replace(regex, '<span class="highlight">$1</span>');
-            });
-            return highlightedText;
+        function prop(s) { return String(s).trim().split(/([\s/-])/).map(w => w && !/[\s/-]/.test(w) ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w).join('').replace(/\s+/g, ' '); }
+        function highlightMatch(text, searchTerm) {
+            const safeText = escapeHTML(text);
+            if (!searchTerm || searchTerm.trim() === '') return safeText;
+            const safeTerm = escapeHTML(searchTerm.trim());
+            const regex = new RegExp(`(${safeTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return safeText.replace(regex, '<span class="highlight">$1</span>');
         }
-
         function formatRp(input) {
-            let val = input.value.replace(/\D/g, ""); let cursor = input.selectionStart; let oldLen = input.value.length;
-            input.value = val ? fmt(parseInt(val)) : ""; let newLen = input.value.length;
-            try { input.setSelectionRange(cursor + (newLen - oldLen), cursor + (newLen - oldLen)); } catch(e) {}
+            let val = input.value.replace(/\D/g, "");
+            input.value = val ? fmt(parseInt(val, 10)) : "";
+        }
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
         }
 
-        document.addEventListener('click', (e) => {
-            const menu = document.getElementById('dropdown-menu');
-            if (menu && !menu.classList.contains('hidden') && !e.target.closest('.dropdown-wrapper')) menu.classList.add('hidden');
+        // === 4. TANGKAPAN GLOBAL (SCANNER KEYBOARD) ===
+        let inputBuffer = '';
+        let bufferTimer;
+        document.addEventListener('keydown', (e) => {
+            if (document.body.classList.contains('modal-open') || isScanning) return;
+            
+            const activeTag = document.activeElement.tagName.toLowerCase();
+            if (activeTag === 'input' || activeTag === 'textarea') return;
+
+            if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                inputBuffer += e.key;
+                clearTimeout(bufferTimer);
+                bufferTimer = setTimeout(() => {
+                    if (inputBuffer.length > 2) { 
+                        const searchBox = $('q');
+                        searchBox.value = inputBuffer;
+                        $('q-x').style.display = 'flex';
+                        worker.postMessage({ type: 'search', query: inputBuffer, reqId: ++currentSearchReqId });
+                        applyFiltersAndRender(); 
+                    }
+                    inputBuffer = ''; 
+                }, 150); 
+            }
         });
 
-        function toggleMenu(e) { e.stopPropagation(); document.getElementById('dropdown-menu').classList.toggle('hidden'); }
+        // === 5. LOGIKA PENCARIAN (WEB WORKER) ===
+        const searchInput = $('q'), searchDropdown = $('search-dropdown'), sdContent = $('sd-content');
+        
+        const workerScript = `
+            importScripts('https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js');
+            let fuse;
+            self.onmessage = function(e) {
+                if (e.data.type === 'init') {
+                    fuse = new Fuse(e.data.db, { keys: [{name: 'n', weight: 0.6}, {name: 't', weight: 0.4}, {name: 'b', weight: 0.8}], threshold: 0.2, ignoreLocation: true });
+                    self.postMessage({ type: 'ready' });
+                } else if (e.data.type === 'search') {
+                    if(!fuse) return;
+                    const hasil = fuse.search(e.data.query);
+                    self.postMessage({ type: 'result', data: hasil.map(r => r.item), query: e.data.query, reqId: e.data.reqId });
+                }
+            };
+        `;
+        const workerBlob = new Blob([workerScript], { type: 'application/javascript' });
+        worker = new Worker(URL.createObjectURL(workerBlob));
+        
+        worker.onmessage = function(e) {
+            if (e.data.type === 'result') {
+                if (e.data.reqId === currentSearchReqId) {
+                    workerResult = e.data.data;
+                    applyFiltersAndRender();
+                }
+            }
+        };
+
+        function recordSearchLog(term) {
+            const clean = term.trim(); if(!clean) return;
+            recentSearches = [clean, ...recentSearches.filter(t => t.toLowerCase() !== clean.toLowerCase())].slice(0, 5);
+            localStorage.setItem('DB_WA_RECENT', JSON.stringify(recentSearches));
+            trendingSearches[clean.toLowerCase()] = (trendingSearches[clean.toLowerCase()] || 0) + 1;
+            localStorage.setItem('DB_WA_TRENDING', JSON.stringify(trendingSearches));
+        }
+
+        function clearRecentLogs() { recentSearches = []; localStorage.setItem('DB_WA_RECENT', JSON.stringify([])); showSearchSuggestions(); }
+
+        function showSearchSuggestions() {
+            const val = searchInput.value.trim(); sdContent.innerHTML = '';
+            if (val === '') {
+                let html = ''; const topTrends = Object.keys(trendingSearches).sort((a,b) => trendingSearches[b] - trendingSearches[a]).slice(0, 3);
+                if(topTrends.length > 0) html += `<div class="sd-title">Sering Dicari</div>` + topTrends.map(t => `<div class="sd-item" onmousedown="executeQuickSearch('${escapeHTML(t)}')"><svg class="sd-icon trend" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>${escapeHTML(prop(t))}</div>`).join('');
+                if(recentSearches.length > 0) html += `<div class="sd-title">Terakhir Dicari <span class="clear-btn" onmousedown="clearRecentLogs()">HAPUS</span></div>` + recentSearches.map(t => `<div class="sd-item" onmousedown="executeQuickSearch('${escapeHTML(t)}')"><svg class="sd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>${escapeHTML(t)}</div>`).join('');
+                html ? (sdContent.innerHTML = html, searchDropdown.classList.remove('hidden')) : searchDropdown.classList.add('hidden');
+            } else {
+                searchDropdown.classList.add('hidden');
+            }
+        }
+
+        function executeQuickSearch(term) { searchInput.value = term; recordSearchLog(term); searchDropdown.classList.add('hidden'); $('q-x').style.display = 'flex'; worker.postMessage({ type: 'search', query: term, reqId: ++currentSearchReqId }); applyFiltersAndRender(); }
+        
+        const handleSearchInput = debounce(() => { 
+            const val = searchInput.value.trim();
+            if (val) worker.postMessage({ type: 'search', query: val, reqId: ++currentSearchReqId });
+            else { workerResult = null; applyFiltersAndRender(); }
+            showSearchSuggestions(); 
+        }, 150);
+
+        searchInput.addEventListener('input', (e) => {
+            $('q-x').style.display = e.target.value.trim() ? 'flex' : 'none';
+            handleSearchInput();
+        });
+        searchInput.addEventListener('focus', showSearchSuggestions);
+        searchInput.addEventListener('blur', () => setTimeout(() => searchDropdown.classList.add('hidden'), 200));
+        searchInput.addEventListener('keypress', function(e) { if(e.key === 'Enter') { searchDropdown.classList.add('hidden'); recordSearchLog(this.value); this.blur(); } });
+        
+        function clearSearch() { searchInput.value = ''; $('q-x').style.display = 'none'; searchInput.focus(); workerResult = null; showSearchSuggestions(); applyFiltersAndRender(); }
+
+        // === 6. UI CONTROLS & MODALS ===
+        document.addEventListener('click', (e) => { const menu = $('dropdown-menu'); if (menu && !menu.classList.contains('hidden') && !e.target.closest('.dropdown-wrapper')) menu.classList.add('hidden'); });
+        function toggleMenu(e) { e.stopPropagation(); $('dropdown-menu').classList.toggle('hidden'); }
 
         function tampilkanToast(pesan, warna) {
-            const toast = document.getElementById('toast-notification'), toastMsg = document.getElementById('toast-message');
+            const toast = $('toast-notification'), msg = $('toast-message');
             clearTimeout(toastTimeoutHide); clearTimeout(toastTimeoutRemove);
-            toast.style.transition = 'none'; toast.classList.remove('show'); toast.classList.add('hidden');
-            void toast.offsetWidth; 
-            toastMsg.innerText = pesan; toast.style.borderTopColor = warna; toast.style.color = warna; toast.classList.remove('hidden');
+            toast.style.transition = 'none'; toast.classList.remove('show'); toast.classList.add('hidden'); void toast.offsetWidth; 
+            msg.innerText = pesan; toast.style.borderTopColor = warna; toast.style.color = warna; toast.classList.remove('hidden');
             setTimeout(() => { toast.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'; toast.classList.add('show'); }, 10);
-            toastTimeoutHide = setTimeout(() => {
-                toast.classList.remove('show');
-                toastTimeoutRemove = setTimeout(() => toast.classList.add('hidden'), 400); 
-            }, 3000); 
+            toastTimeoutHide = setTimeout(() => { toast.classList.remove('show'); toastTimeoutRemove = setTimeout(() => toast.classList.add('hidden'), 400); }, 3000); 
         }
 
-        function closeCustomAlert() { const modal = document.getElementById('custom-alert'); modal.classList.add('hidden'); modal.style.display = 'none'; }
-
-        function showAlert(msg, title = "Info", color = "var(--wa-blue)") {
-            document.getElementById('alert-title').innerText = title; document.getElementById('alert-title').style.color = color;
-            document.getElementById('alert-box').style.borderTopColor = color; document.getElementById('alert-msg').innerHTML = msg.replace(/\n/g, '<br>');
-            document.getElementById('alert-btns').innerHTML = `<button class="btn-main" style="border-color: ${color} !important; color: ${color} !important;" onclick="closeCustomAlert()">OKE</button>`;
-            const modal = document.getElementById('custom-alert'); modal.style.display = 'flex'; modal.classList.remove('hidden');
+        function closeCustomAlert() { $('custom-alert').classList.add('hidden'); $('custom-alert').style.display = 'none'; }
+        function showAlert(msg, title = "Info", color = "var(--mono-main)") {
+            $('alert-title').innerText = title; $('alert-title').style.color = color; $('alert-box').style.borderTopColor = color; $('alert-msg').innerHTML = msg.replace(/\n/g, '<br>');
+            $('alert-btns').innerHTML = `<button class="btn-main" style="border-color: ${color} !important; color: ${color} !important;" onclick="closeCustomAlert()">OKE</button>`;
+            $('custom-alert').style.display = 'flex'; $('custom-alert').classList.remove('hidden');
         }
-
         function showConfirm(msg, title, color, onConfirmCallback) {
-            document.getElementById('alert-title').innerText = title; document.getElementById('alert-title').style.color = color;
-            document.getElementById('alert-box').style.borderTopColor = color; document.getElementById('alert-msg').innerText = msg;
-            document.getElementById('alert-btns').innerHTML = `
-                <button class="btn-main btn-cancel" onclick="closeCustomAlert()">BATAL</button>
-                <button class="btn-main" style="border-color: ${color} !important; color: ${color} !important;" id="confirm-ok-btn">Oke</button>
-            `;
-            document.getElementById('confirm-ok-btn').onclick = () => { closeCustomAlert(); onConfirmCallback(); };
-            const modal = document.getElementById('custom-alert'); modal.style.display = 'flex'; modal.classList.remove('hidden');
+            $('alert-title').innerText = title; $('alert-title').style.color = color; $('alert-box').style.borderTopColor = color; $('alert-msg').innerText = msg;
+            $('alert-btns').innerHTML = `<button class="btn-main btn-cancel" onclick="closeCustomAlert()">BATAL</button><button class="btn-main" style="border-color: ${color} !important; color: ${color} !important;" id="confirm-ok-btn">Oke</button>`;
+            $('confirm-ok-btn').onclick = () => { closeCustomAlert(); onConfirmCallback(); };
+            $('custom-alert').style.display = 'flex'; $('custom-alert').classList.remove('hidden');
         }
 
         function showMod(id = null) {
-            activeId = id;
-            const b = document.getElementById('i-b'), n = document.getElementById('i-n'), p1 = document.getElementById('i-p1'), p2 = document.getElementById('i-p2'), exp = document.getElementById('i-exp');
-            document.querySelector('.modal-box').style.borderTopColor = 'var(--wa-green)';
-
+            activeId = id; const b = $('i-b'), n = $('i-n'), p1 = $('i-p1'), p2 = $('i-p2'), exp = $('i-exp');
             if (id) {
-                const it = db.find(x => x.id === id);
-                document.getElementById('m-tit').innerText = "Edit Barang"; document.getElementById('m-tit').style.color = 'var(--wa-blue)';
-                document.querySelector('.modal-box').style.borderTopColor = 'var(--wa-blue)'; document.querySelector('.btn-green-neon').style.borderColor = 'var(--wa-blue)'; document.querySelector('.btn-green-neon').style.color = 'var(--wa-blue)';
+                const it = db.find(x => x.id === id); $('m-tit').innerText = "Edit Barang"; 
                 b.value = it.b || ''; n.value = it.n; p1.value = fmt(it.p1); p2.value = it.p2 ? fmt(it.p2) : ''; 
-                if (it.exp) { exp.dataset.rawDate = it.exp; exp.value = formatTgl(it.exp); } else { exp.dataset.rawDate = ''; exp.value = ''; }
+                exp.dataset.rawDate = it.exp || ''; exp.value = it.exp ? formatBulanTahun(it.exp) : '';
             } else {
-                document.getElementById('m-tit').innerText = "Tambah Barang"; document.getElementById('m-tit').style.color = 'var(--wa-green)';
-                document.querySelector('.modal-box').style.borderTopColor = 'var(--wa-green)'; document.querySelector('.btn-green-neon').style.borderColor = 'var(--wa-green)'; document.querySelector('.btn-green-neon').style.color = 'var(--wa-green)';
-                b.value = ''; n.value = ''; p1.value = ''; p2.value = ''; exp.dataset.rawDate = ''; exp.value = '';
+                $('m-tit').innerText = "Tambah Barang"; b.value = n.value = p1.value = p2.value = exp.dataset.rawDate = exp.value = '';
             }
-            document.getElementById('mod').style.display = 'flex'; document.body.classList.add('modal-open');
+            $('mod').style.display = 'flex'; document.body.classList.add('modal-open');
+            setTimeout(() => $('i-n').focus(), 100); 
         }
+        function hideMod() { activeId = null; $('mod').style.display = 'none'; document.body.classList.remove('modal-open'); }
 
-        function hideMod() { activeId = null; document.getElementById('mod').style.display = 'none'; document.body.classList.remove('modal-open'); }
-
-        async function openScanner(mode) {
-            scanMode = mode; document.getElementById('scanner-wrap').style.display = 'block'; isScanning = true;
-            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
-            try {
-                await html5QrCode.start({ facingMode: "environment" }, { fps: 25 }, async (text) => {
-                    const clean = text.replace(/\D/g, ''); await closeScanner();
-                    if (scanMode === 'search') {
-                        const exist = db.find(i => i.b === clean); document.getElementById('q').value = ''; document.getElementById('q-x').style.display = 'none';
-                        if (exist) { render(clean); } else { tampilkanToast("✨ Barcode baru, silakan lengkapi data.", "var(--wa-green)"); showMod(); document.getElementById('i-b').value = clean; }
-                    } else if (scanMode === 'input') { document.getElementById('i-b').value = clean; }
-                });
-            } catch (err) { console.log(err); }
-        }
-
-        async function closeScanner() {
-            if (isScanning && html5QrCode) { try { await html5QrCode.stop(); html5QrCode.clear(); } catch(err) { console.log(err); } }
-            document.getElementById('scanner-wrap').style.display = 'none'; isScanning = false;
-        }
-
-        window.addEventListener('visibilitychange', () => { if (document.hidden && isScanning) closeScanner(); });
-
-        function handleSearch() { const val = document.getElementById('q').value; document.getElementById('q-x').style.display = val ? 'flex' : 'none'; render(); }
-        function clearSearch() { document.getElementById('q').value = ''; document.getElementById('q-x').style.display = 'none'; document.getElementById('q').focus(); render(); }
-        function setTab(t) { tab = t; document.getElementById('t-all').className = t === 'all' ? 'tab active' : 'tab'; document.getElementById('t-fav').className = t === 'fav' ? 'tab active' : 'tab'; document.getElementById('t-exp').className = t === 'exp' ? 'tab active' : 'tab'; render(); }
-        function toggleSort() { sortAZ = !sortAZ; document.getElementById('s-btn').classList.toggle('active', sortAZ); render(); }
-
-        function render(silentBarcode = null) {
-            const container = document.getElementById('list'), summaryEl = document.getElementById('search-summary');
-            const qVal = document.getElementById('q').value.trim().toLowerCase(), searchTerms = qVal.split(' ').filter(t => t !== '');
-            container.innerHTML = '';
-            
-            let filtered = db.filter(i => {
-                if (silentBarcode) return i.b === silentBarcode;
-                const nameLower = i.n.toLowerCase(), barcodeMatch = i.b && i.b.includes(qVal);
-                const nameMatch = searchTerms.length === 0 || searchTerms.every(term => nameLower.includes(term));
-                const match = nameMatch || barcodeMatch;
-
-                if (tab === 'fav') return match && i.f;
-                if (tab === 'exp') {
-                    if (!i.exp) return false;
-                    const today = new Date(); today.setHours(0,0,0,0);
-                    const diffDays = Math.ceil((new Date(i.exp) - today) / (1000 * 60 * 60 * 24));
-                    return match && (diffDays <= 210);
-                }
-                return match;
-            });
-            
-            if (tab === 'exp') {
-                filtered.sort((a, b) => new Date(a.exp) - new Date(b.exp));
-            } else if (sortAZ) {
-                filtered.sort((a,b) => a.n.localeCompare(b.n)); 
+        // === 7. KALENDER ===
+        function openPicker(id, m, w) {
+            Picker.targetId = id; const el = $(id); if (!el) return; let val = el.dataset.rawDate || el.value;
+            if (!val || val.trim() === '') {
+                Picker.sel = new Date();
+                Picker.tempYear = Picker.sel.getFullYear();
+                Picker.tempMonth = Picker.sel.getMonth();
             } else {
-                filtered.sort((a,b) => b.id - a.id);
+                const parts = val.split('-');
+                Picker.tempYear = parseInt(parts[0], 10);
+                Picker.tempMonth = parseInt(parts[1], 10) - 1;
+            }
+            renderKalenderGrid(); 
+            $('custom-picker').style.display = 'flex'; $('custom-picker').classList.remove('hidden');
+        }
+        function hidePicker() { $('custom-picker').classList.add('hidden'); $('custom-picker').style.display = 'none'; }
+        function renderKalenderGrid() {
+            $('cp-year').innerText = Picker.tempYear; 
+            $('cp-grid').innerHTML = NamaBlnPendek.map((bln, i) => `<div class="month-item ${i === Picker.tempMonth ? 'active' : ''}" onclick="cpSelectMonth(${i})">${bln}</div>`).join('');
+        }
+        function cpChangeYear(arah) { Picker.tempYear += arah; renderKalenderGrid(); }
+        function cpSelectMonth(m) { Picker.tempMonth = m; renderKalenderGrid(); }
+        function cpSelectCurrentMonth() { const d = new Date(); Picker.tempYear = d.getFullYear(); Picker.tempMonth = d.getMonth(); renderKalenderGrid(); }
+        function setPickerDate() { const el = $(Picker.targetId); if(el) { el.dataset.rawDate = `${Picker.tempYear}-${String(Picker.tempMonth + 1).padStart(2, '0')}-01`; el.value = `${NamaBln[Picker.tempMonth]} ${Picker.tempYear}`; } hidePicker(); }
+
+        // === 8. VIRTUAL RENDER LIST & SCROLL INDICATOR ===
+        function setTab(t) { tab = t; ['all', 'fav', 'exp'].forEach(x => $(`t-${x}`).className = t === x ? 'tab active' : 'tab'); $('list').scrollTop = 0; applyFiltersAndRender(); }
+        function toggleSort() { sortAZ = !sortAZ; $('s-btn').classList.toggle('active', sortAZ); $('list').scrollTop = 0; applyFiltersAndRender(); }
+
+        function applyFiltersAndRender(silentBarcode = null) {
+            const qVal = $('q').value.trim();
+            let dataAktif = db.filter(i => !i.deleted);
+            
+            const exactBarcodeMatch = dataAktif.find(i => i.b === qVal);
+            
+            let baseData = dataAktif;
+
+            if (silentBarcode) {
+                baseData = dataAktif.filter(i => i.b === silentBarcode);
+            } else if (exactBarcodeMatch) {
+                baseData = [exactBarcodeMatch];
+            } else if (workerResult !== null && qVal !== '') {
+                baseData = workerResult;
+            }
+            
+            filteredData = baseData.filter(i => (tab === 'fav' ? i.f : (tab === 'exp' ? (i.exp && Math.ceil((new Date(i.exp) - new Date().setHours(0,0,0,0)) / 86400000) <= 210) : true)));
+            
+            if (!qVal || tab === 'exp') {
+                if (tab === 'exp') filteredData.sort((a, b) => new Date(a.exp) - new Date(b.exp));
+                else if (sortAZ) filteredData.sort((a,b) => a.n.localeCompare(b.n)); else filteredData.sort((a,b) => b.id - a.id);
             }
 
-            if (qVal !== '' && !silentBarcode) { summaryEl.innerText = `🔍 Ditemukan ${filtered.length} barang`; summaryEl.classList.remove('hidden'); } else { summaryEl.classList.add('hidden'); }
+            const summaryEl = $('search-summary');
+            if (qVal && !silentBarcode && !exactBarcodeMatch) { summaryEl.innerText = `🔍 Ditemukan ${filteredData.length} barang`; summaryEl.classList.remove('hidden'); } 
+            else summaryEl.classList.add('hidden');
+            
+            renderVirtualList(false);
+        }
 
-            if (filtered.length === 0) {
-                let emptyText = "Daftar Harga Kosong";
-                if (tab === 'fav') emptyText = "Belum ada barang favorit";
-                if (tab === 'exp') emptyText = "Tidak ada barang expired";
-                container.innerHTML = `<div class="empty-msg">${emptyText}</div>`;
+        let scrollTimeout;
+
+        function renderVirtualList(isScrolling = false) {
+            const currentRH = tab === 'exp' ? 85 : 137; 
+            
+            const container = $('list');
+            const renderCont = $('render-container');
+            const spacer = $('spacer');
+            const scrollLetterEl = $('scroll-letter');
+            const emptyEl = $('empty-message-container'); 
+
+            if (filteredData.length === 0) {
+                spacer.style.height = '0px';
+                renderCont.innerHTML = '';
+                emptyEl.innerHTML = `<div class="empty-msg">${tab === 'fav' ? "Belum ada barang favorit" : (tab === 'exp' ? "Tidak ada barang expired" : "Belum ada data barang")}</div>`; 
+                emptyEl.classList.remove('hidden');
+                scrollLetterEl.classList.remove('show');
                 return;
+            } else {
+                emptyEl.classList.add('hidden');
             }
 
-            filtered.forEach(item => {
-                const today = new Date(); today.setHours(0,0,0,0);
-                let diffDays = 999;
-                let expTextRaw = '';
-                
-                if (item.exp) {
-                    diffDays = Math.ceil((new Date(item.exp) - today) / (1000 * 60 * 60 * 24));
-                    expTextRaw = formatTgl(item.exp);
-                }
+            spacer.style.height = `${filteredData.length * currentRH}px`;
+            const scrollTop = container.scrollTop;
+            
+            let startIndex = Math.floor(scrollTop / currentRH);
+            if(startIndex >= filteredData.length) startIndex = Math.max(0, filteredData.length - 1);
+            let visibleNodesCount = Math.ceil(container.clientHeight / currentRH) + 2; 
+            let endIndex = Math.min(startIndex + visibleNodesCount, filteredData.length);
 
-                const safeNama = escapeHTML(item.n), safeBarcode = escapeHTML(item.b || '');
-                const displayNama = qVal !== '' ? highlightMatch(safeNama, searchTerms) : safeNama;
-                const safeNameParam = escapeHTML(item.n).replace(/'/g, "\\'");
+            renderCont.style.transform = `translateY(${startIndex * currentRH}px)`;
 
-                const el = document.createElement('div');
-                el.className = 'card';
+            let html = '';
+            const today = new Date(); today.setHours(0,0,0,0);
+            const qVal = $('q').value.trim();
+
+            for (let i = startIndex; i < endIndex; i++) {
+                const item = filteredData[i];
+                let diffDays = 999, expTextRaw = '';
+                if (item.exp) { diffDays = Math.ceil((new Date(item.exp) - today) / 86400000); expTextRaw = formatBulanTahun(item.exp); }
+
+                const safeBarcode = escapeHTML(item.b || '');
+                const displayNama = highlightMatch(item.n, qVal);
                 
                 if (tab === 'exp') {
-                    let dynamicColor = 'var(--wa-green)'; 
-                    if (diffDays <= 30) {
-                        dynamicColor = 'var(--danger)'; 
-                    } else if (diffDays <= 90) {
-                        dynamicColor = '#FFA500';       
-                    } else if (diffDays <= 180) {
-                        dynamicColor = '#FFD700';       
-                    }
-
-                    el.style.paddingRight = '18px';
-                    el.style.alignItems = 'center'; 
-                    el.innerHTML = `
-                        <div class="info" style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px;">
-                            <div class="name" style="margin-bottom: 0; flex: 1; white-space: normal; word-break: break-word;">${displayNama}</div>
-                            <div style="font-size: 15px; font-weight: 800; color: ${dynamicColor}; white-space: nowrap; text-align: right;">
-                                ${expTextRaw}
-                            </div>
-                        </div>
-                    `;
-                } 
-                else {
+                    const col = diffDays <= 30 ? 'var(--danger)' : (diffDays <= 90 ? '#FFA500' : (diffDays <= 180 ? '#FFD700' : 'var(--mono-main)')); 
+                    html += `<div class="card card-exp-mode"><div class="info" style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px;"><div class="name" style="margin-bottom: 0; flex: 1;">${displayNama} <span class="card-badge">${item.t}</span></div><div style="font-size: 15px; font-weight: 800; color: ${col}; white-space: nowrap; text-align: right;">${expTextRaw}</div></div></div>`;
+                } else {
                     let expHtml = '';
                     if (item.exp) {
-                        let expClass = '', expIcon = '📅', expText = `Exp: ${expTextRaw}`;
-                        if (diffDays < 0) { expClass = 'danger'; expIcon = '🚨'; expText = `Kedaluwarsa!`; } 
-                        else if (diffDays <= 90) { expClass = 'warning'; expIcon = '⚠️'; expText = `Exp dlm ${diffDays} hari`; }
-                        expHtml = `<div class="card-exp ${expClass}"><span>${expIcon}</span> ${expText}</div>`;
+                        const isDanger = diffDays < 0, isWarn = diffDays <= 90;
+                        expHtml = `<div class="card-exp ${isDanger ? 'danger' : (isWarn ? 'warning' : '')}"><span>${isDanger ? '🚨' : (isWarn ? '⚠️' : '📅')}</span> ${isDanger ? 'Kedaluwarsa!' : (isWarn ? `Exp dlm ${diffDays} hari` : `Exp: ${expTextRaw}`)}</div>`;
                     }
+                    const dPrice1 = item.p1 ? `<div class="card-price-ecer">Ecer: Rp ${fmt(item.p1)}</div>` : '', dPrice2 = item.p2 ? `<div class="card-price-grosir">Grosir: Rp ${fmt(item.p2)}</div>` : '';
+                    const favCol = item.f ? 'var(--mono-main)' : 'var(--text-muted)', favFill = item.f ? 'var(--mono-main)' : 'none';
 
-                    const displayBarcode = (item.b && qVal !== '' && item.b.includes(qVal)) ? highlightMatch(safeBarcode, [qVal]) : (safeBarcode || '- Tanpa Barcode -');
-                    const displayPrice1 = item.p1 ? `<div class="card-price-ecer">Ecer: Rp ${fmt(item.p1)}</div>` : '';
-                    const displayPrice2 = item.p2 ? `<div class="card-price-grosir">Grosir: Rp ${fmt(item.p2)}</div>` : '';
-                    const favColor = item.f ? 'var(--danger)' : 'var(--text-muted)', favFill = item.f ? 'var(--danger)' : 'none';
-
-                    el.innerHTML = `
-                        <div class="info">
-                            <div class="name">${displayNama}</div>
-                            ${displayPrice1}
-                            ${displayPrice2}
-                            <div class="card-barcode">${displayBarcode}</div>
-                            ${expHtml}
-                        </div>
-                        <button class="btn-del-absolute" onclick="del(${item.id}, '${safeNameParam}')" title="Hapus Barang">
-                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6M9 9l6 6"></path></svg>
-                        </button>
-                        <div class="action-btns-absolute">
-                            <button class="card-action-btn" style="color: ${favColor};" onclick="toggleFav(${item.id})" title="Favorit">
-                                <svg viewBox="0 0 24 24" width="20" height="20" fill="${favFill}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                            </button>
-                            <button class="card-action-btn btn-edit-icon" onclick="showMod(${item.id})" title="Edit Barang">
-                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                            </button>
+                    html += `
+                        <div class="card">
+                            <div class="info"><div class="name">${displayNama} <span class="card-badge">${item.t || ''}</span></div>${dPrice1}${dPrice2}<div class="card-barcode">${(item.b && qVal && item.b.includes(qVal)) ? highlightMatch(safeBarcode, qVal) : (safeBarcode || '- Tanpa Barcode -')}</div>${expHtml}</div>
+                            <button class="btn-del-absolute" onclick="del(${item.id})" title="Hapus"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6M9 9l6 6"></path></svg></button>
+                            <div class="action-btns-absolute">
+                                <button class="card-action-btn" style="color: ${favCol};" onclick="toggleFav(${item.id})"><svg viewBox="0 0 24 24" width="20" height="20" fill="${favFill}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+                                <button class="card-action-btn btn-edit-icon" onclick="showMod(${item.id})"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                            </div>
                         </div>`;
                 }
-                container.appendChild(el);
-            });
-        }
+            }
+            renderCont.innerHTML = html;
 
-        function save() {
-            try {
-                const nRaw = document.getElementById('i-n').value, p1Val = document.getElementById('i-p1').value.replace(/\D/g, ''), p2Val = document.getElementById('i-p2').value.replace(/\D/g, '');
-                const p1 = parseInt(p1Val) || 0, p2 = parseInt(p2Val) || null, b = document.getElementById('i-b').value.replace(/\D/g, '').trim(), exp = document.getElementById('i-exp').dataset.rawDate || ''; 
-
-                if (!nRaw || p1 === 0) { showAlert("Mohon lengkapi nama dan harga eceran barang!", "Data Belum Lengkap", "var(--danger)"); return; }
-                const nameClean = prop(nRaw), nameExist = db.find(x => x.n.toLowerCase() === nameClean.toLowerCase() && x.id !== activeId);
+            if (isScrolling && filteredData.length > 0 && filteredData[startIndex]) {
+                let hurufAwal = filteredData[startIndex].n.charAt(0).toUpperCase();
+                if (!/[A-Z]/.test(hurufAwal)) hurufAwal = '#';
                 
-                if (nameExist) { showAlert(`Nama barang "${nameClean}" sudah ada di database.\nSilakan gunakan tombol Edit (Pensil) untuk mengubah barang tersebut.`, "Nama Sudah Ada", "var(--danger)"); return; }
-                if (b !== '') {
-                    const bExist = db.find(x => x.b === b && x.id !== activeId);
-                    if (bExist) { showAlert(`Gagal! Kode barcode ini sudah digunakan oleh barang: "${bExist.n}".`, "Barcode Ganda", "var(--danger)"); return; }
-                }
+                if (scrollLetterEl.innerText !== hurufAwal) { scrollLetterEl.innerText = hurufAwal; }
+                scrollLetterEl.classList.add('show');
+                
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => { scrollLetterEl.classList.remove('show'); }, 300);
+            } else if (!isScrolling) {
+                scrollLetterEl.classList.remove('show');
+            }
+        }
+        
+        let isScrollingNow = false;
+        $('list').addEventListener('scroll', () => {
+            if (!isScrollingNow) {
+                window.requestAnimationFrame(() => {
+                    renderVirtualList(true);
+                    isScrollingNow = false;
+                });
+                isScrollingNow = true;
+            }
+        });
 
+        // === 9. DATABASE OPERATION ===
+        async function save() {
+            try {
+                const nRaw = $('i-n').value, p1 = parseInt($('i-p1').value.replace(/\D/g, ''), 10) || 0, p2 = parseInt($('i-p2').value.replace(/\D/g, ''), 10) || null, b = $('i-b').value.trim(), exp = $('i-exp').dataset.rawDate || ''; 
+                if (!nRaw || p1 === 0) return showAlert("Mohon lengkapi nama dan harga eceran barang!", "Data Belum Lengkap", "var(--mono-main)");
+                
+                const nameClean = prop(nRaw);
+                const existItem = db.find(x => x.n.toLowerCase() === nameClean.toLowerCase() && x.id !== activeId);
+                if (existItem) {
+                    if (existItem.deleted) return showAlert(`Barang "${nameClean}" sudah ada di keranjang sampah (dihapus). Hapus nama yang lama dari Cloud terlebih dahulu.`, "Nama Sudah Ada", "var(--mono-main)");
+                    return showAlert(`Nama barang "${nameClean}" sudah ada di database.`, "Nama Sudah Ada", "var(--mono-main)");
+                }
+                
+                if (b && db.find(x => !x.deleted && x.b === b && x.id !== activeId)) return showAlert("Kode barcode ini sudah digunakan.", "Barcode Ganda", "var(--mono-main)");
+
+                const ts = Date.now(); let savedItem;
                 if (activeId) {
                     const idx = db.findIndex(x => x.id === activeId); 
-                    if (idx !== -1) { db[idx] = { ...db[idx], b, n: nameClean, p1, p2, exp }; tampilkanToast("Barang berhasil diedit!", "var(--wa-blue)"); }
+                    if (idx !== -1) { db[idx] = { ...db[idx], b, n: nameClean, p1, p2, exp, t: generateAcronym(nameClean), updatedAt: ts }; savedItem = db[idx]; tampilkanToast("Barang berhasil diedit!", "var(--mono-main)"); }
                 } else {
-                    const uniqueId = Date.now() + Math.floor(Math.random() * 10000);
-                    db.push({ id: uniqueId, b, n: nameClean, p1, p2, f: false, exp }); tampilkanToast("Barang berhasil disimpan!", "var(--wa-green)");
+                    savedItem = { id: ts + Math.floor(Math.random() * 10000), b, n: nameClean, p1, p2, f: false, exp, t: generateAcronym(nameClean), updatedAt: ts, deleted: false };
+                    db.push(savedItem); tampilkanToast("Barang disimpan!", "var(--mono-main)");
                 }
                 
-                localStorage.setItem('DB_WA_MASTER_PRO', JSON.stringify(db)); hideMod(); render();
-            } catch (error) { console.error("Save Error:", error); showAlert("Terjadi kesalahan sistem saat menyimpan data. Silakan coba lagi.", "Sistem Error", "var(--danger)"); }
+                await saveItemToIDB(savedItem); updateFuseEngine(); hideMod();
+            } catch (error) { console.error(error); showAlert("Terjadi kesalahan sistem saat menyimpan data.", "Sistem Error", "var(--mono-main)"); }
         }
 
-        function del(id, name) { showConfirm(`Yakin ingin menghapus "${name}"?`, "Hapus Barang", "var(--danger)", () => { db = db.filter(x => x.id !== id); localStorage.setItem('DB_WA_MASTER_PRO', JSON.stringify(db)); render(); tampilkanToast("Data berhasil dihapus!", "var(--danger)"); }); }
-        function toggleFav(id) { const idx = db.findIndex(x => x.id === id); db[idx].f = !db[idx].f; localStorage.setItem('DB_WA_MASTER_PRO', JSON.stringify(db)); render(); }
+        async function del(id) { 
+            const idx = db.findIndex(x => x.id === id); if(idx === -1) return;
+            showConfirm(`Yakin ingin menghapus "${escapeHTML(db[idx].n)}"?`, "Hapus Barang", "var(--danger)", async () => { 
+                db[idx].deleted = true; db[idx].updatedAt = Date.now();
+                await saveItemToIDB(db[idx]);
+                updateFuseEngine(); tampilkanToast("Data berhasil dihapus!", "var(--danger)"); 
+            }); 
+        }
 
+        async function toggleFav(id) { 
+            const idx = db.findIndex(x => x.id === id); 
+            if(idx !== -1) { db[idx].f = !db[idx].f; db[idx].updatedAt = Date.now(); await saveItemToIDB(db[idx]); applyFiltersAndRender(); }
+        }
+
+        // === 10. CLOUD SYNC & EXCEL ===
         function backupToCloud() {
-            document.getElementById('dropdown-menu').classList.add('hidden');
-            if(!CLOUD_URL || CLOUD_URL.includes("ISI_DENGAN")) { showAlert("Harap masukkan URL Web App Google Apps Script di kode HTML terlebih dahulu!", "Pengaturan Cloud", "#87CEFA"); return; }
-            if (db.length === 0) { showAlert("Belum ada data untuk diupload", "Save Cloud", "#87CEFA"); return; }
+            $('dropdown-menu').classList.add('hidden');
+            if(!CLOUD_URL || CLOUD_URL.includes("ISI_DENGAN")) return showAlert("Masukkan URL Web App Google Apps Script di kode HTML!", "Pengaturan Cloud", "#87CEFA");
             
-            tampilkanToast("Menyimpan ke Cloud...", "var(--wa-blue)");
+            if (db.length === 0) return showAlert("Belum ada data untuk diupload", "Save Cloud", "#87CEFA");
+            
+            tampilkanToast("Menyimpan ke Cloud...", "#87CEFA");
+            // PERBAIKAN: Mengirim seluruh db (termasuk yg deleted) agar Sheet bisa tahu data mana yg dihapus.
             fetch(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backup', data: db }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } })
-            .then(res => res.text()).then(text => { tampilkanToast("Berhasil disimpan ke Cloud!", "var(--wa-green)"); })
-            .catch(err => { showAlert("Gagal menyimpan ke Cloud. Pastikan internet menyala dan URL sudah benar.", "Koneksi Gagal", "var(--danger)"); });
+            .then(res => { tampilkanToast("Berhasil disimpan ke Cloud!", "#87CEFA"); }).catch(err => { showAlert("Gagal menyimpan ke Cloud. Cek internet.", "Koneksi Gagal", "#87CEFA"); });
         }
 
         function loadFromCloud() {
-            document.getElementById('dropdown-menu').classList.add('hidden');
-            if(!CLOUD_URL || CLOUD_URL.includes("ISI_DENGAN")) { showAlert("Harap masukkan URL Web App Google Apps Script di kode HTML terlebih dahulu!", "Pengaturan Cloud", "#87CEFA"); return; }
-            showConfirm("Data lama akan ditimpa. Anda yakin?", "Load Cloud", "#87CEFA", () => {
-                tampilkanToast("Memuat dari Cloud...", "var(--wa-blue)");
-                fetch(CLOUD_URL + "?action=load").then(res => { if(!res.ok) throw new Error("Network error"); return res.json(); })
-                .then(data => {
-                    if (data && Array.isArray(data)) { 
-                        db = data.map(i => ({ ...i, exp: i.exp ? normalizeDateYMD(i.exp) : '' })); localStorage.setItem('DB_WA_MASTER_PRO', JSON.stringify(db)); render(); tampilkanToast("Data berhasil dimuat dari Cloud!", "var(--wa-green)"); 
-                    } else { showAlert("Format data Cloud tidak valid atau kosong.", "Load Gagal", "var(--danger)"); }
-                }).catch(err => { showAlert("Gagal memuat dari Cloud. Pastikan internet Anda menyala.", "Koneksi Gagal", "var(--danger)"); });
+            $('dropdown-menu').classList.add('hidden');
+            if(!CLOUD_URL || CLOUD_URL.includes("ISI_DENGAN")) return showAlert("Masukkan URL Web App di kode HTML!", "Pengaturan Cloud", "#87CEFA");
+            
+            showConfirm("Sistem akan menyesuaikan data dan membersihkan data yang terhapus dari Sheet.", "Sinkronisasi Cloud", "#87CEFA", () => {
+                tampilkanToast("Memuat dari Cloud...", "#87CEFA");
+                
+                const noCacheUrl = CLOUD_URL + "?action=load&t=" + new Date().getTime();
+                
+                fetch(noCacheUrl, { cache: "no-store" }).then(async res => { 
+                    if(!res.ok) throw new Error("Network error"); 
+                    const text = await res.text();
+                    try { return JSON.parse(text); } catch(e) { throw new Error("Bukan format JSON"); }
+                })
+                .then(async dataCloud => {
+                    if (dataCloud && Array.isArray(dataCloud)) { 
+                        const petaLokal = new Map(); db.forEach(item => petaLokal.set(item.id, item)); 
+                        let adaPerubahan = false;
+                        
+                        const cloudIds = new Set(dataCloud.map(i => i.id));
+
+                        dataCloud.forEach(itemCloud => {
+                            const itemLokal = petaLokal.get(itemCloud.id);
+                            
+                            if (!itemLokal || 
+                                (itemCloud.updatedAt || 0) > (itemLokal.updatedAt || 0) || 
+                                (itemLokal.deleted !== itemCloud.deleted)) {
+                                
+                                if(!itemCloud.t && !itemCloud.deleted) itemCloud.t = generateAcronym(itemCloud.n);
+                                if(itemCloud.exp) itemCloud.exp = normalizeDateYMD(itemCloud.exp);
+                                petaLokal.set(itemCloud.id, itemCloud); 
+                                adaPerubahan = true;
+                            }
+                        });
+                        
+                        for (const [id, itemLokal] of petaLokal.entries()) {
+                            if (!cloudIds.has(id)) {
+                                if (itemLokal.deleted || Date.now() - (itemLokal.updatedAt || 0) > 600000) {
+                                    petaLokal.delete(id); 
+                                    adaPerubahan = true;
+                                }
+                            }
+                        }
+                        
+                        if (adaPerubahan) {
+                            db = Array.from(petaLokal.values());
+                            const tx = idb.transaction('items', 'readwrite'); 
+                            const store = tx.objectStore('items');
+                            
+                            store.clear(); 
+                            db.forEach(item => store.put(item)); 
+                            
+                            tx.oncomplete = () => {
+                                $('list').scrollTop = 0;
+                                workerResult = null;
+                                updateFuseEngine(); 
+                                applyFiltersAndRender();
+                                tampilkanToast("Sinkronisasi Berhasil! Data diperbarui.", "#87CEFA"); 
+                            };
+                            tx.onerror = () => {
+                                showAlert("Gagal menyimpan sinkronisasi ke penyimpanan lokal.", "Error Storage", "var(--danger)");
+                            };
+                        } else {
+                            tampilkanToast("Data HP sudah sama persis dengan Cloud!", "#87CEFA");
+                        }
+                    } else showAlert("Format data Cloud tidak valid.", "Load Gagal", "#87CEFA");
+                }).catch(err => { showAlert("Gagal memuat dari Cloud. Cek internet/URL.", "Koneksi Gagal", "#87CEFA"); });
             });
         }
 
         function exportData() {
-            document.getElementById('dropdown-menu').classList.add('hidden');
-            let csv = "ID;Barcode;Nama;Eceran;Grosir;Fav;Expired\n" + db.map(i => `${i.id};${i.b || ""};"${i.n}";${i.p1};${i.p2 || 0};${i.f};${i.exp || ""}`).join("\n");
-            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv'})); a.download = `Data_Harga_${new Date().toLocaleDateString('id-ID').replace(/\//g,'-')}.csv`; a.click();
+            $('dropdown-menu').classList.add('hidden');
+            const dataAktif = db.filter(i => !i.deleted);
+            if (dataAktif.length === 0) return showAlert("Belum ada data untuk di-download.", "Ekspor Kosong", "#3CB371");
+            const dataExcel = dataAktif.map(i => ({ "ID Barang": i.id, "Barcode": i.b || "", "Nama Barang": i.n, "Harga Eceran": i.p1, "Harga Grosir": i.p2 || 0, "Favorit": i.f ? "Ya" : "Tidak", "Kedaluwarsa": i.exp ? formatBulanTahun(i.exp) : "" }));
+            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dataExcel), "Daftar Harga");
+            XLSX.writeFile(wb, `Data_Harga_${new Date().toLocaleDateString('id-ID').replace(/\//g,'-')}.xlsx`);
+            tampilkanToast("Excel berhasil dibuat!", "#3CB371");
         }
 
         function importData(e) {
-            document.getElementById('dropdown-menu').classList.add('hidden');
-            const file = e.target.files[0]; if (!file) return; const reader = new FileReader();
-            reader.onload = (ev) => {
-                const rows = ev.target.result.split(/\r?\n/).slice(1).filter(l => l.trim());
-                rows.forEach(row => {
-                    const c = row.split(/;(?=(?:[^"]*"[^"]*")*[^"]*$)/);
-                    if (c.length >= 4) {
-                        const name = prop(c[2].replace(/"/g, "")); const hargaEceran = parseInt(c[3].replace(/\D/g, '')) || 0; const hargaGrosir = c[4] ? parseInt(c[4].replace(/\D/g, '')) : null;
-                        if (!db.some(x => x.n.toLowerCase() === name.toLowerCase())) {
-                            db.push({ id: Date.now() + Math.floor(Math.random() * 1000000), b: c[1].replace(/\D/g,''), n: name, p1: hargaEceran, p2: hargaGrosir, f: c[5] === 'true', exp: c[6] ? normalizeDateYMD(c[6]) : "" });
-                        }
-                    }
-                });
-                localStorage.setItem('DB_WA_MASTER_PRO', JSON.stringify(db)); render(); e.target.value = ''; tampilkanToast("Data Excel berhasil di-import!", "var(--wa-blue)");
-            };
-            reader.readAsText(file);
-        }
+            $('dropdown-menu').classList.add('hidden'); 
+            const file = e.target.files[0]; 
+            if (!file) return; 
+            const reader = new FileReader();
+            
+            reader.onload = async (ev) => {
+                try {
+                    const data = new Uint8Array(ev.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const firstSheetName = workbook.SheetNames[0];
+                    const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheetName], {raw: false});
+                    
+                    const ts = Date.now();
+                    const tx = idb.transaction('items', 'readwrite');
+                    const store = tx.objectStore('items');
+                    let added = false;
 
-        const Picker = { mode: 'date', curr: new Date(), sel: new Date(), targetId: '', theme: '' };
-        const NamaBln = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-        
-        function renderKalender() {
-            const y = Picker.curr.getFullYear(), m = Picker.curr.getMonth(); document.getElementById('cp-title').innerText = `${NamaBln[m]} ${y}`;
-            const hariPertama = new Date(y, m, 1).getDay(), jumlahHari = new Date(y, m + 1, 0).getDate(); let html = '';
-            for (let i = 0; i < hariPertama; i++) html += `<div class="picker-item" style="visibility:hidden;"></div>`;
-            for (let i = 1; i <= jumlahHari; i++) {
-                const isTerpilih = (Picker.sel.getDate() === i && Picker.sel.getMonth() === m && Picker.sel.getFullYear() === y);
-                html += `<div class="picker-item ${isTerpilih ? 'selected' : ''}" style="${isTerpilih ? `background-color: ${Picker.theme}; color: #000;` : ''}" onclick="cpSelectDay(${i})">${i}</div>`;
-            }
-            document.getElementById('cp-grid-days').innerHTML = html;
-        }
-
-        function openPicker(id, m, w) {
-            Picker.targetId = id; Picker.mode = m; Picker.theme = w; const el = document.getElementById(id); if (!el) return;
-            let val = el.dataset.rawDate || el.value;
-            if (!val || val.trim() === '') { Picker.sel = new Date(); } else { let parts = val.split('-'); Picker.sel = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10)); }
-            Picker.curr = new Date(Picker.sel); document.getElementById('cp-title').style.color = w; document.querySelector('#custom-picker .picker-box').style.borderTopColor = w;
-            const btnBatal = document.querySelector('#custom-picker .modal-btns button:nth-child(1)'), btnSetel = document.getElementById('cp-setel-btn');
-            btnBatal.style.cssText = `background-color: #222222 !important; color: ${w} !important; border: 1px solid ${w} !important; font-size: 11px; padding: 10px;`; 
-            btnSetel.style.cssText = `background-color: #222222 !important; color: ${w} !important; border: 1px solid ${w} !important; font-size: 11px; padding: 10px;`;
-            renderKalender(); document.getElementById('custom-picker').style.display = 'flex'; document.getElementById('custom-picker').classList.remove('hidden');
-        }
-        
-        function hidePicker() { document.getElementById('custom-picker').classList.add('hidden'); document.getElementById('custom-picker').style.display = 'none'; }
-        function cpChange(arah) { Picker.curr.setDate(1); const bln = Picker.curr.getMonth(); Picker.curr.setMonth(bln + arah); renderKalender(); }
-        function cpChangeYear(arah) { Picker.curr.setFullYear(Picker.curr.getFullYear() + arah); renderKalender(); }
-        function cpSelectDay(t) { Picker.sel = new Date(Picker.curr.getFullYear(), Picker.curr.getMonth(), t); renderKalender(); }
-        
-        function setPickerDate() { 
-            const el = document.getElementById(Picker.targetId); if(!el) { hidePicker(); return; }
-            const y = Picker.sel.getFullYear(), m = String(Picker.sel.getMonth() + 1).padStart(2, '0'), d = String(Picker.sel.getDate()).padStart(2, '0'), ymd = `${y}-${m}-${d}`; 
-            el.dataset.rawDate = ymd; el.value = `${d}/${m}/${y}`; hidePicker(); 
-        }
-
-        // FUNGSI UNTUK MENGUPDATE TANGGAL DAN LOKASI OTOMATIS DI HEADER
-        function updateHeaderDate() {
-            const today = new Date();
-            const d = String(today.getDate()).padStart(2, '0');
-            const m = String(today.getMonth() + 1).padStart(2, '0');
-            const y = today.getFullYear();
-            const el = document.getElementById('current-date-location');
-            if (el) {
-                el.innerText = `Boyolali, ${d}/${m}/${y}`;
-            }
-        }
-
-        // Jalankan fungsi update tanggal saat aplikasi dibuka
-        updateHeaderDate();
-
-        render();
-        
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(registration => {
-                registration.addEventListener('updatefound', () => {
-                    const newWorker = registration.installing;
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            console.log('Versi baru tersedia! Bersiap melakukan auto-update...');
+                    jsonData.forEach(row => {
+                        const name = prop(String(row["Nama Barang"] || row["Nama"] || "")); 
+                        if (!name) return; 
+                        if (!db.some(x => !x.deleted && x.n.trim().toLowerCase() === name.trim().toLowerCase())) {
+                            const newItem = { 
+                                id: ts + Math.floor(Math.random() * 1000000), 
+                                b: row["Barcode"] ? String(row["Barcode"]).trim() : '', 
+                                n: name, 
+                                p1: parseInt(String(row["Harga Eceran"] || "0").replace(/\D/g, ''), 10) || 0, 
+                                p2: parseInt(String(row["Harga Grosir"] || "0").replace(/\D/g, ''), 10) || null, 
+                                f: row["Favorit"] === "Ya", 
+                                exp: parseBulanTahunExcel(row["Kedaluwarsa"] || ""), 
+                                t: generateAcronym(name), 
+                                updatedAt: ts, 
+                                deleted: false 
+                            };
+                            db.push(newItem); 
+                            store.put(newItem);
+                            added = true;
                         }
                     });
-                });
-            }).catch(err => console.log('SW Reg Error:', err));
-
-            let refreshing = false;
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                if (!refreshing) {
-                    refreshing = true;
-                    window.location.reload(); 
+                    
+                    tx.oncomplete = () => {
+                        if (added) {
+                            $('list').scrollTop = 0;
+                            workerResult = null;
+                            updateFuseEngine(); 
+                            applyFiltersAndRender();
+                        }
+                        e.target.value = ''; 
+                        tampilkanToast("Data Excel di-import!", "#3CB371");
+                    };
+                } catch (error) { 
+                    showAlert("Gagal membaca file Excel. Pastikan format file sesuai.", "Format Salah", "#3CB371"); 
                 }
-            });
+            }; 
+            reader.readAsArrayBuffer(file);
         }
+
+        // === 11. SCANNER ===
+        async function openScanner(mode) {
+            if(isStartingScan || isScanning) return;
+            isStartingScan = true;
+            scanMode = mode; $('scanner-wrap').style.display = 'block'; 
+            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+            try {
+                await html5QrCode.start({ facingMode: "environment" }, { fps: 25 }, async (text) => {
+                    const clean = text.trim(); await closeScanner();
+                    if (scanMode === 'search') {
+                        const exist = db.find(i => !i.deleted && i.b === clean); 
+                        $('q-x').style.display = 'none';
+                        if (exist) { 
+                            $('q').value = clean; 
+                            $('q-x').style.display = 'flex';
+                            workerResult = null;
+                            applyFiltersAndRender();
+                        } else { 
+                            tampilkanToast("✨ Barcode baru, silakan lengkapi data.", "var(--mono-main)"); 
+                            showMod(); $('i-b').value = clean; 
+                        }
+                    } else if (scanMode === 'input') $('i-b').value = clean;
+                });
+                isScanning = true;
+            } catch (err) { console.log(err); }
+            finally { isStartingScan = false; }
+        }
+
+        async function closeScanner() {
+            if (isScanning && html5QrCode) try { await html5QrCode.stop(); } catch(err) {}
+            $('scanner-wrap').style.display = 'none'; isScanning = false;
+        }
+
+        window.addEventListener('visibilitychange', () => { if (document.hidden && isScanning) closeScanner(); });
+
+        // === 12. INISIALISASI ===
+        async function initApp() {
+            try {
+                await initDB();
+                const rawLama = localStorage.getItem('DB_WA_MASTER_PRO');
+                if (rawLama) {
+                    const tx = idb.transaction('items', 'readwrite'), store = tx.objectStore('items');
+                    JSON.parse(rawLama).forEach(i => store.put({ ...i, exp: i.exp ? normalizeDateYMD(i.exp) : '', t: i.t || generateAcronym(i.n), updatedAt: i.updatedAt || Date.now(), deleted: i.deleted || false }));
+                    localStorage.removeItem('DB_WA_MASTER_PRO');
+                }
+                db = await loadAllFromIDB(); 
+                updateFuseEngine(); 
+                const t = new Date(); $('current-date-location').innerText = `Boyolali, ${t.getDate()} ${NamaBln[t.getMonth()]} ${t.getFullYear()}`;
+                
+                applyFiltersAndRender();
+            } catch (err) { showAlert("Gagal memuat Database Internal.", "Error Sistem", "var(--danger)"); }
+            
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js').then(reg => reg.addEventListener('updatefound', () => {
+                    reg.installing.addEventListener('statechange', (e) => { if (e.target.state === 'installed' && navigator.serviceWorker.controller) console.log('Versi baru tersedia!'); });
+                })).catch(err => console.log('SW Reg Error:', err));
+                let refreshing = false; navigator.serviceWorker.addEventListener('controllerchange', () => { if (!refreshing) { refreshing = true; window.location.reload(); } });
+            }
+        }
+
+        initApp();
     </script>
 </body>
 </html>
