@@ -507,9 +507,9 @@
             if (qVal !== '' && !silentBarcode) { summaryEl.innerText = `🔍 Ditemukan ${filtered.length} barang`; summaryEl.classList.remove('hidden'); } else { summaryEl.classList.add('hidden'); }
 
             if (filtered.length === 0) {
-                let emptyText = "Tidak ada barang yang cocok";
+                let emptyText = "Daftar Harga Kosong";
                 if (tab === 'fav') emptyText = "Belum ada barang favorit";
-                if (tab === 'exp') emptyText = "Tidak ada barang yang mendekati kedaluwarsa (1-7 bulan)";
+                if (tab === 'exp') emptyText = "Tidak ada barang expired";
                 container.innerHTML = `<div class="empty-msg">${emptyText}</div>`;
                 return;
             }
