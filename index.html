@@ -419,17 +419,23 @@
             }
         }
 
+        // [PERBAIKAN BUG MATEMATIS ZONA WAKTU]
         function normalizeDateYMD(dStr) {
-            if (!dStr) return ''; const d = new Date(dStr); if (isNaN(d.getTime())) return String(dStr);
-            d.setHours(12, 0, 0, 0); 
+            if (!dStr) return ''; 
+            const d = new Date(dStr); 
+            if (isNaN(d.getTime())) return ''; // Mencegah "Invalid Date"
+            d.setHours(12, 0, 0, 0); // Kunci di tengah hari lokal untuk akurasi math
             return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate() || 1).padStart(2, '0')}`;
         }
         function formatBulanTahun(dStr) {
-            if (!dStr) return ''; const d = new Date(dStr); if (isNaN(d.getTime())) return String(dStr);
-            return `${NamaBln[d.getMonth()]} ${d.getFullYear()}`;
+            if (!dStr) return ''; 
+            const parts = String(dStr).split('-');
+            if (parts.length >= 2) return `${NamaBln[parseInt(parts[1], 10) - 1]} ${parts[0]}`;
+            return dStr;
         }
         function parseBulanTahunExcel(str) {
-            if (!str) return ""; const parts = String(str).trim().split(/[\s-]+/);
+            if (!str) return ""; 
+            const parts = String(str).trim().split(/[\s-]+/);
             if (parts.length === 2) { 
                 const b = NamaBln.findIndex(x => x.toLowerCase() === parts[0].toLowerCase()); 
                 if (b !== -1) return `${parts[1]}-${String(b + 1).padStart(2, '0')}-01`; 
@@ -638,10 +644,10 @@
                 baseData = workerResult;
             }
             
-            filteredData = baseData.filter(i => (tab === 'fav' ? i.f : (tab === 'exp' ? (i.exp && Math.ceil((new Date(i.exp) - new Date().setHours(0,0,0,0)) / 86400000) <= 210) : true)));
+            filteredData = baseData.filter(i => (tab === 'fav' ? i.f : (tab === 'exp' ? (i.exp && Math.ceil((new Date(i.exp.split('-')[0], i.exp.split('-')[1]-1, i.exp.split('-')[2] || 1) - new Date().setHours(0,0,0,0)) / 86400000) <= 210) : true)));
             
             if (!qVal || tab === 'exp') {
-                if (tab === 'exp') filteredData.sort((a, b) => new Date(a.exp) - new Date(b.exp));
+                if (tab === 'exp') filteredData.sort((a, b) => new Date(a.exp.split('-')[0], a.exp.split('-')[1]-1, 1) - new Date(b.exp.split('-')[0], b.exp.split('-')[1]-1, 1));
                 else if (sortAZ) filteredData.sort((a,b) => a.n.localeCompare(b.n)); else filteredData.sort((a,b) => b.id - a.id);
             }
 
@@ -691,7 +697,12 @@
             for (let i = startIndex; i < endIndex; i++) {
                 const item = filteredData[i];
                 let diffDays = 999, expTextRaw = '';
-                if (item.exp) { diffDays = Math.ceil((new Date(item.exp) - today) / 86400000); expTextRaw = formatBulanTahun(item.exp); }
+                if (item.exp) { 
+                    const pts = item.exp.split('-');
+                    const expDate = new Date(pts[0], pts[1]-1, pts[2] || 1);
+                    diffDays = Math.ceil((expDate - today) / 86400000); 
+                    expTextRaw = formatBulanTahun(item.exp); 
+                }
 
                 const safeBarcode = escapeHTML(item.b || '');
                 const displayNama = highlightMatch(item.n, qVal);
@@ -766,7 +777,8 @@
                     const idx = db.findIndex(x => x.id === activeId); 
                     if (idx !== -1) { db[idx] = { ...db[idx], b, n: nameClean, p1, p2, exp, t: generateAcronym(nameClean), updatedAt: ts }; savedItem = db[idx]; tampilkanToast("Barang berhasil diedit!", "var(--mono-main)"); }
                 } else {
-                    savedItem = { id: ts + Math.floor(Math.random() * 10000), b, n: nameClean, p1, p2, f: false, exp, t: generateAcronym(nameClean), updatedAt: ts, deleted: false };
+                    const uniqueId = ts + Math.floor(Math.random() * 1000000); 
+                    savedItem = { id: uniqueId, b, n: nameClean, p1, p2, f: false, exp, t: generateAcronym(nameClean), updatedAt: ts, deleted: false };
                     db.push(savedItem); tampilkanToast("Barang disimpan!", "var(--mono-main)");
                 }
                 
@@ -796,7 +808,6 @@
             if (db.length === 0) return showAlert("Belum ada data untuk diupload", "Save Cloud", "#87CEFA");
             
             tampilkanToast("Menyimpan ke Cloud...", "#87CEFA");
-            // PERBAIKAN: Mengirim seluruh db (termasuk yg deleted) agar Sheet bisa tahu data mana yg dihapus.
             fetch(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backup', data: db }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } })
             .then(res => { tampilkanToast("Berhasil disimpan ke Cloud!", "#87CEFA"); }).catch(err => { showAlert("Gagal menyimpan ke Cloud. Cek internet.", "Koneksi Gagal", "#87CEFA"); });
         }
@@ -813,7 +824,7 @@
                 fetch(noCacheUrl, { cache: "no-store" }).then(async res => { 
                     if(!res.ok) throw new Error("Network error"); 
                     const text = await res.text();
-                    try { return JSON.parse(text); } catch(e) { throw new Error("Bukan format JSON"); }
+                    try { return JSON.parse(text); } catch(e) { throw new Error("Format bukan JSON"); }
                 })
                 .then(async dataCloud => {
                     if (dataCloud && Array.isArray(dataCloud)) { 
@@ -889,48 +900,68 @@
             
             reader.onload = async (ev) => {
                 try {
+                    tampilkanToast("Membaca file Excel...", "#3CB371"); 
                     const data = new Uint8Array(ev.target.result);
                     const workbook = XLSX.read(data, {type: 'array'});
                     const firstSheetName = workbook.SheetNames[0];
                     const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheetName], {raw: false});
                     
                     const ts = Date.now();
-                    const tx = idb.transaction('items', 'readwrite');
-                    const store = tx.objectStore('items');
                     let added = false;
-
-                    jsonData.forEach(row => {
-                        const name = prop(String(row["Nama Barang"] || row["Nama"] || "")); 
-                        if (!name) return; 
-                        if (!db.some(x => !x.deleted && x.n.trim().toLowerCase() === name.trim().toLowerCase())) {
-                            const newItem = { 
-                                id: ts + Math.floor(Math.random() * 1000000), 
-                                b: row["Barcode"] ? String(row["Barcode"]).trim() : '', 
-                                n: name, 
-                                p1: parseInt(String(row["Harga Eceran"] || "0").replace(/\D/g, ''), 10) || 0, 
-                                p2: parseInt(String(row["Harga Grosir"] || "0").replace(/\D/g, ''), 10) || null, 
-                                f: row["Favorit"] === "Ya", 
-                                exp: parseBulanTahunExcel(row["Kedaluwarsa"] || ""), 
-                                t: generateAcronym(name), 
-                                updatedAt: ts, 
-                                deleted: false 
-                            };
-                            db.push(newItem); 
-                            store.put(newItem);
-                            added = true;
-                        }
-                    });
+                    let uniqueCounter = 0; 
                     
-                    tx.oncomplete = () => {
-                        if (added) {
-                            $('list').scrollTop = 0;
-                            workerResult = null;
-                            updateFuseEngine(); 
-                            applyFiltersAndRender();
+                    let currentIndex = 0;
+                    const chunkSize = 500;
+
+                    const processChunk = () => {
+                        const tx = idb.transaction('items', 'readwrite');
+                        const store = tx.objectStore('items');
+                        const end = Math.min(currentIndex + chunkSize, jsonData.length);
+
+                        for (let i = currentIndex; i < end; i++) {
+                            const row = jsonData[i];
+                            const name = prop(String(row["Nama Barang"] || row["Nama"] || "")); 
+                            if (!name) continue; 
+                            if (!db.some(x => !x.deleted && x.n.trim().toLowerCase() === name.trim().toLowerCase())) {
+                                
+                                const safeId = ts + (uniqueCounter++);
+                                
+                                const newItem = { 
+                                    id: safeId, 
+                                    b: row["Barcode"] ? String(row["Barcode"]).trim() : '', 
+                                    n: name, 
+                                    p1: parseInt(String(row["Harga Eceran"] || "0").replace(/\D/g, ''), 10) || 0, 
+                                    p2: parseInt(String(row["Harga Grosir"] || "0").replace(/\D/g, ''), 10) || null, 
+                                    f: row["Favorit"] === "Ya", 
+                                    exp: parseBulanTahunExcel(row["Kedaluwarsa"] || ""), 
+                                    t: generateAcronym(name), 
+                                    updatedAt: ts, 
+                                    deleted: false 
+                                };
+                                db.push(newItem); 
+                                store.put(newItem);
+                                added = true;
+                            }
                         }
-                        e.target.value = ''; 
-                        tampilkanToast("Data Excel di-import!", "#3CB371");
+
+                        currentIndex = end;
+                        
+                        if (currentIndex < jsonData.length) {
+                            setTimeout(processChunk, 10);
+                        } else {
+                            if (added) {
+                                $('list').scrollTop = 0;
+                                workerResult = null;
+                                updateFuseEngine(); 
+                                applyFiltersAndRender();
+                            }
+                            e.target.value = ''; 
+                            tampilkanToast(`Selesai! Berhasil memproses data.`, "#3CB371");
+                        }
                     };
+                    
+                    processChunk();
+
                 } catch (error) { 
                     showAlert("Gagal membaca file Excel. Pastikan format file sesuai.", "Format Salah", "#3CB371"); 
                 }
@@ -962,8 +993,12 @@
                     } else if (scanMode === 'input') $('i-b').value = clean;
                 });
                 isScanning = true;
-            } catch (err) { console.log(err); }
-            finally { isStartingScan = false; }
+            } catch (err) { 
+                closeScanner();
+                showAlert("Gagal mengakses kamera. Pastikan izin kamera telah diberikan pada browser Anda.", "Kamera Error", "var(--danger)");
+            } finally { 
+                isStartingScan = false; 
+            }
         }
 
         async function closeScanner() {
