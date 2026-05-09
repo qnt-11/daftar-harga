@@ -6,7 +6,7 @@
 // PENTING: Setiap kali kamu mengubah index.html atau menambah fitur, 
 // kamu WAJIB menaikkan angka APP_VERSION ini (misal: '1.2', '1.3', dst).
 // Ini adalah satu-satunya cara memberi tahu browser bahwa ada update baru.
-const APP_VERSION = '1.6'; 
+const APP_VERSION = '1.7'; 
 
 const CACHE_CORE = 'daftar-harga-core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'daftar-harga-dynamic-v' + APP_VERSION;
