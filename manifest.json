@@ -1,15 +1,27 @@
 {
-  "name": "Daftar Harga Pro",
-  "short_name": "Harga Pro",
-  "start_url": "index.html",
+  "id": "/daftar-harga/",
+  "name": "Daftar Harga Barang",
+  "short_name": "Daftar Harga",
+  "description": "Aplikasi pencatatan daftar harga eceran dan grosir",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#0b141a",
-  "theme_color": "#00a884",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "orientation": "portrait",
+  "lang": "id-ID",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3514/3514491.png",
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
