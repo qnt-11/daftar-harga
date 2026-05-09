@@ -3,7 +3,7 @@
  * Arsitektur: Network-First (HTML), Cache-First (CDN), Stale-While-Revalidate (Dynamic)
  */
 
-const APP_VERSION = '1.0';
+const APP_VERSION = '1.1';
 
 const CACHE_CORE = 'daftar-harga-core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'daftar-harga-dynamic-v' + APP_VERSION;
