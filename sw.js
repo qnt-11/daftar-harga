@@ -3,7 +3,10 @@
  * Arsitektur: Network-First (HTML), Cache-First (CDN), Stale-While-Revalidate (Dynamic)
  */
 
-const APP_VERSION = '1.1';
+// PENTING: Setiap kali kamu mengubah index.html atau menambah fitur, 
+// kamu WAJIB menaikkan angka APP_VERSION ini (misal: '1.2', '1.3', dst).
+// Ini adalah satu-satunya cara memberi tahu browser bahwa ada update baru.
+const APP_VERSION = '1.2'; 
 
 const CACHE_CORE = 'daftar-harga-core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'daftar-harga-dynamic-v' + APP_VERSION;
@@ -54,7 +57,7 @@ self.addEventListener('install', event => {
           console.warn(`Pre-cache gagal untuk: ${url}`);
         }
       }));
-    }).then(() => self.skipWaiting())
+    }).then(() => self.skipWaiting()) // Memaksa versi baru langsung aktif
   );
 });
 
@@ -62,12 +65,12 @@ self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
       return Promise.all(keys.map(key => {
-        // Hapus cache versi lama yang sudah tidak terpakai
+        // Hapus cache versi lama yang sudah tidak terpakai (Auto-Clean)
         if (key.startsWith('daftar-harga-') && key !== CACHE_CORE && key !== CACHE_DYNAMIC && key !== CACHE_CDN) {
           return caches.delete(key);
         }
       }));
-    }).then(() => self.clients.claim()) 
+    }).then(() => self.clients.claim()) // Langsung mengendalikan halaman web
   );
 });
 
@@ -80,7 +83,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // 1. STRATEGI NETWORK-FIRST (Untuk HTML & Manifest agar update langsung terasa)
+  // 1. STRATEGI NETWORK-FIRST (Untuk HTML & Manifest)
   if (req.mode === 'navigate' || url.pathname.match(/\/(index\.html)?$/) || url.pathname.endsWith('manifest.json')) {
     event.respondWith(
       fetch(req).then(res => {
