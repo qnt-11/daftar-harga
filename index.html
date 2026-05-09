@@ -580,7 +580,8 @@
             background: #000; 
             position: fixed; 
             inset: 0; 
-            z-index: 2000; 
+            /* PERBAIKAN: z-index dinaikkan agar berada di atas Modal Edit (3000) */
+            z-index: 3500; 
         }
 
         #reader { 
@@ -595,18 +596,21 @@
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            z-index: 2010; 
+            /* PERBAIKAN: z-index dinaikkan */
+            z-index: 3510; 
             box-shadow: inset 0 0 0 4000px rgba(0,0,0,0.6); 
         }
 
         .scanner-box { 
             width: 250px; 
             height: 200px; 
-            border: 2px solid var(--wa-green); 
+            /* PERBAIKAN: Garis tepi diubah menjadi putih */
+            border: 2px solid #ffffff; 
             position: relative; 
             border-radius: 16px; 
             overflow: hidden; 
-            box-shadow: 0 0 15px rgba(0, 200, 83, 0.5); 
+            /* PERBAIKAN: Bayangan (Glow) diubah menjadi putih halus */
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); 
         }
 
         .scanner-laser { 
@@ -630,14 +634,16 @@
             bottom: 50px; 
             left: 50%; 
             transform: translateX(-50%); 
-            background: #222222; 
+            /* PERBAIKAN: Background Hitam Pekat */
+            background: #000000; 
             color: var(--danger); 
             border: 1px solid var(--danger); 
             padding: 15px 40px; 
             border-radius: 12px; 
             font-weight: 700; 
             font-family: 'Montserrat', sans-serif; 
-            z-index: 2020; 
+            /* PERBAIKAN: z-index dinaikkan */
+            z-index: 3520; 
             cursor: pointer; 
         }
 
@@ -656,6 +662,7 @@
             border-radius: 30px; 
             font-size: 12px; 
             font-weight: 700; 
+            /* z-index super tinggi agar menutupi semuanya */
             z-index: 99999; 
             text-align: center; 
             box-shadow: 0 15px 40px rgba(0,0,0,0.9); 
@@ -1189,7 +1196,6 @@
             wrap.style.display = 'block'; 
             isScanning = true;
             
-            // Perbaikan Singleton Scanner
             if (!html5QrCode) {
                 html5QrCode = new Html5Qrcode("reader");
             }
@@ -1215,6 +1221,7 @@
                                 document.getElementById('i-b').value = clean;
                             }
                         } else if (scanMode === 'input') {
+                            // Cukup isi nilainya, modal masih terbuka (sekarang sudah kelihatan karena z-index)
                             document.getElementById('i-b').value = clean;
                         }
                     }
@@ -1229,7 +1236,7 @@
             if (isScanning && html5QrCode) {
                 try {
                     await html5QrCode.stop();
-                    html5QrCode.clear(); // Bersihkan UI Overlay Library
+                    html5QrCode.clear(); 
                 } catch(err) { 
                     console.log("Gagal menutup kamera", err); 
                 }
@@ -1336,7 +1343,6 @@
                 const favColor = item.f ? 'var(--danger)' : 'var(--text-muted)';
                 const favFill = item.f ? 'var(--danger)' : 'none';
 
-                // Perbaikan Security Handler Delete
                 const safeNameParam = escapeHTML(item.n).replace(/'/g, "\\'");
 
                 const el = document.createElement('div');
@@ -1413,7 +1419,6 @@
                         tampilkanToast("Barang berhasil diedit!", "var(--wa-blue)");
                     }
                 } else {
-                    // PERBAIKAN: ID UNIK ANTI TABRAKAN
                     const uniqueId = Date.now() + Math.floor(Math.random() * 10000);
                     db.push({ id: uniqueId, b, n: nameClean, p1, p2, f: false, exp });
                     tampilkanToast("Barang berhasil disimpan!", "var(--wa-green)");
@@ -1532,13 +1537,11 @@
                     if (c.length >= 4) {
                         const name = prop(c[2].replace(/"/g, ""));
                         
-                        // PERBAIKAN: BERSIHKAN ANGKA DARI TITIK ATAU KARAKTER LAINNYA
                         const hargaEceran = parseInt(c[3].replace(/\D/g, '')) || 0;
                         const hargaGrosir = c[4] ? parseInt(c[4].replace(/\D/g, '')) : null;
 
                         if (!db.some(x => x.n.toLowerCase() === name.toLowerCase())) {
                             db.push({ 
-                                // PERBAIKAN: BUAT ID YANG PASTI UNIK
                                 id: Date.now() + Math.floor(Math.random() * 1000000), 
                                 b: c[1].replace(/\D/g,''), 
                                 n: name, 
@@ -1628,7 +1631,6 @@
         }
 
         function cpChange(arah) { 
-            // PERBAIKAN: Amankan tanggal ke tanggal 1 agar tidak lompat bulan
             Picker.curr.setDate(1); 
             const bln = Picker.curr.getMonth(); 
             Picker.curr.setMonth(bln + arah); 
