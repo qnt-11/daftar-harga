@@ -6,7 +6,7 @@
 // PENTING: Setiap kali kamu mengubah index.html atau menambah fitur, 
 // kamu WAJIB menaikkan angka APP_VERSION ini (misal: '1.2', '1.3', dst).
 // Ini adalah satu-satunya cara memberi tahu browser bahwa ada update baru.
-const APP_VERSION = '1.7'; 
+const APP_VERSION = '1.8'; // Versi dinaikkan ke 1.8 untuk menerapkan perbaikan CDN
 
 const CACHE_CORE = 'daftar-harga-core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'daftar-harga-dynamic-v' + APP_VERSION;
@@ -21,11 +21,12 @@ const coreUrls = [
   './manifest.json'
 ];
 
-// Domain eksternal yang di-cache permanen (Scanner & Font)
+// Domain eksternal yang di-cache permanen (Scanner, Font, & Pencarian)
 const cdnDomains = [
-  'unpkg.com', 
-  'fonts.googleapis.com', 
-  'fonts.gstatic.com'
+  'unpkg.com',             // Untuk Scanner (html5-qrcode) & Excel (xlsx)
+  'fonts.googleapis.com',  // Untuk Font Montserrat & Audiowide
+  'fonts.gstatic.com',     // Untuk file woff2 font
+  'cdn.jsdelivr.net'       // DITAMBAHKAN: Untuk library Fuse.js (Pencarian Offline)
 ];
 
 async function trimCache(cacheName, maxItems) {
@@ -102,7 +103,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // 2. STRATEGI CACHE-FIRST (Untuk Library Scanner html5-qrcode & Google Fonts)
+  // 2. STRATEGI CACHE-FIRST (Untuk Library Scanner, Excel, Fuse.js & Google Fonts)
   if (cdnDomains.some(domain => url.hostname.includes(domain))) {
     event.respondWith(
       caches.match(req, { ignoreSearch: true }).then(cachedRes => {
