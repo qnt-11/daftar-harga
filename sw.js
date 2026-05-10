@@ -4,7 +4,7 @@
  */
 
 // Dokumentasi: Ubah angka ini jika Anda mengubah isi file HTML/JS/CSS agar pengguna mendapatkan versi terbaru
-const APP_VERSION = '2.8'; 
+const APP_VERSION = '3.0'; 
 const CACHE_CORE = 'core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
 const CACHE_CDN = 'cdn-v1'; 
