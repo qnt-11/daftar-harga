@@ -1,141 +1,146 @@
 /**
- * SERVICE WORKER DAFTAR HARGA
- * Arsitektur: Network-First (HTML), Cache-First (CDN), Stale-While-Revalidate (Dynamic)
+ * SERVICE WORKER DAFTAR HARGA - ENTERPRISE GRADE FINAL
+ * Strategi: Network-First, Cache-First (CDN Presisi), Stale-While-Revalidate (Background Safe)
  */
 
-// PENTING: Setiap kali kamu mengubah index.html atau menambah fitur, 
-// kamu WAJIB menaikkan angka APP_VERSION ini (misal: '1.2', '1.3', dst).
-// Ini adalah satu-satunya cara memberi tahu browser bahwa ada update baru.
-const APP_VERSION = '1.9'; // Versi dinaikkan ke 1.8 untuk menerapkan perbaikan CDN
+// Dokumentasi: Ubah angka ini jika Anda mengubah isi file HTML/JS/CSS agar pengguna mendapatkan versi terbaru
+const APP_VERSION = '2.6'; 
+const CACHE_CORE = 'core-v' + APP_VERSION; 
+const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
+const CACHE_CDN = 'cdn-v1'; 
 
-const CACHE_CORE = 'daftar-harga-core-v' + APP_VERSION; 
-const CACHE_DYNAMIC = 'daftar-harga-dynamic-v' + APP_VERSION;
-const CACHE_CDN = 'daftar-harga-cdn-v1'; 
 const MAX_DYNAMIC_ITEMS = 50; 
-let isTrimming = false;
+const MAX_CDN_ITEMS = 30; 
 
-// File inti yang wajib di-cache agar bisa dibuka offline
-const coreUrls = [
-  './',
-  './index.html',
-  './manifest.json'
-];
+const coreUrls = ['./', './index.html', './manifest.json'];
+const cdnDomains = ['unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'cdn.jsdelivr.net'];
 
-// Domain eksternal yang di-cache permanen (Scanner, Font, & Pencarian)
-const cdnDomains = [
-  'unpkg.com',             // Untuk Scanner (html5-qrcode) & Excel (xlsx)
-  'fonts.googleapis.com',  // Untuk Font Montserrat & Audiowide
-  'fonts.gstatic.com',     // Untuk file woff2 font
-  'cdn.jsdelivr.net'       // DITAMBAHKAN: Untuk library Fuse.js (Pencarian Offline)
-];
-
+// Helper: Trim Cache untuk membersihkan tumpukan memori lama
 async function trimCache(cacheName, maxItems) {
-  if (isTrimming) return;
-  isTrimming = true;
   try {
     const cache = await caches.open(cacheName);
     const keys = await cache.keys();
     if (keys.length > maxItems) {
-      const itemsToDelete = keys.slice(0, keys.length - maxItems);
-      await Promise.all(itemsToDelete.map(key => cache.delete(key)));
+      for (let i = 0; i < keys.length - maxItems; i++) {
+        await cache.delete(keys[i]);
+      }
     }
-  } catch (e) {
-    console.error('Trim Cache Error:', e);
-  } finally {
-    isTrimming = false;
+  } catch (err) {
+    // Abaikan error secara diam-diam jika terjadi kegagalan penghapusan
   }
 }
 
+// Helper: Fetch dengan batas waktu dan pemutus koneksi (AbortController)
+function fetchWithTimeout(request, timeout = 1200) {
+  // Membuat controller untuk membatalkan proses jaringan
+  const controller = new AbortController();
+  
+  // Pasang timer. Jika waktu habis, batalkan koneksi jaringan
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  // Jalankan fetch dengan menyematkan sinyal dari controller
+  return fetch(request, { signal: controller.signal })
+    .then(res => {
+      clearTimeout(timeoutId); // Bersihkan timer jika berhasil sebelum batas waktu
+      return res;
+    })
+    .catch(err => {
+      // Jika error terjadi karena fungsi abort() dipanggil, kembalikan pesan TIMEOUT
+      if (err.name === 'AbortError') {
+        throw new Error('TIMEOUT');
+      }
+      throw err; // Lempar error lain (misal koneksi putus tiba-tiba)
+    });
+}
+
+// Tahap 1: Menginstal Service Worker dan memasukkan file inti ke dalam cache
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_CORE).then(cache => {
-      return Promise.all(coreUrls.map(async url => {
-        try {
-          const req = new Request(url, { cache: 'reload' });
-          const res = await fetch(req);
-          if (res && res.ok) await cache.put(req, res);
-        } catch (e) {
-          console.warn(`Pre-cache gagal untuk: ${url}`);
-        }
-      }));
-    }).then(() => self.skipWaiting()) // Memaksa versi baru langsung aktif
+    caches.open(CACHE_CORE)
+      .then(cache => cache.addAll(coreUrls))
+      .then(() => self.skipWaiting())
   );
 });
 
+// Tahap 2: Mengaktifkan Service Worker dan menghapus cache versi lama
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
       return Promise.all(keys.map(key => {
-        // Hapus cache versi lama yang sudah tidak terpakai (Auto-Clean)
-        if (key.startsWith('daftar-harga-') && key !== CACHE_CORE && key !== CACHE_DYNAMIC && key !== CACHE_CDN) {
+        // Hapus nama cache yang tidak cocok dengan versi aplikasi saat ini
+        if (key !== CACHE_CORE && key !== CACHE_DYNAMIC && key !== CACHE_CDN) {
           return caches.delete(key);
         }
       }));
-    }).then(() => self.clients.claim()) // Langsung mengendalikan halaman web
+    }).then(() => self.clients.claim())
   );
 });
 
+// Tahap 3: Menangkap lalu lintas data (Fetch)
 self.addEventListener('fetch', event => {
   const req = event.request;
   const url = new URL(req.url);
 
-  // Abaikan request selain GET, request Google Script, atau file sw.js itu sendiri
-  if (req.method !== 'GET' || url.pathname.endsWith('sw.js') || url.hostname.includes('script.google') || !url.protocol.startsWith('http')) {
-    return;
-  }
+  // Abaikan metode POST atau permintaan ke database Google Script agar tidak bentrok
+  if (req.method !== 'GET' || url.hostname.includes('script.google') || !url.protocol.startsWith('http')) return;
 
-  // 1. STRATEGI NETWORK-FIRST (Untuk HTML & Manifest)
-  if (req.mode === 'navigate' || url.pathname.match(/\/(index\.html)?$/) || url.pathname.endsWith('manifest.json')) {
+  // STRATEGI 1: NETWORK-FIRST (Utamakan Internet untuk File Inti/HTML)
+  if (req.mode === 'navigate' || url.pathname.match(/\/(index\.html)?$/)) {
     event.respondWith(
-      fetch(req).then(res => {
-        if (!res || (res.status !== 200 && res.status !== 0 && res.type !== 'opaqueredirect')) throw new Error('Invalid response');
-        const resClone = res.clone();
-        caches.open(CACHE_CORE).then(cache => cache.put(req, resClone));
-        return res;
-      }).catch(async () => {
-        const cachedRes = await caches.match(req, { ignoreSearch: true }) || 
-                          await caches.match('./', { ignoreSearch: true }) || 
-                          await caches.match('./index.html', { ignoreSearch: true });
-        if (cachedRes) return cachedRes;
-        return new Response('Aplikasi sedang offline.', { status: 503, statusText: 'Offline', headers: { 'Content-Type': 'text/plain' } });
-      })
+      fetchWithTimeout(req, 1200)
+        .then(res => {
+          const resClone = res.clone();
+          caches.open(CACHE_CORE).then(cache => cache.put(req, resClone));
+          return res;
+        })
+        .catch(() => caches.match('./index.html', { ignoreSearch: true }))
     );
     return;
   }
 
-  // 2. STRATEGI CACHE-FIRST (Untuk Library Scanner, Excel, Fuse.js & Google Fonts)
+  // STRATEGI 2: CACHE-FIRST (Utamakan Memori HP untuk CDN/Library)
   if (cdnDomains.some(domain => url.hostname.includes(domain))) {
     event.respondWith(
-      caches.match(req, { ignoreSearch: true }).then(cachedRes => {
-        if (cachedRes) return cachedRes; 
-        return fetch(req).then(res => {
-          if (!res || (res.status !== 200 && res.type !== 'opaque')) return res;
+      // PERBAIKAN 2: Menghapus { ignoreSearch: true } agar pembacaan Google Fonts presisi
+      caches.match(req).then(cachedRes => cachedRes || fetch(req).then(res => {
+        if (res.status === 200) {
           const resClone = res.clone();
-          caches.open(CACHE_CDN).then(cache => cache.put(req, resClone));
-          return res;
-        }).catch(() => new Response('', { status: 503 })); 
-      })
-    );
-    return;
-  }
-
-  // 3. STRATEGI STALE-WHILE-REVALIDATE (Untuk file pendukung lainnya)
-  event.respondWith(
-    caches.match(req, { ignoreSearch: true }).then(cachedRes => {
-      const fetchPromise = fetch(req).then(res => {
-        if (res && res.status === 200) {
-          const resClone = res.clone();
-          caches.open(CACHE_DYNAMIC).then(cache => {
-            cache.put(req, resClone).then(() => trimCache(CACHE_DYNAMIC, MAX_DYNAMIC_ITEMS));
+          caches.open(CACHE_CDN).then(async cache => {
+            await cache.put(req, resClone); // Tunggu proses simpan selesai
+            trimCache(CACHE_CDN, MAX_CDN_ITEMS); // Baru lakukan pembersihan memori
           });
         }
         return res;
-      }).catch(() => new Response('', { status: 503 }));
+      }).catch(() => {
+        return new Response('', { status: 503, statusText: 'Offline' });
+      }))
+    );
+    return;
+  }
 
+  // STRATEGI 3: STALE-WHILE-REVALIDATE (Tampilkan Cache, Update di Latar Belakang)
+  event.respondWith(
+    caches.match(req, { ignoreSearch: true }).then(cachedRes => {
+      
+      const fetchPromise = fetch(req).then(res => {
+        if (res.status === 200) {
+          const resClone = res.clone();
+          caches.open(CACHE_DYNAMIC).then(async cache => {
+            await cache.put(req, resClone); // Tunggu proses simpan selesai
+            trimCache(CACHE_DYNAMIC, MAX_DYNAMIC_ITEMS); // Baru bersihkan memori
+          });
+        }
+        return res;
+      }).catch(() => {
+        return new Response('', { status: 503, statusText: 'Offline' });
+      });
+
+      // PERBAIKAN 1: Lindungi proses fetchPromise agar tidak "dibunuh" browser
       if (cachedRes) {
-        event.waitUntil(fetchPromise.catch(() => {}));
+        event.waitUntil(fetchPromise); // Pesan ke browser untuk tidak mematikan latar belakang
         return cachedRes;
       }
+      
       return fetchPromise;
     })
   );
