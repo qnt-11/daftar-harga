@@ -91,7 +91,7 @@
         .sort-btn span:nth-child(3) { width: 6px; }
         .sort-btn.active { color: var(--mono-main); }
 
-        /* === 7. VIRTUAL SCROLL CONTAINER & CARDS === */
+        /* === 7. VIRTUAL SCROLL CONTAINER & TRUE FLEXIBLE CARDS === */
         .list { 
             height: calc(100vh - 175px); 
             overflow-y: auto; 
@@ -100,14 +100,15 @@
             scroll-behavior: auto; 
         }
         .spacer { position: absolute; top: 0; left: 0; width: 1px; }
-        /* GPU Acceleration ditambahkan untuk memperbaiki lag di Android Go */
         .render-container { position: absolute; top: 0; left: 0; width: 100%; padding-left: 16px; padding-right: 16px; will-change: transform; }
         
         .card { 
-            position: relative; display: flex; align-items: flex-start; padding: 15px 18px; padding-right: 60px; 
+            position: relative; display: flex; align-items: flex-start; 
+            padding: 15px 18px 15px 18px; 
+            padding-right: 85px; 
             background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; 
             margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            height: 125px; 
+            height: auto; min-height: 90px; 
             overflow: hidden; box-sizing: border-box;
         }
 
@@ -116,17 +117,17 @@
             min-height: 70px !important;
             padding-bottom: 15px !important;
             align-items: center !important;
-            padding-right: 18px !important;
+            padding-right: 18px !important; 
         }
         
         .info { flex: 1; min-width: 0; }
-        .name { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--text-light); display: flex; align-items: center; }
+        .name { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--text-light); display: flex; align-items: flex-start; }
         
-        .card-badge { font-size: 11px; color: #777777; margin-left: 8px; font-weight: 500; font-style: italic; letter-spacing: 0.5px; white-space: nowrap; flex-shrink: 0; }
+        .card-badge { font-size: 11px; color: #777777; margin-left: 8px; font-weight: 500; letter-spacing: 0.5px; white-space: nowrap; flex-shrink: 0; border: 1px solid #333; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.3); margin-top: -2px; }
         .card-price-ecer { font-size: 13px; color: var(--mono-sec); font-weight: 700; margin-bottom: 3px; }
         .card-price-grosir { font-size: 12px; color: var(--mono-sec); font-weight: 700; margin-bottom: 6px; }
         .card-barcode { font-size: 11px; color: var(--text-muted); font-family: monospace; letter-spacing: 0.5px; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-        .card-exp { font-size: 11px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 4px; }
+        .card-exp { font-size: 11px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 4px;}
         .card-exp.warning { color: var(--warning); }
         .card-exp.danger { color: var(--danger); }
         
@@ -139,14 +140,13 @@
         
         .empty-msg { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 100%; color: #555555; font-size: 12px; font-weight: 600; text-align: center; letter-spacing: 0.5px; z-index: 5; }
 
-        /* INDIKATOR HURUF JEMPOL */
         .scroll-letter {
             position: fixed; right: 20px; top: 50%;
-            color: rgba(255, 255, 255, 0.95); font-size: 45px; font-weight: 900;
+            color: rgba(255, 255, 255, 0.7); font-size: 30px; font-weight: 800;
             z-index: 100; opacity: 0; pointer-events: none;
             text-shadow: 0px 4px 15px rgba(0, 0, 0, 1), 0px 0px 5px rgba(0, 0, 0, 0.8);
             transform: translateY(-50%) scale(0.7);
-            transition: opacity 0.15s ease, transform 0.15s ease-out;
+            transition: opacity 0.2s ease, transform 0.2s ease-out;
         }
         .scroll-letter.show { opacity: 1; transform: translateY(-50%) scale(1); }
 
@@ -163,6 +163,11 @@
         .btn-main:active { transform: scale(0.96); opacity: 0.9; }
         .btn-mono { border-color: var(--mono-main) !important; color: var(--mono-main) !important; }
         .btn-cancel { border-color: var(--text-muted) !important; color: var(--text-muted) !important; }
+
+        /* === BIG PRICE POPUP === */
+        #price-popup-box { border-top: 5px solid #3CB371 !important; text-align: center; }
+        .pp-price-anim { animation: pulseGreen 1s infinite alternate; }
+        @keyframes pulseGreen { 0% { text-shadow: 0 0 10px rgba(60, 179, 113, 0.2); } 100% { text-shadow: 0 0 20px rgba(60, 179, 113, 0.8); transform: scale(1.05); } }
 
         /* === 9. FAB BUTTON === */
         .fab { position: fixed; bottom: 30px; right: 20px; background: #000000; width: 55px; height: 55px; border-radius: 18px; display: flex; justify-content: center; align-items: center; border: 2px solid var(--border-color); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8); z-index: 500; cursor: pointer; transition: transform 0.2s, border-color 0.2s; outline: none; }
@@ -200,7 +205,6 @@
 </head>
 <body>
 
-    <!-- HEADER SECTION -->
     <div class="header">
         <div class="header-left">
             <h1 class="audiowide-regular"><span style="color:var(--text-light);">DAFTAR</span> <span style="color:var(--text-muted);">HARGA</span></h1>
@@ -245,19 +249,23 @@
                         </svg> Load Excel
                         <input type="file" accept=".xlsx, .xls" onchange="importData(event)">
                     </label>
+                    <div style="border-top: 1px solid rgba(255,255,255,0.05); margin: 4px 0;"></div>
+                    <div class="dropdown-item" onclick="deleteAllDataPrompt()" style="color: var(--danger);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg> Hapus Semua Data
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- SCANNER OVERLAY -->
     <div id="scanner-wrap">
         <div id="reader"></div>
         <div class="scanner-overlay"><div class="scanner-box"><div class="scanner-laser"></div></div></div>
         <button class="scan-stop" onclick="closeScanner()">BATAL SCAN</button>
     </div>
 
-    <!-- SEARCH AREA -->
     <div class="search-area">
         <div class="search-box">
             <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -274,39 +282,34 @@
         <div id="search-summary" class="search-summary hidden"></div>
     </div>
 
-    <!-- TABS -->
     <div class="tabs-row">
-        <button class="tab active" id="t-all" onclick="setTab('all')">SEMUA</button>
+        <button class="tab active" id="t-all" onclick="setTab('all')">HARGA</button>
         <button class="tab" id="t-fav" onclick="setTab('fav')">FAVORIT</button>
         <button class="tab" id="t-exp" onclick="setTab('exp')">EXPIRED</button>
         <button class="sort-btn" id="s-btn" onclick="toggleSort()"><span></span><span></span><span></span></button>
     </div>
 
-    <!-- WADAH DATA VIRTUAL LIST -->
     <div id="list" class="list">
         <div id="spacer" class="spacer"></div>
         <div id="render-container" class="render-container"></div>
         <div id="empty-message-container" class="hidden"></div>
     </div>
     
-    <!-- INDIKATOR HURUF JEMPOL -->
     <div class="scroll-letter" id="scroll-letter">A</div>
 
-    <!-- FAB -->
     <button class="fab" onclick="showMod()">
         <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
     </button>
 
-    <!-- MODAL INPUT / EDIT -->
     <div id="mod" class="modal" onclick="if(event.target===this) hideMod()">
         <div class="modal-box">
             <h3 id="m-tit" class="audiowide-regular" style="color:var(--mono-main); margin-top:0; margin-bottom:15px; font-size:16px;">Tambah Barang</h3>
             <label>Nama Barang</label><input type="text" id="i-n" placeholder="Nama Barang" autocomplete="off" style="text-transform: capitalize;">
             <label>Barcode</label>
             <div style="display: flex; gap: 8px;">
-                <input type="text" id="i-b" placeholder="Kode Barcode" autocomplete="off" style="flex: 1;">
+                <input type="text" id="i-b" inputmode="numeric" placeholder="Kode Barcode" autocomplete="off" style="flex: 1;">
                 <button type="button" onclick="openScanner('input')" style="background: transparent; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; outline: none;">
                     <svg viewBox="0 0 24 24" width="28" height="28" fill="none">
                         <rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke="white" stroke-width="1.5"></rect>
@@ -314,6 +317,10 @@
                     </svg>
                 </button>
             </div>
+            
+            <label>Singkatan / Kode Cepat (Opsional)</label>
+            <input type="text" id="i-t" placeholder="Kosongkan untuk otomatis" autocomplete="off" style="text-transform: lowercase;">
+
             <label>Tanggal Kedaluwarsa (Bulan Tahun)</label>
             <input type="text" id="i-exp" placeholder="- Tidak Ada -" readonly onclick="openPicker('i-exp', 'date', 'var(--mono-main)')" style="cursor: pointer; caret-color: transparent;">
             <label>Harga Eceran</label><input type="text" id="i-p1" inputmode="numeric" placeholder="0" oninput="formatRp(this)">
@@ -325,7 +332,33 @@
         </div>
     </div>
 
-    <!-- KALENDER CUSTOM -->
+    <div id="pin-modal" class="modal hidden" style="z-index: 45000; align-items: center;">
+        <div class="modal-box" style="text-align: center; max-width: 280px; border-top: 3px solid var(--danger);">
+            <h3 style="margin-top:0; font-size:15px; font-weight:700; color: var(--danger);">Otorisasi Dibutuhkan</h3>
+            <p style="font-size:12px; color:var(--text-light); opacity:0.9; margin-bottom:15px;">Masukkan PIN untuk menghapus seluruh memori database permanen.</p>
+            <input type="password" id="pin-input" inputmode="numeric" placeholder="••••••" autocomplete="off" style="text-align:center; font-size:18px; letter-spacing: 5px; margin-bottom: 20px;">
+            <div class="modal-btns">
+                <button class="btn-main btn-cancel" onclick="closePinModal()">BATAL</button>
+                <button class="btn-main" style="border-color: var(--danger) !important; color: var(--danger) !important;" onclick="verifyPinAndExecute()">HAPUS</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="price-popup" class="modal" style="z-index: 50000; align-items: center;" onclick="closePricePopup(event)">
+        <div class="modal-box" id="price-popup-box">
+            <div style="display: flex; justify-content: center; margin-bottom: 15px;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#3CB371" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <h2 id="pp-name" style="margin:0; font-size: 18px; color: var(--text-light); text-transform: uppercase;">Nama Barang</h2>
+            <p id="pp-price" class="pp-price-anim" style="font-size: 38px; font-weight: 900; color: #3CB371; margin: 15px 0; font-family: 'Montserrat', sans-serif;">Rp 0</p>
+            <p id="pp-price-grosir" style="font-size: 14px; color: var(--warning); margin-top: 0; font-weight: 700;"></p>
+            <p id="pp-barcode" style="font-size: 12px; color: var(--text-muted); font-family: monospace;"></p>
+            <button class="btn-main" style="border-color: #3CB371 !important; color: #3CB371 !important; margin-top: 20px;" onclick="closePricePopup(event, true)">TUTUP</button>
+        </div>
+    </div>
+
     <div id="custom-picker" class="modal hidden" style="z-index: 30000; align-items: center;" onclick="if(event.target===this) hidePicker()">
         <div class="picker-box-new">
             <div class="picker-header-new">
@@ -342,7 +375,6 @@
         </div>
     </div>
 
-    <!-- CUSTOM ALERT -->
     <div id="custom-alert" class="modal hidden" style="z-index: 40000; align-items: center;">
         <div class="picker-box" id="alert-box" style="background: rgba(21, 21, 21, 0.85); padding: 20px; border-radius: 16px; border-top: 3px solid var(--mono-main); width: 85%; max-width: 320px;">
             <h3 id="alert-title" style="margin-top:0; font-size:15px; font-weight:700;">Notifikasi</h3>
@@ -351,22 +383,28 @@
         </div>
     </div>
 
-    <!-- TOAST -->
     <div id="toast-notification" class="hidden"><span id="toast-message"></span></div>
 
-    <!-- JS SCRIPT -->
     <script>
         // === 1. UTILITAS DOM & GLOBAL ===
         const $ = (id) => document.getElementById(id);
-        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbyzGeaPWdknV_Xbukbh5SIetlnw7Gnsge_KKJJfHsAB88StKKRZppIhXx4fn_okT5euCA/exec";
+        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbykkqKgvQ9u5uGpUJ3_dv4Qy0WSy64V0ACi2AnhI00GvyVdXoZ34nrk9AKpRDQCsg-_1A/exec";
         const NamaBln = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         const NamaBlnPendek = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 
         let db = [], idb;
         let worker, workerResult = null; 
         let filteredData = []; 
+        let listOffsets = []; 
         let currentSearchReqId = 0; 
+        let inputBuffer = '';
+        let bufferTimer;
         
+        let barcodeMap = new Map();
+        let acronymMap = new Map();
+        let physicalInputBuffer = "";
+        let lastKeyTime = 0;
+
         let tab = 'all', activeId = null, html5QrCode = null, isScanning = false, isStartingScan = false, sortAZ = false, scanMode = 'search'; 
         let toastTimeoutHide, toastTimeoutRemove;
         const Picker = { sel: new Date(), targetId: '', tempYear: new Date().getFullYear(), tempMonth: new Date().getMonth() };
@@ -374,8 +412,16 @@
         let recentSearches = JSON.parse(localStorage.getItem('DB_WA_RECENT')) || [];
         let trendingSearches = JSON.parse(localStorage.getItem('DB_WA_TRENDING')) || {};
         
-        let wakeLock = null;
         let isSaving = false;
+        let isScrollLetterActive = false;
+        let scrollLetterTimeout;
+
+        function tampilkanToast(msg, color="var(--mono-main)") {
+            const t = $('toast-notification'); $('toast-message').innerText = msg; t.style.borderBottomColor = color;
+            clearTimeout(toastTimeoutHide); clearTimeout(toastTimeoutRemove);
+            t.classList.remove('hidden'); setTimeout(() => t.classList.add('show'), 10);
+            toastTimeoutHide = setTimeout(() => { t.classList.remove('show'); toastTimeoutRemove = setTimeout(() => t.classList.add('hidden'), 400); }, 3000);
+        }
 
         // === 2. INDEXEDDB ===
         function initDB() {
@@ -395,28 +441,11 @@
         function loadAllFromIDB() {
             return new Promise((resolve, reject) => {
                 const req = idb.transaction('items', 'readonly').objectStore('items').getAll();
-                req.onsuccess = () => {
-                    const now = Date.now();
-                    const thirtyDays = 30 * 24 * 60 * 60 * 1000;
-                    let toKeep = [];
-                    let toDelete = [];
-                    req.result.forEach(item => {
-                        if (item.deleted && (now - (item.updatedAt || 0) > thirtyDays)) {
-                            toDelete.push(item.id);
-                        } else {
-                            toKeep.push(item);
-                        }
-                    });
-                    
-                    if (toDelete.length > 0) {
-                        const tx = idb.transaction('items', 'readwrite');
-                        toDelete.forEach(id => tx.objectStore('items').delete(id));
-                    }
-                    resolve(toKeep);
-                };
+                req.onsuccess = () => resolve(req.result);
                 req.onerror = () => reject("Gagal memuat data");
             });
         }
+
         function saveItemToIDB(item) {
             return new Promise((resolve, reject) => {
                 const tx = idb.transaction('items', 'readwrite');
@@ -426,35 +455,84 @@
             });
         }
 
-        // === 3. UTILITAS FORMAT ===
-        function generateAcronym(name) {
-            let cleanName = String(name).trim().replace(/[^a-zA-Z0-9\s]/g, '');
-            let words = cleanName.split(/\s+/).filter(w => w.length > 0 && !/^(dan|yg|pcs|isi|dengan|rasa)$/i.test(w));
-            
-            if (words.length === 0) return "XXX";
-            if (words.length === 1) {
-                let w = words[0];
-                if (w.length <= 3) return w.toUpperCase();
-                let consonants = w.substring(1).replace(/[aeiou]/gi, ''); 
-                let finalAcr = w.charAt(0) + consonants;
-                return finalAcr.substring(0, 3).toUpperCase();
-            }
-            let acr = words.map(w => {
-                let match = w.match(/^(\d+)/); 
-                return match ? match[0] : w.charAt(0); 
-            }).join('');
-            return acr.substring(0, 5).toUpperCase();
+        // === 3. UTILITAS FORMAT & SECURITY ===
+        function updateMaps() {
+            barcodeMap.clear();
+            acronymMap.clear();
+            db.forEach(item => {
+                if (!item.deleted) {
+                    if (item.b) barcodeMap.set(String(item.b).trim(), item);
+                    if (item.t) acronymMap.set(String(item.t).trim().toLowerCase(), item);
+                }
+            });
         }
 
-        function updateFuseEngine() {
-            worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) });
-            const qVal = $('q').value.trim();
-            if (qVal) { 
-                worker.postMessage({ type: 'search', query: qVal, reqId: ++currentSearchReqId }); 
-            } else { 
-                workerResult = null; 
-                applyFiltersAndRender(); 
+        function generateUniqueId() {
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+            return Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
+        }
+
+        const fetchWithTimeout = (url, options, timeout = 15000) => {
+            return Promise.race([
+                fetch(url, options),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT_ERROR')), timeout))
+            ]);
+        };
+
+        function isAcronymUsed(acr, excludeId, tempSet = null) {
+            if (tempSet && tempSet.has(acr)) return true;
+            const existing = acronymMap.get(acr);
+            if (!existing) return false;
+            if (excludeId && String(existing.id) === String(excludeId)) return false; 
+            return true;
+        }
+
+        function generateSmartAcronym(name, excludeId = null, tempSet = null) {
+            if (!name) return "xxx";
+            let cleanName = String(name).toLowerCase();
+            let numMatch = cleanName.match(/\d+/g);
+            let numbers = numMatch ? numMatch.join('') : ''; 
+            let textOnly = cleanName.replace(/[0-9]/g, '');
+            let stopWords = /^(dan|yg|pcs|isi|dengan|rasa|untuk)$/;
+            let words = textOnly.replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(w => w.length > 0 && !stopWords.test(w));
+            if (words.length === 0) return "xxx" + numbers;
+            let tryAcr = "";
+            if (words.length === 1) {
+                let w = words[0];
+                let cons = w.replace(/[aeiou]/g, '');
+                if (cons.length >= 2) { tryAcr = cons.substring(0, 3) + numbers; } 
+                else { tryAcr = w.substring(0, 3) + numbers; }
+                if (!isAcronymUsed(tryAcr, excludeId, tempSet)) return tryAcr;
+                let c = 2;
+                while (isAcronymUsed(tryAcr + c, excludeId, tempSet)) c++;
+                return tryAcr + c;
             }
+            let baseLetters = words.slice(0, 5).map(w => w[0]).join('');
+            tryAcr = baseLetters + numbers;
+            if (!isAcronymUsed(tryAcr, excludeId, tempSet)) return tryAcr;
+            if (words[0].length >= 2) {
+                let alt1 = words[0].substring(0, 2) + words.slice(1, 4).map(w => w[0]).join('') + numbers;
+                if (!isAcronymUsed(alt1, excludeId, tempSet)) return alt1;
+            }
+            if (words.length >= 2 && words[0].length >= 2 && words[1].length >= 2) {
+                let alt2 = words[0].substring(0, 2) + words[1].substring(0, 2) + words.slice(2, 4).map(w => w[0]).join('') + numbers;
+                if (!isAcronymUsed(alt2, excludeId, tempSet)) return alt2;
+            }
+            let c = 2;
+            while (isAcronymUsed(tryAcr + c, excludeId, tempSet)) c++;
+            return tryAcr + c;
+        }
+
+        function playBeep() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.type = 'sine'; osc.frequency.setValueAtTime(800, ctx.currentTime); 
+                gain.gain.setValueAtTime(0.5, ctx.currentTime);
+                osc.start(); osc.stop(ctx.currentTime + 0.1); 
+            } catch(e) {}
         }
 
         function normalizeDateYMD(dStr) {
@@ -468,27 +546,51 @@
             }
             return '';
         }
+
         function formatBulanTahun(dStr) {
             if (!dStr) return ''; 
             const parts = String(dStr).split('-');
             if (parts.length >= 2) return `${NamaBln[parseInt(parts[1], 10) - 1]} ${parts[0]}`;
             return dStr;
         }
+
         function parseBulanTahunExcel(str) {
-            if (!str) return ""; 
+            if (str === undefined || str === null || str === '') return ""; 
+            if (!isNaN(str) && Number(str) > 20000) {
+                let excelDays = Math.floor(Number(str) - 25569);
+                let dateInfo = new Date(Date.UTC(1970, 0, 1 + excelDays));
+                return `${dateInfo.getUTCFullYear()}-${String(dateInfo.getUTCMonth() + 1).padStart(2, '0')}-01`;
+            }
             const parts = String(str).trim().split(/[\s-]+/);
             if (parts.length === 2) { 
                 let b = NamaBln.findIndex(x => x.toLowerCase() === parts[0].toLowerCase()); 
                 if (b === -1) b = NamaBlnPendek.findIndex(x => x.toLowerCase() === parts[0].toLowerCase());
                 if (b !== -1) return `${parts[1]}-${String(b + 1).padStart(2, '0')}-01`; 
             }
-            return normalizeDateYMD(str);
+            return normalizeDateYMD(String(str));
         }
+
+        function parseExcelPrice(val) {
+            if (val === null || val === undefined || val === '') return null;
+            let num = Number(val);
+            if (!isNaN(num)) return Math.floor(num); 
+            let str = String(val).trim().replace(/Rp\s?/gi, '');
+            if (/^\d{1,3}(,\d{3})*(\.\d+)?$/.test(str)) { str = str.replace(/,/g, '').split('.')[0]; } 
+            else if (/^\d{1,3}(\.\d{3})*(,\d+)?$/.test(str)) { str = str.replace(/\./g, '').split(',')[0]; } 
+            else { str = str.split(',')[0].split('.')[0].replace(/\D/g, ''); }
+            return parseInt(str, 10) || 0;
+        }
+
         function fmt(n) { return n ? new Intl.NumberFormat('id-ID').format(n) : "0"; }
         function escapeHTML(str) { return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)); }
-        function prop(s) { return String(s).trim().split(/([\s/-])/).map(w => w && !/[\s/-]/.test(w) ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w).join('').replace(/\s+/g, ' '); }
+        function prop(s) { 
+            if (!s) return "";
+            let clean = String(s).replace(/<\/?[^>]+(>|$)/g, ""); 
+            return clean.trim().split(/([\s/-])/).map(w => w && !/[\s/-]/.test(w) ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w).join('').replace(/\s+/g, ' '); 
+        }
+
         function highlightMatch(text, searchTerm) {
-            const safeText = escapeHTML(text);
+            const safeText = escapeHTML(text || "");
             if (!searchTerm || searchTerm.trim() === '') return safeText;
             const safeTerm = escapeHTML(searchTerm.trim());
             const regex = new RegExp(`(${safeTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
@@ -499,6 +601,7 @@
             let val = input.value.replace(/\D/g, "");
             input.value = val ? fmt(parseInt(val, 10) || 0) : "";
         }
+
         function debounce(func, wait) {
             let timeout;
             return function(...args) {
@@ -507,56 +610,115 @@
             };
         }
 
-        // === 4. TANGKAPAN GLOBAL (SCANNER KEYBOARD) ===
+        // === 4. TANGKAPAN GLOBAL & AUTO DETECT SCANNER ===
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                hideMod(); hidePicker(); closeCustomAlert();
+                hideMod(); hidePicker(); closeCustomAlert(); closePinModal(); closePricePopup(e, true);
                 if (isScanning) closeScanner();
                 document.body.classList.remove('modal-open');
                 return;
             }
-            
             if (document.body.classList.contains('modal-open') || isScanning) return;
             const activeTag = document.activeElement.tagName.toLowerCase();
             if (activeTag === 'input' || activeTag === 'textarea') return;
-
+            const currentTime = Date.now();
+            
+            // PERBAIKAN BUG 2: Menaikkan toleransi waktu untuk scanner bluetooth lambat
+            if (currentTime - lastKeyTime > 150) { physicalInputBuffer = ""; }
+            lastKeyTime = currentTime;
+            
             if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                physicalInputBuffer += e.key;
                 inputBuffer += e.key;
                 clearTimeout(bufferTimer);
                 bufferTimer = setTimeout(() => {
-                    if (inputBuffer.length > 2) { 
+                    if (inputBuffer.length > 0) { 
                         const searchBox = $('q');
                         searchBox.value = inputBuffer;
                         $('q-x').style.display = 'flex';
                         $('list').scrollTop = 0; 
-                        worker.postMessage({ type: 'search', query: inputBuffer, reqId: ++currentSearchReqId });
-                        applyFiltersAndRender(); 
+                        handleSearchLogic(inputBuffer); 
                     }
                     inputBuffer = ''; 
                 }, 150); 
-            } else if (e.key === 'Enter' && inputBuffer.length > 0) {
-                clearTimeout(bufferTimer);
-                const searchBox = $('q');
-                searchBox.value = inputBuffer;
-                $('q-x').style.display = 'flex';
-                $('list').scrollTop = 0; 
-                worker.postMessage({ type: 'search', query: inputBuffer, reqId: ++currentSearchReqId });
-                applyFiltersAndRender();
-                inputBuffer = '';
-                searchBox.blur(); 
+            } else if (e.key === 'Enter') {
+                if (physicalInputBuffer.length >= 5) {
+                    const scannedBarcode = physicalInputBuffer;
+                    physicalInputBuffer = ""; inputBuffer = "";
+                    clearTimeout(bufferTimer); e.preventDefault(); 
+                    handlePhysicalScanner(scannedBarcode);
+                    return;
+                }
+                if (inputBuffer.length > 0) {
+                    physicalInputBuffer = ""; clearTimeout(bufferTimer);
+                    const searchBox = $('q'); searchBox.value = inputBuffer;
+                    $('q-x').style.display = 'flex'; $('list').scrollTop = 0; 
+                    handleSearchLogic(inputBuffer); inputBuffer = ''; searchBox.blur(); 
+                }
             }
         });
 
+        function handlePhysicalScanner(barcode) {
+            const item = barcodeMap.get(barcode);
+            if (item) {
+                playBeep();
+                $('pp-name').innerText = item.n;
+                $('pp-price').innerText = "Rp " + fmt(item.p1);
+                $('pp-price-grosir').innerText = item.p2 ? "Grosir: Rp " + fmt(item.p2) : "";
+                $('pp-barcode').innerText = item.b || "";
+                $('price-popup').style.display = 'flex';
+                document.body.classList.add('modal-open');
+            } else { tampilkanToast("Barcode tidak ditemukan!", "var(--danger)"); }
+        }
+
+        function closePricePopup(e, force = false) {
+            if (force || e.target === $('price-popup')) {
+                $('price-popup').style.display = 'none';
+                document.body.classList.remove('modal-open');
+                $('q').value = ''; clearSearch();
+            }
+        }
+
+        function handleSearchLogic(query) {
+            const qVal = query.trim();
+            const qValLower = qVal.toLowerCase();
+            const exactItem = barcodeMap.get(qVal) || acronymMap.get(qValLower);
+            if (exactItem && qVal.length > 0) {
+                currentSearchReqId++; 
+                workerResult = [exactItem]; applyFiltersAndRender();
+            } else {
+                worker.postMessage({ type: 'search', query: qVal, reqId: ++currentSearchReqId });
+            }
+        }
+
         // === 5. LOGIKA PENCARIAN (WEB WORKER) ===
         const searchInput = $('q'), searchDropdown = $('search-dropdown'), sdContent = $('sd-content');
-        
         const workerScript = `
             importScripts('https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js');
             let fuse;
+            let workerList = [];
+            
+            function rebuildIndex() {
+                fuse = new Fuse(workerList, { keys: [{name: 'n', weight: 0.6}, {name: 't', weight: 0.4}, {name: 'b', weight: 0.8}], threshold: 0.2, ignoreLocation: true });
+            }
+            
             self.onmessage = function(e) {
                 if (e.data.type === 'init') {
-                    fuse = new Fuse(e.data.db, { keys: [{name: 'n', weight: 0.6}, {name: 't', weight: 0.4}, {name: 'b', weight: 0.8}], threshold: 0.2, ignoreLocation: true });
-                    self.postMessage({ type: 'ready' });
+                    workerList = e.data.db;
+                    rebuildIndex();
+                } else if (e.data.type === 'add') {
+                    if(!fuse) return;
+                    workerList.push(e.data.item);
+                    fuse.add(e.data.item);
+                } else if (e.data.type === 'update') {
+                    if(!fuse) return;
+                    workerList = workerList.filter(x => String(x.id) !== String(e.data.item.id));
+                    workerList.push(e.data.item);
+                    rebuildIndex();
+                } else if (e.data.type === 'remove') {
+                    if(!fuse) return;
+                    workerList = workerList.filter(x => String(x.id) !== String(e.data.id));
+                    rebuildIndex();
                 } else if (e.data.type === 'search') {
                     if(!fuse) return;
                     const hasil = fuse.search(e.data.query);
@@ -566,13 +728,9 @@
         `;
         const workerBlob = new Blob([workerScript], { type: 'application/javascript' });
         worker = new Worker(URL.createObjectURL(workerBlob));
-        
         worker.onmessage = function(e) {
-            if (e.data.type === 'result') {
-                if (e.data.reqId === currentSearchReqId) {
-                    workerResult = e.data.data;
-                    applyFiltersAndRender();
-                }
+            if (e.data.type === 'result' && e.data.reqId === currentSearchReqId) {
+                workerResult = e.data.data; applyFiltersAndRender();
             }
         };
 
@@ -585,7 +743,6 @@
         }
 
         function clearRecentLogs() { recentSearches = []; localStorage.setItem('DB_WA_RECENT', JSON.stringify([])); showSearchSuggestions(); }
-
         function showSearchSuggestions() {
             const val = searchInput.value.trim(); sdContent.innerHTML = '';
             if (val === '') {
@@ -593,56 +750,26 @@
                 if(topTrends.length > 0) html += `<div class="sd-title">Sering Dicari</div>` + topTrends.map(t => `<div class="sd-item" onmousedown="executeQuickSearch('${escapeHTML(t)}')"><svg class="sd-icon trend" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>${escapeHTML(prop(t))}</div>`).join('');
                 if(recentSearches.length > 0) html += `<div class="sd-title">Terakhir Dicari <span class="clear-btn" onmousedown="clearRecentLogs()">HAPUS</span></div>` + recentSearches.map(t => `<div class="sd-item" onmousedown="executeQuickSearch('${escapeHTML(t)}')"><svg class="sd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>${escapeHTML(t)}</div>`).join('');
                 html ? (sdContent.innerHTML = html, searchDropdown.classList.remove('hidden')) : searchDropdown.classList.add('hidden');
-            } else {
-                searchDropdown.classList.add('hidden');
-            }
+            } else { searchDropdown.classList.add('hidden'); }
         }
-
-        function executeQuickSearch(term) { searchInput.value = term; recordSearchLog(term); searchDropdown.classList.add('hidden'); $('q-x').style.display = 'flex'; $('list').scrollTop = 0; worker.postMessage({ type: 'search', query: term, reqId: ++currentSearchReqId }); applyFiltersAndRender(); }
-        
+        function executeQuickSearch(term) { searchInput.value = term; recordSearchLog(term); searchDropdown.classList.add('hidden'); $('q-x').style.display = 'flex'; $('list').scrollTop = 0; handleSearchLogic(term); }
         const handleSearchInput = debounce(() => { 
-            const val = searchInput.value.trim();
-            $('list').scrollTop = 0; 
-            if (val) worker.postMessage({ type: 'search', query: val, reqId: ++currentSearchReqId });
-            else { workerResult = null; applyFiltersAndRender(); }
+            const val = searchInput.value.trim(); $('list').scrollTop = 0; 
+            if (val) handleSearchLogic(val); else { workerResult = null; applyFiltersAndRender(); }
             showSearchSuggestions(); 
         }, 150);
-
-        searchInput.addEventListener('input', (e) => {
-            $('q-x').style.display = e.target.value.trim() ? 'flex' : 'none';
-            handleSearchInput();
-        });
+        searchInput.addEventListener('input', (e) => { $('q-x').style.display = e.target.value.trim() ? 'flex' : 'none'; handleSearchInput(); });
         searchInput.addEventListener('focus', showSearchSuggestions);
         searchInput.addEventListener('blur', () => setTimeout(() => searchDropdown.classList.add('hidden'), 200));
         searchInput.addEventListener('keypress', function(e) { if(e.key === 'Enter') { searchDropdown.classList.add('hidden'); recordSearchLog(this.value); this.blur(); } });
-        
-        function clearSearch() { 
-            searchInput.value = ''; 
-            $('q-x').style.display = 'none'; 
-            workerResult = null; 
-            currentSearchReqId++; 
-            $('list').scrollTop = 0; 
-            showSearchSuggestions(); 
-            applyFiltersAndRender(); 
-            searchInput.blur();
-        }
+        function clearSearch() { searchInput.value = ''; $('q-x').style.display = 'none'; workerResult = null; currentSearchReqId++; $('list').scrollTop = 0; showSearchSuggestions(); applyFiltersAndRender(); searchInput.blur(); }
 
         // === 6. UI CONTROLS & MODALS ===
         document.addEventListener('click', (e) => { const menu = $('dropdown-menu'); if (menu && !menu.classList.contains('hidden') && !e.target.closest('.dropdown-wrapper')) menu.classList.add('hidden'); });
         function toggleMenu(e) { e.stopPropagation(); $('dropdown-menu').classList.toggle('hidden'); }
-
-        function tampilkanToast(pesan, warna) {
-            const toast = $('toast-notification'), msg = $('toast-message');
-            clearTimeout(toastTimeoutHide); clearTimeout(toastTimeoutRemove);
-            toast.style.transition = 'none'; toast.classList.remove('show'); toast.classList.add('hidden'); void toast.offsetWidth; 
-            msg.innerText = pesan; toast.style.borderTopColor = warna; toast.style.color = warna; toast.classList.remove('hidden');
-            setTimeout(() => { toast.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'; toast.classList.add('show'); }, 10);
-            toastTimeoutHide = setTimeout(() => { toast.classList.remove('show'); toastTimeoutRemove = setTimeout(() => toast.classList.add('hidden'), 400); }, 3000); 
-        }
-
         function closeCustomAlert() { $('custom-alert').classList.add('hidden'); $('custom-alert').style.display = 'none'; }
         function showAlert(msg, title = "Info", color = "var(--mono-main)") {
-            $('alert-title').innerText = title; $('alert-title').style.color = color; $('alert-box').style.borderTopColor = color; $('alert-msg').innerHTML = msg.replace(/\n/g, '<br>');
+            $('alert-title').innerText = title; $('alert-title').style.color = color; $('alert-box').style.borderTopColor = color; $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>');
             $('alert-btns').innerHTML = `<button class="btn-main" style="border-color: ${color} !important; color: ${color} !important;" onclick="closeCustomAlert()">OKE</button>`;
             $('custom-alert').style.display = 'flex'; $('custom-alert').classList.remove('hidden');
         }
@@ -652,583 +779,379 @@
             $('confirm-ok-btn').onclick = () => { closeCustomAlert(); onConfirmCallback(); };
             $('custom-alert').style.display = 'flex'; $('custom-alert').classList.remove('hidden');
         }
-
         function showMod(id = null) {
-            activeId = id; const b = $('i-b'), n = $('i-n'), p1 = $('i-p1'), p2 = $('i-p2'), exp = $('i-exp');
+            activeId = id; const b = $('i-b'), n = $('i-n'), p1 = $('i-p1'), p2 = $('i-p2'), exp = $('i-exp'), t = $('i-t');
             if (id) {
-                const it = db.find(x => x.id === id); $('m-tit').innerText = "Edit Barang"; 
-                b.value = it.b || ''; n.value = it.n; p1.value = fmt(it.p1); p2.value = it.p2 ? fmt(it.p2) : ''; 
-                exp.dataset.rawDate = it.exp || ''; exp.value = it.exp ? formatBulanTahun(it.exp) : '';
+                const it = db.find(x => String(x.id) === String(id)); if(!it) return;
+                $('m-tit').innerText = "Edit Barang"; b.value = it.b || ''; n.value = it.n || ''; p1.value = fmt(it.p1); p2.value = it.p2 ? fmt(it.p2) : ''; 
+                exp.dataset.rawDate = it.exp || ''; exp.value = it.exp ? formatBulanTahun(it.exp) : ''; t.value = it.t || '';
             } else {
-                $('m-tit').innerText = "Tambah Barang"; b.value = n.value = p1.value = p2.value = exp.dataset.rawDate = exp.value = '';
+                $('m-tit').innerText = "Tambah Barang"; b.value = n.value = p1.value = p2.value = exp.dataset.rawDate = exp.value = t.value = '';
             }
             $('mod').style.display = 'flex'; document.body.classList.add('modal-open');
             setTimeout(() => $('i-n').focus(), 100); 
         }
         function hideMod() { activeId = null; $('mod').style.display = 'none'; document.body.classList.remove('modal-open'); }
+        function deleteAllDataPrompt() {
+            if (db.filter(i => !i.deleted).length === 0) return showAlert("Data sudah kosong!", "Info");
+            $('dropdown-menu').classList.add('hidden');
+            $('pin-input').value = '';
+            $('pin-modal').style.display = 'flex';
+            $('pin-modal').classList.remove('hidden');
+            setTimeout(() => $('pin-input').focus(), 100);
+        }
+        function closePinModal() {
+            $('pin-modal').classList.add('hidden');
+            $('pin-modal').style.display = 'none';
+        }
+        function verifyPinAndExecute() {
+            if ($('pin-input').value === '170823') { closePinModal(); executeDeleteAll(); } 
+            else { tampilkanToast("PIN Salah! Akses Ditolak.", "var(--danger)"); }
+        }
 
         // === 7. KALENDER ===
         function openPicker(id, m, w) {
             Picker.targetId = id; const el = $(id); if (!el) return; let val = el.dataset.rawDate || el.value;
-            if (!val || val.trim() === '') {
-                Picker.sel = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-                Picker.tempYear = Picker.sel.getFullYear();
-                Picker.tempMonth = Picker.sel.getMonth();
-            } else {
-                const parts = val.split('-');
-                Picker.tempYear = parseInt(parts[0], 10);
-                Picker.tempMonth = parseInt(parts[1], 10) - 1;
-            }
-            renderKalenderGrid(); 
-            $('custom-picker').style.display = 'flex'; $('custom-picker').classList.remove('hidden');
+            if (!val || val.trim() === '') { Picker.sel = new Date(); Picker.tempYear = Picker.sel.getFullYear(); Picker.tempMonth = Picker.sel.getMonth(); } 
+            else { const parts = val.split('-'); Picker.tempYear = parseInt(parts[0], 10); Picker.tempMonth = parseInt(parts[1], 10) - 1; }
+            renderKalenderGrid(); $('custom-picker').style.display = 'flex'; $('custom-picker').classList.remove('hidden');
         }
         function hidePicker() { $('custom-picker').classList.add('hidden'); $('custom-picker').style.display = 'none'; }
         function clearPickerDate() { const el = $(Picker.targetId); if(el) { el.dataset.rawDate = ''; el.value = ''; } hidePicker(); }
-        
-        function renderKalenderGrid() {
-            $('cp-year').innerText = Picker.tempYear; 
-            $('cp-grid').innerHTML = NamaBlnPendek.map((bln, i) => `<div class="month-item ${i === Picker.tempMonth ? 'active' : ''}" onclick="cpSelectMonth(${i})">${bln}</div>`).join('');
-        }
+        function renderKalenderGrid() { $('cp-year').innerText = Picker.tempYear; $('cp-grid').innerHTML = NamaBlnPendek.map((bln, i) => `<div class="month-item ${i === Picker.tempMonth ? 'active' : ''}" onclick="cpSelectMonth(${i})">${bln}</div>`).join(''); }
         function cpChangeYear(arah) { Picker.tempYear += arah; renderKalenderGrid(); }
         function cpSelectMonth(m) { Picker.tempMonth = m; renderKalenderGrid(); }
-        function cpSelectCurrentMonth() { const d = new Date(); Picker.tempYear = d.getFullYear(); Picker.tempMonth = d.getMonth(); renderKalenderGrid(); }
         function setPickerDate() { const el = $(Picker.targetId); if(el) { el.dataset.rawDate = `${Picker.tempYear}-${String(Picker.tempMonth + 1).padStart(2, '0')}-01`; el.value = `${NamaBln[Picker.tempMonth]} ${Picker.tempYear}`; } hidePicker(); }
 
-        // === 8. VIRTUAL RENDER LIST & SCROLL INDICATOR ===
+        // === 8. DYNAMIC VIRTUAL SCROLL & RENDER LIST ===
         function setTab(t) { tab = t; ['all', 'fav', 'exp'].forEach(x => $(`t-${x}`).className = t === x ? 'tab active' : 'tab'); $('list').scrollTop = 0; applyFiltersAndRender(); }
         function toggleSort() { sortAZ = !sortAZ; $('s-btn').classList.toggle('active', sortAZ); $('list').scrollTop = 0; applyFiltersAndRender(); }
-
-        function applyFiltersAndRender(silentBarcode = null) {
-            const qVal = $('q').value.trim();
-            const qValLower = qVal.toLowerCase();
-            let dataAktif = db.filter(i => !i.deleted);
-            
-            const exactBarcodeMatch = dataAktif.find(i => i.b && String(i.b).toLowerCase() === qValLower);
-            
-            let baseData = dataAktif;
-
-            if (silentBarcode) {
-                baseData = dataAktif.filter(i => i.b === silentBarcode);
-            } else if (exactBarcodeMatch) {
-                baseData = [exactBarcodeMatch];
-            } else if (workerResult !== null && qVal !== '') {
-                baseData = workerResult;
+        function computeDVS() {
+            listOffsets = [0]; let currentOffset = 0; let dHeight = tab === 'exp' ? 85 : 90;
+            for (let i = 0; i < filteredData.length; i++) {
+                let h = filteredData[i]._cHeight || dHeight;
+                currentOffset += h; listOffsets.push(currentOffset);
             }
-            
-            const todayReset = new Date().setHours(0,0,0,0);
+            $('spacer').style.height = currentOffset + 'px';
+        }
+        function getDVSStartIndex(scrollTop) {
+            let low = 0, high = listOffsets.length - 1;
+            while (low <= high) {
+                let mid = Math.floor((low + high) / 2);
+                if (listOffsets[mid] === scrollTop) return mid;
+                if (listOffsets[mid] < scrollTop) low = mid + 1;
+                else high = mid - 1;
+            }
+            return high > 0 ? high : 0;
+        }
+        function applyFiltersAndRender(silentBarcode = null) {
+            const qVal = $('q').value.trim(); const qValLower = qVal.toLowerCase();
+            let dataAktif = db.filter(i => !i.deleted);
+            const exactBarcodeMatch = dataAktif.find(i => i.b && String(i.b).toLowerCase() === qValLower);
+            let baseData = silentBarcode ? dataAktif.filter(i => i.b === silentBarcode) : (exactBarcodeMatch ? [exactBarcodeMatch] : (workerResult !== null && qVal !== '' ? workerResult : dataAktif));
+            const todayReset = new Date(); todayReset.setHours(0,0,0,0);
+            const utcToday = Date.UTC(todayReset.getFullYear(), todayReset.getMonth(), todayReset.getDate());
             filteredData = baseData.filter(i => {
                 if (tab === 'fav') return i.f;
                 if (tab === 'exp') {
                     if (!i.exp) return false;
-                    const pts = i.exp.split('-');
-                    if (pts.length < 2) return false;
-                    const expDate = new Date(pts[0], pts[1]-1, pts[2] || 1);
-                    if (isNaN(expDate.getTime())) return false; 
-                    const diffDays = Math.round((expDate - todayReset) / 86400000);
-                    return diffDays <= 210;
+                    const pts = i.exp.split('-'); const utcExp = Date.UTC(pts[0], pts[1]-1, pts[2] || 1);
+                    return !isNaN(utcExp) && Math.floor((utcExp - utcToday) / 86400000) <= 210;
                 }
                 return true;
             });
-            
             if (!qVal || tab === 'exp') {
-                if (tab === 'exp') {
-                    filteredData.sort((a, b) => {
-                        const getT = (dStr) => {
-                            if (!dStr) return Infinity;
-                            const pts = dStr.split('-');
-                            return new Date(pts[0], pts[1]-1, pts[2] || 1).getTime();
-                        };
-                        return getT(a.exp) - getT(b.exp);
-                    });
-                }
-                else if (sortAZ) {
-                    filteredData.sort((a,b) => a.n.localeCompare(b.n) || b.updatedAt - a.updatedAt); 
-                } else {
-                    filteredData.sort((a,b) => b.updatedAt - a.updatedAt);
-                }
+                if (tab === 'exp') { filteredData.sort((a, b) => { const getT = (d) => { if (!d) return Infinity; const pts = String(d).split('-'); return Date.UTC(pts[0], (pts[1] || 1)-1, 1); }; return getT(a.exp) - getT(b.exp); }); }
+                else if (sortAZ) { filteredData.sort((a,b) => String(a.n || "").localeCompare(String(b.n || "")) || (b.updatedAt || 0) - (a.updatedAt || 0)); } 
+                else { filteredData.sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0)); }
             }
-
             const summaryEl = $('search-summary');
-            if (qVal && !silentBarcode && !exactBarcodeMatch) { summaryEl.innerText = `🔍 Ditemukan ${filteredData.length} barang`; summaryEl.classList.remove('hidden'); } 
+            if (qVal && !silentBarcode && !exactBarcodeMatch) { summaryEl.innerText = `Ditemukan ${filteredData.length} barang`; summaryEl.classList.remove('hidden'); } 
             else summaryEl.classList.add('hidden');
-            
-            renderVirtualList(false);
+            computeDVS(); renderVirtualList(false);
         }
-
-        let scrollTimeout;
-
         function renderVirtualList(isScrolling = false) {
-            const currentRH = tab === 'exp' ? 85 : 137; 
-            
-            const container = $('list');
-            const renderCont = $('render-container');
-            const spacer = $('spacer');
-            const scrollLetterEl = $('scroll-letter');
-            const emptyEl = $('empty-message-container'); 
-
+            const container = $('list'); const renderCont = $('render-container'); const spacer = $('spacer'); const emptyEl = $('empty-message-container'); 
             if (filteredData.length === 0) {
-                spacer.style.height = '0px';
-                renderCont.innerHTML = '';
-                emptyEl.innerHTML = `<div class="empty-msg">${tab === 'fav' ? "Belum ada barang favorit" : (tab === 'exp' ? "Tidak ada barang expired" : "Belum ada data barang")}</div>`; 
-                emptyEl.classList.remove('hidden');
-                scrollLetterEl.classList.remove('show');
-                return;
-            } else {
-                emptyEl.classList.add('hidden');
+                spacer.style.height = '0px'; renderCont.innerHTML = '';
+                emptyEl.innerHTML = `<div class="empty-msg">${tab === 'fav' ? "Belum ada favorit" : (tab === 'exp' ? "Tidak ada barang expired" : "Belum ada data")}</div>`; 
+                emptyEl.classList.remove('hidden'); return;
             }
-
-            spacer.style.height = `${filteredData.length * currentRH}px`;
-            const scrollTop = container.scrollTop;
-            
-            let startIndex = Math.floor(scrollTop / currentRH);
-            if(startIndex >= filteredData.length) startIndex = Math.max(0, filteredData.length - 1);
-            
-            let visibleNodesCount = Math.ceil(container.clientHeight / currentRH) + 5; 
-            let endIndex = Math.min(startIndex + visibleNodesCount, filteredData.length);
-
-            renderCont.style.transform = `translateY(${startIndex * currentRH}px)`;
-
-            let html = '';
-            const today = new Date(); today.setHours(0,0,0,0);
-            const qVal = $('q').value.trim();
-
+            emptyEl.classList.add('hidden'); 
+            let scrollTop = container.scrollTop; let startIndex = getDVSStartIndex(scrollTop); let visibleHeight = container.clientHeight;
+            let endIndex = startIndex; let currentVisibleHeight = 0;
+            while(endIndex < filteredData.length && currentVisibleHeight < visibleHeight + 400) { 
+                currentVisibleHeight += (filteredData[endIndex]._cHeight || (tab === 'exp' ? 85 : 90));
+                endIndex++;
+            }
+            renderCont.style.transform = `translateY(${listOffsets[startIndex]}px)`;
+            let html = ''; const utcToday = Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()); const currentSearchQuery = $('q').value.trim(); 
             for (let i = startIndex; i < endIndex; i++) {
-                const item = filteredData[i];
-                let diffDays = 999, expTextRaw = '';
-                if (item.exp) { 
-                    const pts = item.exp.split('-');
-                    const expDate = new Date(pts[0], pts[1]-1, pts[2] || 1);
-                    if (!isNaN(expDate.getTime())) {
-                        diffDays = Math.round((expDate - today) / 86400000); 
-                        expTextRaw = formatBulanTahun(item.exp); 
-                    }
-                }
-
-                const safeBarcode = escapeHTML(item.b || '');
-                const displayNama = highlightMatch(item.n, qVal);
-                
+                const item = filteredData[i]; let diffDays = 999, expT = '';
+                if (item.exp) { const pts = String(item.exp).split('-'); const utcExp = Date.UTC(pts[0], pts[1]-1, pts[2] || 1); if (!isNaN(utcExp)) { diffDays = Math.floor((utcExp - utcToday) / 86400000); expT = formatBulanTahun(item.exp); } }
+                const displayNama = highlightMatch(item.n, currentSearchQuery);
+                const btnX = tab === 'all' ? `<button class="btn-del-absolute" onclick="del('${item.id}')"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg></button>` : '';
                 if (tab === 'exp') {
                     const col = diffDays <= 30 ? 'var(--danger)' : (diffDays <= 90 ? '#FFA500' : (diffDays <= 180 ? '#FFD700' : 'var(--mono-main)')); 
-                    html += `<div class="card card-exp-mode"><div class="info" style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px;"><div class="name" style="margin-bottom: 0; flex: 1; min-width: 0;"><span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${displayNama}</span> <span class="card-badge">${item.t}</span></div><div style="font-size: 15px; font-weight: 800; color: ${col}; white-space: nowrap; text-align: right;">${expTextRaw}</div></div></div>`;
+                    html += `<div class="card card-exp-mode" id="card-${item.id}"><div class="info" style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:10px;"><div class="name" style="margin:0; flex:1; min-width:0;"><span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${displayNama}</span> <span class="card-badge">${item.t || ''}</span></div><div style="font-size:15px; font-weight:800; color:${col};">${expT}</div></div>${btnX}</div>`;
                 } else {
-                    let expHtml = '';
-                    if (item.exp && diffDays !== 999) {
-                        const isDanger = diffDays < 0, isWarn = diffDays <= 90;
-                        expHtml = `<div class="card-exp ${isDanger ? 'danger' : (isWarn ? 'warning' : '')}"><span>${isDanger ? '🚨' : (isWarn ? '⚠️' : '📅')}</span> ${isDanger ? 'Kedaluwarsa!' : (isWarn ? `Exp dlm ${diffDays} hari` : `Exp: ${expTextRaw}`)}</div>`;
-                    }
-                    const dPrice1 = item.p1 ? `<div class="card-price-ecer">Ecer: Rp ${fmt(item.p1)}</div>` : '', dPrice2 = item.p2 ? `<div class="card-price-grosir">Grosir: Rp ${fmt(item.p2)}</div>` : '';
-                    const favCol = item.f ? 'var(--mono-main)' : 'var(--text-muted)', favFill = item.f ? 'var(--mono-main)' : 'none';
-
-                    html += `
-                        <div class="card">
-                            <div class="info"><div class="name"><span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${displayNama}</span> <span class="card-badge">${item.t || ''}</span></div>${dPrice1}${dPrice2}<div class="card-barcode">${(item.b && qVal && item.b.includes(qVal)) ? highlightMatch(safeBarcode, qVal) : (safeBarcode || '- Tanpa Barcode -')}</div>${expHtml}</div>
-                            <button class="btn-del-absolute" onclick="del(${item.id})" title="Hapus"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6M9 9l6 6"></path></svg></button>
-                            <div class="action-btns-absolute">
-                                <button class="card-action-btn" style="color: ${favCol};" onclick="toggleFav(${item.id})"><svg viewBox="0 0 24 24" width="20" height="20" fill="${favFill}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
-                                <button class="card-action-btn btn-edit-icon" onclick="showMod(${item.id})"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
-                            </div>
-                        </div>`;
+                    let expHtml = item.exp ? `<div class="card-exp ${diffDays < 0 ? 'danger' : (diffDays <= 90 ? 'warning' : '')}"><span>${diffDays < 0 ? '🚨' : (diffDays <= 90 ? '⚠️' : '📅')}</span> ${diffDays < 0 ? 'Kedaluwarsa!' : (diffDays <= 90 ? `Exp dlm ${diffDays} hari` : `Exp: ${expT}`)}</div>` : '';
+                    html += `<div class="card" id="card-${item.id}"><div class="info"><div class="name"><span>${displayNama}</span> <span class="card-badge">${item.t || ''}</span></div>${item.p1?`<div class="card-price-ecer">Ecer: Rp ${fmt(item.p1)}</div>`:''}${item.p2?`<div class="card-price-grosir">Grosir: Rp ${fmt(item.p2)}</div>`:''}<div class="card-barcode">${item.b || '- Tanpa Barcode -'}</div>${expHtml}</div>${btnX}<div class="action-btns-absolute"><button class="card-action-btn" style="color:${item.f?'var(--mono-main)':'var(--text-muted)'};" onclick="toggleFav('${item.id}', this)"><svg viewBox="0 0 24 24" width="20" height="20" fill="${item.f?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button><button class="card-action-btn btn-edit-icon" onclick="showMod('${item.id}')"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></div></div>`;
                 }
             }
             renderCont.innerHTML = html;
-
-            if (isScrolling && sortAZ && filteredData.length > 0 && filteredData[startIndex]) {
-                let hurufAwal = filteredData[startIndex].n.charAt(0).toUpperCase();
-                if (!/[A-Z]/.test(hurufAwal)) hurufAwal = '#';
-                
-                if (scrollLetterEl.innerText !== hurufAwal) { scrollLetterEl.innerText = hurufAwal; }
-                scrollLetterEl.classList.add('show');
-                
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => { scrollLetterEl.classList.remove('show'); }, 300);
-            } else if (!isScrolling) {
-                scrollLetterEl.classList.remove('show');
+            let heightChanged = false;
+            for (let i = startIndex; i < endIndex; i++) {
+                const item = filteredData[i]; const el = document.getElementById(`card-${item.id}`);
+                if (el) {
+                    const realHeight = el.offsetHeight; const styleHeight = realHeight + 12; 
+                    if (item._cHeight !== styleHeight) { item._cHeight = styleHeight; heightChanged = true; }
+                }
             }
+            if (heightChanged) computeDVS();
         }
-        
-        let isScrollingNow = false;
-        $('list').addEventListener('scroll', () => {
-            if (!isScrollingNow) {
-                window.requestAnimationFrame(() => {
-                    renderVirtualList(true);
-                    isScrollingNow = false;
-                });
-                isScrollingNow = true;
+        $('list').addEventListener('scroll', () => { 
+            if (!$('dropdown-menu').classList.contains('hidden')) $('dropdown-menu').classList.add('hidden');
+            if (sortAZ && filteredData.length > 0) {
+                const scrollTop = $('list').scrollTop; const startIndex = getDVSStartIndex(scrollTop);
+                if (filteredData[startIndex]) {
+                    let h = String(filteredData[startIndex].n || "#").charAt(0).toUpperCase();
+                    const sL = $('scroll-letter'); sL.innerText = /[A-Z]/.test(h) ? h : '#'; sL.classList.add('show');
+                    clearTimeout(scrollLetterTimeout); scrollLetterTimeout = setTimeout(() => sL.classList.remove('show'), 300);
+                }
             }
-        });
+            window.requestAnimationFrame(() => renderVirtualList(true)); 
+        }, { passive: true });
 
         // === 9. DATABASE OPERATION ===
         async function save() {
-            if (isSaving) return;
-            isSaving = true;
+            if (isSaving) return; isSaving = true;
             try {
-                const nRaw = $('i-n').value, b = $('i-b').value.trim(), exp = $('i-exp').dataset.rawDate || '';
-                const p1 = parseInt($('i-p1').value.replace(/\D/g, ''), 10) || 0;
-                const p2 = parseInt($('i-p2').value.replace(/\D/g, ''), 10) || null;
-                
-                if (!nRaw || isNaN(p1) || p1 === 0) {
-                    isSaving = false;
-                    return showAlert("Mohon lengkapi nama dan harga eceran barang!", "Data Belum Lengkap", "var(--mono-main)");
-                }
-                
-                const nameClean = prop(nRaw.replace(/\s+/g, ' '));
-                const existItem = db.find(x => x.n.toLowerCase() === nameClean.toLowerCase() && x.id !== activeId);
-                if (existItem) {
-                    isSaving = false;
-                    if (existItem.deleted) return showAlert(`Barang "${nameClean}" sudah ada di keranjang sampah (dihapus). Hapus nama yang lama dari Cloud terlebih dahulu.`, "Nama Sudah Ada", "var(--mono-main)");
-                    return showAlert(`Nama barang "${nameClean}" sudah ada di database.`, "Nama Sudah Ada", "var(--mono-main)");
-                }
-                
-                if (b && db.find(x => !x.deleted && x.b === b && x.id !== activeId)) {
-                    isSaving = false;
-                    return showAlert("Kode barcode ini sudah digunakan.", "Barcode Ganda", "var(--mono-main)");
-                }
+                const nRaw = $('i-n').value; const b = $('i-b').value.trim(); const exp = $('i-exp').dataset.rawDate || '';
+                const p1 = parseInt($('i-p1').value.replace(/[^\d]/g, ''), 10) || 0;
+                const p2 = parseInt($('i-p2').value.replace(/[^\d]/g, ''), 10) || null;
+                if (!nRaw.trim() || p1 === 0) { isSaving = false; return showAlert("Data tidak valid!", "Gagal"); }
+                const nameClean = prop(nRaw);
 
-                const ts = Date.now(); let savedItem;
+                const existItem = db.find(x => !x.deleted && String(x.n || "").toLowerCase() === nameClean.toLowerCase() && String(x.id) !== String(activeId));
+                if (existItem) { isSaving = false; return showAlert("Nama sudah ada!", "Gagal"); }
+                
+                // PERBAIKAN BUG 1: Validasi Barcode Ganda
+                if (b !== '') {
+                    const existBarcode = db.find(x => !x.deleted && String(x.b) === b && String(x.id) !== String(activeId));
+                    if (existBarcode) { isSaving = false; return showAlert("Barcode ini sudah dipakai oleh barang lain!", "Gagal"); }
+                }
+                
+                let customT = $('i-t').value.trim().toLowerCase();
+                if (customT && isAcronymUsed(customT, activeId)) { isSaving = false; return showAlert("Singkatan sudah dipakai!", "Gagal"); }
+                if (!customT) customT = generateSmartAcronym(nameClean, activeId);
+                
+                const ts = Date.now();
                 if (activeId) {
-                    const idx = db.findIndex(x => x.id === activeId); 
-                    if (idx !== -1) { db[idx] = { ...db[idx], b, n: nameClean, p1, p2, exp, t: generateAcronym(nameClean), updatedAt: ts }; savedItem = db[idx]; tampilkanToast("Barang berhasil diedit!", "var(--mono-main)"); }
+                    const idx = db.findIndex(x => String(x.id) === String(activeId));
+                    db[idx] = { ...db[idx], b, n: nameClean, p1, p2, exp, t: customT, updatedAt: ts };
+                    await saveItemToIDB(db[idx]);
+                    worker.postMessage({ type: 'update', item: db[idx] }); 
                 } else {
-                    const uniqueId = (ts * 1000) + Math.floor(Math.random() * 1000); 
-                    savedItem = { id: uniqueId, b, n: nameClean, p1, p2, f: false, exp, t: generateAcronym(nameClean), updatedAt: ts, deleted: false };
-                    db.push(savedItem); tampilkanToast("Barang disimpan!", "var(--mono-main)");
+                    const newItem = { id: generateUniqueId(), b, n: nameClean, p1, p2, f: false, exp, t: customT, updatedAt: ts, deleted: false };
+                    db.push(newItem); await saveItemToIDB(newItem);
+                    worker.postMessage({ type: 'add', item: newItem }); 
                 }
                 
-                await saveItemToIDB(savedItem); updateFuseEngine(); hideMod();
-            } catch (error) { 
-                console.error(error); 
-                showAlert("Terjadi kesalahan sistem saat menyimpan data.", "Sistem Error", "var(--mono-main)"); 
-            } finally {
-                isSaving = false;
-            }
+                updateMaps(); 
+                hideMod(); 
+                applyFiltersAndRender();
+                tampilkanToast("Data disimpan!");
+            } catch (e) { console.error(e); } finally { isSaving = false; }
         }
-
-        async function del(id) { 
-            const idx = db.findIndex(x => x.id === id); if(idx === -1) return;
-            showConfirm(`Yakin ingin menghapus "${escapeHTML(db[idx].n)}"?`, "Hapus Barang", "var(--danger)", async () => { 
+        async function del(id) {
+            const idx = db.findIndex(x => String(x.id) === String(id)); if(idx === -1) return;
+            showConfirm(`Hapus "${db[idx].n}"?`, "Hapus", "var(--danger)", async () => {
                 db[idx].deleted = true; db[idx].updatedAt = Date.now();
-                
-                let oldScroll = $('list').scrollTop;
-                await saveItemToIDB(db[idx]);
-                updateFuseEngine(); 
-                $('list').scrollTop = oldScroll;
-                
-                tampilkanToast("Data berhasil dihapus!", "var(--danger)"); 
-            }); 
-        }
-
-        async function toggleFav(id) { 
-            const idx = db.findIndex(x => x.id === id); 
-            if(idx !== -1) { 
-                db[idx].f = !db[idx].f; 
-                db[idx].updatedAt = Date.now(); 
                 await saveItemToIDB(db[idx]); 
-                
-                let oldScroll = $('list').scrollTop;
-                applyFiltersAndRender(); 
-                $('list').scrollTop = oldScroll;
-            }
-        }
-
-        // === 10. CLOUD SYNC & EXCEL ===
-        function backupToCloud() {
-            $('dropdown-menu').classList.add('hidden');
-            if(!CLOUD_URL || CLOUD_URL.includes("ISI_DENGAN")) return showAlert("Masukkan URL Web App Google Apps Script di kode HTML!", "Pengaturan Cloud", "#87CEFA");
-            
-            if (db.length === 0) return showAlert("Belum ada data untuk diupload", "Save Cloud", "#87CEFA");
-            
-            showConfirm("PENTING: Pastikan Anda sudah 'Load Cloud' hari ini agar data dari HP lain tidak tertimpa. Lanjutkan Upload?", "Konfirmasi Upload", "#87CEFA", () => {
-                tampilkanToast("Menyimpan ke Cloud...", "#87CEFA");
-                fetch(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backup', data: db }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } })
-                .then(res => { tampilkanToast("Berhasil disimpan ke Cloud!", "#87CEFA"); }).catch(err => { showAlert("Gagal menyimpan ke Cloud. Cek internet.", "Koneksi Gagal", "#87CEFA"); });
+                worker.postMessage({ type: 'remove', id: String(id) });
+                updateMaps();
+                applyFiltersAndRender();
+                tampilkanToast("Dihapus!", "var(--danger)");
             });
         }
+        async function executeDeleteAll() {
+            tampilkanToast("Memproses penghapusan massal...", "var(--danger)");
+            $('list').style.pointerEvents = 'none'; 
+            try {
+                const tx = idb.transaction('items', 'readwrite'); const store = tx.objectStore('items'); const ts = Date.now();
+                db.forEach(item => { if (!item.deleted) { item.deleted = true; item.updatedAt = ts; store.put(item); } });
+                tx.oncomplete = () => { 
+                    worker.postMessage({ type: 'init', db: [] });
+                    updateMaps();
+                    applyFiltersAndRender();
+                    $('list').style.pointerEvents = 'auto'; 
+                    tampilkanToast("Semua data berhasil dihapus!", "var(--danger)"); 
+                };
+            } catch(e) { $('list').style.pointerEvents = 'auto'; showAlert("Gagal menghapus data massal.", "Error"); }
+        }
+        async function toggleFav(id, btnElement) {
+            const idx = db.findIndex(x => String(x.id) === String(id));
+            if(idx !== -1) { 
+                db[idx].f = !db[idx].f; db[idx].updatedAt = Date.now(); await saveItemToIDB(db[idx]); 
+                if (btnElement) {
+                    btnElement.style.color = db[idx].f ? 'var(--mono-main)' : 'var(--text-muted)';
+                    btnElement.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="${db[idx].f?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
+                }
+                if (tab === 'fav') applyFiltersAndRender();
+            }
+        }
 
+        // === 10. CLOUD SYNC & EXPORT/IMPORT ===
+        function backupToCloud() {
+            if (db.length === 0) return;
+            showConfirm("Upload ke Cloud?", "Backup", "#87CEFA", () => {
+                tampilkanToast("Menyimpan...");
+                fetchWithTimeout(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backup', data: db }) }, 15000)
+                .then(() => tampilkanToast("Berhasil!", "#87CEFA"))
+                .catch(() => showAlert("Gagal upload.", "Error"));
+            });
+        }
+        
         function loadFromCloud() {
-            $('dropdown-menu').classList.add('hidden');
-            if(!CLOUD_URL || CLOUD_URL.includes("ISI_DENGAN")) return showAlert("Masukkan URL Web App di kode HTML!", "Pengaturan Cloud", "#87CEFA");
-            
-            showConfirm("Sistem akan menyesuaikan data dan membersihkan data yang terhapus dari Sheet.", "Sinkronisasi Cloud", "#87CEFA", () => {
-                tampilkanToast("Memuat dari Cloud...", "#87CEFA");
-                
-                const noCacheUrl = CLOUD_URL + "?action=load&t=" + new Date().getTime();
-                
-                fetch(noCacheUrl, { cache: "no-store" }).then(async res => { 
-                    if(!res.ok) throw new Error("Network error"); 
-                    const text = await res.text();
-                    try { return JSON.parse(text); } catch(e) { throw new Error("Format bukan JSON"); }
-                })
-                .then(async dataCloud => {
-                    if (dataCloud && Array.isArray(dataCloud)) { 
-                        const petaLokal = new Map(); db.forEach(item => petaLokal.set(item.id, item)); 
-                        let adaPerubahan = false;
-                        
-                        const cloudIds = new Set(dataCloud.map(i => i.id));
-
-                        dataCloud.forEach(itemCloud => {
-                            const itemLokal = petaLokal.get(itemCloud.id);
-                            
-                            if (!itemLokal || 
-                                (itemCloud.updatedAt || 0) > (itemLokal.updatedAt || 0) || 
-                                (itemLokal.deleted !== itemCloud.deleted)) {
-                                
-                                if(!itemCloud.t && !itemCloud.deleted) itemCloud.t = generateAcronym(itemCloud.n);
-                                if(itemCloud.exp) itemCloud.exp = normalizeDateYMD(itemCloud.exp);
-                                petaLokal.set(itemCloud.id, itemCloud); 
-                                adaPerubahan = true;
+            showConfirm("Load Cloud", "Sinkronisasi", "#87CEFA", () => {
+                tampilkanToast("Memuat...");
+                fetchWithTimeout(CLOUD_URL + "?action=load&t=" + Date.now(), {}, 15000)
+                .then(res => res.json()).then(async dataCloud => {
+                    if (Array.isArray(dataCloud)) {
+                        const tx = idb.transaction('items', 'readwrite'); const store = tx.objectStore('items');
+                        dataCloud.forEach(itemCloud => { 
+                            const localIdx = db.findIndex(l => l.id === itemCloud.id);
+                            if (localIdx > -1) {
+                                if ((itemCloud.updatedAt || 0) > (db[localIdx].updatedAt || 0)) {
+                                    db[localIdx] = itemCloud;
+                                    if (itemCloud.deleted) { store.delete(itemCloud.id); } else { store.put(itemCloud); }
+                                }
+                            } else {
+                                db.push(itemCloud);
+                                if (!itemCloud.deleted) { store.put(itemCloud); }
                             }
                         });
-                        
-                        for (const [id, itemLokal] of petaLokal.entries()) {
-                            if (!cloudIds.has(id)) {
-                                if (itemLokal.deleted) {
-                                    petaLokal.delete(id); 
-                                    adaPerubahan = true;
-                                }
-                            }
-                        }
-                        
-                        if (adaPerubahan) {
-                            db = Array.from(petaLokal.values());
-                            const tx = idb.transaction('items', 'readwrite'); 
-                            const store = tx.objectStore('items');
-                            
-                            store.clear(); 
-                            db.forEach(item => store.put(item)); 
-                            
-                            tx.oncomplete = () => {
-                                $('list').scrollTop = 0;
-                                workerResult = null;
-                                updateFuseEngine(); 
-                                applyFiltersAndRender();
-                                tampilkanToast("Sinkronisasi Berhasil! Data diperbarui.", "#87CEFA"); 
-                            };
-                            tx.onerror = () => {
-                                showAlert("Gagal menyimpan sinkronisasi ke penyimpanan lokal.", "Error Storage", "var(--danger)");
-                            };
-                        } else {
-                            tampilkanToast("Data HP sudah sama persis dengan Cloud!", "#87CEFA");
-                        }
-                    } else showAlert("Format data Cloud tidak valid.", "Load Gagal", "#87CEFA");
-                }).catch(err => { showAlert("Gagal memuat dari Cloud. Cek internet/URL.", "Koneksi Gagal", "#87CEFA"); });
+                        tx.oncomplete = () => { 
+                            worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) });
+                            updateMaps(); 
+                            applyFiltersAndRender(); 
+                            tampilkanToast("Sinkronisasi Selesai!", "#87CEFA"); 
+                        };
+                    }
+                }).catch(() => showAlert("Gagal load.", "Error"));
             });
         }
-
+        
         function exportData() {
-            $('dropdown-menu').classList.add('hidden');
-            const dataAktif = db.filter(i => !i.deleted);
-            if (dataAktif.length === 0) return showAlert("Belum ada data untuk di-download.", "Ekspor Kosong", "#3CB371");
-            const dataExcel = dataAktif.map(i => ({ "ID Barang": i.id, "Barcode": i.b || "", "Nama Barang": i.n, "Harga Eceran": i.p1, "Harga Grosir": i.p2 || "", "Favorit": i.f ? "Ya" : "Tidak", "Kedaluwarsa": i.exp ? formatBulanTahun(i.exp) : "" }));
-            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dataExcel), "Daftar Harga");
-            XLSX.writeFile(wb, `Data_Harga_${new Date().toLocaleDateString('id-ID').replace(/\//g,'-')}.xlsx`);
-            tampilkanToast("Excel berhasil dibuat!", "#3CB371");
+            const data = db.filter(i => !i.deleted).map(i => ({ 
+                "ID": i.id,
+                "Barcode": i.b, 
+                "Nama Barang": i.n, 
+                "Harga Eceran": i.p1, 
+                "Harga Grosir": i.p2, 
+                "Singkatan": i.t,
+                "Favorit": i.f ? "Ya" : "Tidak",
+                "Expired": i.exp || ""
+            }));
+            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Data"); XLSX.writeFile(wb, "Data_Harga.xlsx");
         }
-
+        
         function importData(e) {
-            $('dropdown-menu').classList.add('hidden'); 
-            const file = e.target.files[0]; 
-            if (!file) return; 
+            const file = e.target.files[0]; if(!file) return;
             const reader = new FileReader();
-            
-            reader.onload = async (ev) => {
-                try {
-                    tampilkanToast("Membaca file Excel...", "#3CB371"); 
-                    const data = new Uint8Array(ev.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const firstSheetName = workbook.SheetNames[0];
-                    const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheetName], {raw: false});
+            reader.onload = (ev) => {
+                const workbook = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'});
+                // FIX APPLIED HERE: Menambahkan parameter opsi { raw: false, defval: "" }
+                const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { raw: false, defval: "" });
+                const tx = idb.transaction('items', 'readwrite'); const store = tx.objectStore('items');
+                let tempAcronyms = new Set();
+                const ts = Date.now();
+                
+                jsonData.forEach(row => {
+                    const name = prop(row["Nama Barang"] || row["Nama"]); if(!name) return;
+                    let customT = row["Singkatan"]; if (!customT) { customT = generateSmartAcronym(name, null, tempAcronyms); }
+                    if (customT) tempAcronyms.add(customT); 
                     
-                    const ts = Date.now();
-                    let added = false;
-                    let uniqueCounter = 0; 
+                    // FIX APPLIED HERE: Ekstraksi aman untuk ID dan Barcode sebagai string murni
+                    const excelId = row["ID"] ? String(row["ID"]).trim() : null;
+                    const safeBarcode = row["Barcode"] ? String(row["Barcode"]).trim() : '';
                     
-                    let currentIndex = 0;
-                    const chunkSize = 500;
-
-                    const processChunk = () => {
-                        const tx = idb.transaction('items', 'readwrite');
-                        const store = tx.objectStore('items');
-                        const end = Math.min(currentIndex + chunkSize, jsonData.length);
-
-                        for (let i = currentIndex; i < end; i++) {
-                            const row = jsonData[i];
-                            const name = prop(String(row["Nama Barang"] || row["Nama"] || "").replace(/\s+/g, ' ')); 
-                            if (!name) continue; 
-                            
-                            const barcodeRaw = row["Barcode"] ? String(row["Barcode"]).trim() : '';
-                            
-                            let rawPrice1 = String(row["Harga Eceran"] || "0").trim().replace(/[,.]00$/, '');
-                            const p1Raw = parseInt(rawPrice1.replace(/\D/g, ''), 10) || 0;
-                            
-                            let rawPrice2 = String(row["Harga Grosir"] || "").trim().replace(/[,.]00$/, '');
-                            const p2Raw = rawPrice2 ? (parseInt(rawPrice2.replace(/\D/g, ''), 10) || null) : null;
-                            
-                            const expRaw = row["Kedaluwarsa"] ? parseBulanTahunExcel(row["Kedaluwarsa"]) : "";
-                            const isFav = String(row["Favorit"] || "").trim().toLowerCase() === "ya";
-                            
-                            const existingIndex = db.findIndex(x => 
-                                (x.n.trim().toLowerCase() === name.trim().toLowerCase()) || 
-                                (barcodeRaw !== '' && String(x.b) === barcodeRaw)
-                            );
-
-                            if (existingIndex !== -1) {
-                                let item = db[existingIndex];
-                                item.n = name;
-                                item.t = generateAcronym(name);
-                                item.p1 = p1Raw;
-                                item.p2 = p2Raw;
-                                if (barcodeRaw) item.b = barcodeRaw;
-                                item.exp = expRaw;
-                                item.f = isFav;
-                                item.deleted = false; 
-                                item.updatedAt = ts;
-                                store.put(item);
-                                added = true;
-                            } else {
-                                const safeId = (ts * 1000) + (uniqueCounter++);
-                                const newItem = { 
-                                    id: safeId, 
-                                    b: barcodeRaw, 
-                                    n: name, 
-                                    p1: p1Raw, 
-                                    p2: p2Raw, 
-                                    f: isFav, 
-                                    exp: expRaw, 
-                                    t: generateAcronym(name), 
-                                    updatedAt: ts, 
-                                    deleted: false 
-                                };
-                                db.push(newItem); 
-                                store.put(newItem);
-                                added = true;
-                            }
-                        }
-
-                        currentIndex = end;
-                        
-                        if (currentIndex < jsonData.length) {
-                            setTimeout(processChunk, 10);
-                        } else {
-                            if (added) {
-                                $('list').scrollTop = 0;
-                                workerResult = null;
-                                updateFuseEngine(); 
-                                applyFiltersAndRender();
-                            }
-                            e.target.value = ''; 
-                            tampilkanToast(`Selesai! Berhasil memproses data.`, "#3CB371");
-                        }
-                    };
+                    const isFav = row["Favorit"] === "Ya" || row["Favorit"] === "TRUE";
+                    const expDate = parseBulanTahunExcel(row["Expired"]);
                     
-                    processChunk();
+                    // PERBAIKAN BUG 3: Konversi excelId menjadi String saat pencarian Index
+                    let existingIdx = db.findIndex(x => (excelId && String(x.id) === String(excelId)) || (x.n.toLowerCase() === name.toLowerCase()));
 
-                } catch (error) { 
-                    showAlert("Gagal membaca file Excel. Pastikan format file sesuai.", "Format Salah", "#3CB371"); 
-                }
-            }; 
+                    if (existingIdx > -1) {
+                        db[existingIdx] = {
+                            ...db[existingIdx],
+                            b: safeBarcode,
+                            p1: parseExcelPrice(row["Harga Eceran"]),
+                            p2: parseExcelPrice(row["Harga Grosir"]),
+                            t: customT,
+                            f: isFav,
+                            exp: expDate,
+                            updatedAt: ts,
+                            deleted: false
+                        };
+                        store.put(db[existingIdx]);
+                    } else {
+                        const newItem = { 
+                            id: excelId || generateUniqueId(), 
+                            b: safeBarcode, 
+                            n: name, 
+                            p1: parseExcelPrice(row["Harga Eceran"]), 
+                            p2: parseExcelPrice(row["Harga Grosir"]), 
+                            t: customT, 
+                            f: isFav,
+                            exp: expDate,
+                            updatedAt: ts, 
+                            deleted: false 
+                        };
+                        db.push(newItem); 
+                        store.put(newItem);
+                    }
+                });
+                tx.oncomplete = () => { 
+                    worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) });
+                    updateMaps(); 
+                    applyFiltersAndRender(); 
+                    tampilkanToast("Import Selesai!"); 
+                };
+            };
             reader.readAsArrayBuffer(file);
         }
-
-        // === 11. SCANNER ===
-        let isHandlingScan = false;
+        
         async function openScanner(mode) {
-            if(isStartingScan || isScanning) return;
-            isStartingScan = true;
-            scanMode = mode; $('scanner-wrap').style.display = 'block'; 
-            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+            if(isStartingScan || isScanning) return; isStartingScan = true; scanMode = mode;
+            $('scanner-wrap').style.display = 'block'; if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
             try {
                 await html5QrCode.start({ facingMode: "environment" }, { fps: 25 }, async (text) => {
-                    if (isHandlingScan) return;
-                    isHandlingScan = true;
-                    
-                    const clean = text.trim(); 
-                    await closeScanner();
-                    
+                    playBeep(); await closeScanner();
                     if (scanMode === 'search') {
-                        const exist = db.find(i => !i.deleted && String(i.b) === clean); 
-                        $('q-x').style.display = 'none';
-                        if (exist) { 
-                            tab = 'all';
-                            ['all', 'fav', 'exp'].forEach(x => $(`t-${x}`).className = 'all' === x ? 'tab active' : 'tab');
-                            
-                            $('q').value = clean; 
-                            $('q-x').style.display = 'flex';
-                            $('list').scrollTop = 0;
-                            worker.postMessage({ type: 'search', query: clean, reqId: ++currentSearchReqId });
-                            applyFiltersAndRender();
-                        } else { 
-                            tampilkanToast("✨ Barcode baru, silakan lengkapi data.", "var(--mono-main)"); 
-                            showMod(); $('i-b').value = clean; 
-                        }
-                    } else if (scanMode === 'input') $('i-b').value = clean;
-                    
-                    setTimeout(() => { isHandlingScan = false; }, 1000); 
+                        const exist = db.find(i => !i.deleted && String(i.b) === text.trim());
+                        if (exist) { $('q').value = text.trim(); handleSearchLogic(text.trim()); } 
+                        else { showMod(); $('i-b').value = text.trim(); }
+                    } else { $('i-b').value = text.trim(); }
                 });
                 isScanning = true;
-            } catch (err) { 
-                closeScanner();
-                showAlert("Gagal mengakses kamera. Pastikan izin kamera telah diberikan pada browser Anda.", "Kamera Error", "var(--danger)");
-            } finally { 
-                isStartingScan = false; 
-            }
+            } catch (e) { await closeScanner(); showAlert("Kamera Error."); } finally { isStartingScan = false; }
         }
-
         async function closeScanner() {
-            if (isScanning && html5QrCode) try { await html5QrCode.stop(); } catch(err) {}
-            $('scanner-wrap').style.display = 'none'; isScanning = false;
+            $('scanner-wrap').style.display = 'none'; 
+            if (isScanning && html5QrCode) { try { await html5QrCode.stop(); html5QrCode.clear(); } catch(e) {} }
+            isScanning = false;
         }
-
-        // === 12. INISIALISASI & WAKE LOCK ===
-        async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) {
-                    if (wakeLock !== null) {
-                        try { await wakeLock.release(); } catch(e) {}
-                    }
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    wakeLock.addEventListener('release', () => {
-                        wakeLock = null;
-                    });
-                }
-            } catch (err) {
-                wakeLock = null;
-            }
-        }
-
-        window.addEventListener('visibilitychange', async () => { 
-            if (document.hidden && isScanning) closeScanner(); 
-            
-            if (document.visibilityState === 'visible') {
-                await requestWakeLock();
-            }
-        });
-
         async function initApp() {
             try {
                 const t = new Date(); $('current-date-location').innerText = `Boyolali, ${t.getDate()} ${NamaBln[t.getMonth()]} ${t.getFullYear()}`;
-                
-                await initDB();
-                const rawLama = localStorage.getItem('DB_WA_MASTER_PRO');
-                if (rawLama) {
-                    const tx = idb.transaction('items', 'readwrite'), store = tx.objectStore('items');
-                    JSON.parse(rawLama).forEach(i => store.put({ ...i, exp: i.exp ? normalizeDateYMD(i.exp) : '', t: i.t || generateAcronym(i.n), updatedAt: i.updatedAt || Date.now(), deleted: i.deleted || false }));
-                    localStorage.removeItem('DB_WA_MASTER_PRO');
-                }
-                db = await loadAllFromIDB(); 
-                updateFuseEngine(); 
-                
+                await initDB(); db = await loadAllFromIDB(); 
+                worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) });
+                updateMaps(); 
                 applyFiltersAndRender();
-                requestWakeLock();
-            } catch (err) { showAlert("Gagal memuat Database Internal.", "Error Sistem", "var(--danger)"); }
-            
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js').then(reg => reg.addEventListener('updatefound', () => {
-                    reg.installing.addEventListener('statechange', (e) => { if (e.target.state === 'installed' && navigator.serviceWorker.controller) console.log('Versi baru tersedia!'); });
-                })).catch(err => console.log('SW Reg Error:', err));
-                let refreshing = false; navigator.serviceWorker.addEventListener('controllerchange', () => { if (!refreshing) { refreshing = true; window.location.reload(); } });
-            }
+            } catch (e) { showAlert("DB Error"); }
         }
-
         initApp();
     </script>
 </body>
