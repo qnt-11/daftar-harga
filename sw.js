@@ -3,7 +3,7 @@
  * Strategi: Network-First, Cache-First (CDN Presisi), Stale-While-Revalidate (Background Safe)
  */
 
-const APP_VERSION = '3.2'; // Ganti angka ini setiap kali Anda merilis pembaruan HTML/CSS/JS
+const APP_VERSION = '3.3'; // Ganti angka ini setiap kali Anda merilis pembaruan HTML/CSS/JS
 const CACHE_CORE = 'core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
 const CACHE_CDN = 'cdn-v1'; 
