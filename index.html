@@ -19,7 +19,7 @@
             --wa-card: #151515; 
             --wa-header: rgba(17, 17, 17, 0.95);
             --text-light: #ffffff;
-            --text-muted: #888888; 
+            --text-muted: #a0a0a0; 
             --border-color: #333333;
             --danger: #ff3b30;   
             --warning: #FFD700;
@@ -36,8 +36,12 @@
         .hidden { display: none !important; }
         .audiowide-regular { font-family: "Audiowide", sans-serif !important; font-weight: 400 !important; }
 
-        /* === 3. HEADER & DROPDOWN === */
-        .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--wa-header); backdrop-filter: blur(8px); z-index: 100; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); will-change: transform; }
+        /* === 3. HEADER & DROPDOWN (SMART HEADER) === */
+        .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--wa-header); backdrop-filter: blur(8px); z-index: 100; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); transition: margin-top 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        
+        /* SOLUSI SMART HEADER: Margin-top menarik semua elemen di bawahnya tanpa blank space */
+        body.hide-header .header { margin-top: -74px; }
+
         .header-left { display: flex; flex-direction: column; justify-content: center; }
         .header h1 { font-size: 18px; margin: 0; color: var(--text-light); }
         .header-date-location { font-size: 10px; color: var(--text-muted); margin-top: 2px; font-weight: 600; letter-spacing: 0.5px; }
@@ -45,14 +49,11 @@
         .top-btns { display: flex; gap: 10px; color: var(--text-light); align-items: center; }
         .icon-btn { cursor: pointer; background: none; border: none; padding: 6px; color: inherit; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; position: relative; width: 44px; height: 44px; outline: none; }
         .icon-btn:active { transform: scale(0.9); opacity: 0.8; }
-        
         .header-upload-btn { display: flex; flex-direction: column; gap: 2px; color: #87CEFA; padding: 0; }
         
         .dropdown-wrapper { position: relative; display: flex; align-items: center; }
-        .dropdown-content { position: absolute; top: 48px; right: 0; background: rgba(21, 21, 21, 0.95); backdrop-filter: blur(8px); min-width: 180px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.9); z-index: 10000; overflow: hidden; border: 1px solid var(--border-color); animation: slideDownGlass 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); transform-origin: top right; border-top: 1px solid rgba(255,255,255,0.15); border-left: 1px solid rgba(255,255,255,0.05); will-change: transform, opacity; }
-        @keyframes slideDownGlass { 0% { opacity: 0; transform: scale(0.9) translateY(-10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-        
-        .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 15px 16px; color: var(--text-light); font-size: 13px; font-weight: 500; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s; min-height: 44px; }
+        .dropdown-content { position: absolute; top: 48px; right: 0; background: rgba(21, 21, 21, 0.95); backdrop-filter: blur(8px); min-width: 180px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.9); z-index: 10000; overflow: hidden; border: 1px solid var(--border-color); border-top: 1px solid rgba(255,255,255,0.15); border-left: 1px solid rgba(255,255,255,0.05); }
+        .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 15px 16px; color: var(--text-light); font-size: 13px; font-weight: 500; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); min-height: 44px; }
         .dropdown-item:last-child { border-bottom: none; }
         .dropdown-item:active { background-color: rgba(255,255,255,0.15); }
         .dropdown-item input[type="file"] { display: none; }
@@ -62,7 +63,7 @@
         .laser-beam-header { animation: laser-updown-header 1.5s infinite ease-in-out; filter: drop-shadow(0 0 2px red); }
         .glow-cloud { filter: drop-shadow(0 0 6px rgba(135, 206, 250, 0.8)); }
 
-        /* === 5. SEARCH AREA & SARAN === */
+        /* === 5. SEARCH AREA === */
         .search-area { padding: 10px 16px; background: var(--wa-bg); position: sticky; top: 74px; z-index: 90; }
         .search-box { display: flex; align-items: center; background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 0 12px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .search-box input { width: 100%; background: transparent; border: none; padding: 14px 44px 14px 5px; color: var(--text-light); font-size: 16px; font-family: 'Montserrat', sans-serif; font-weight: 600; outline: none; }
@@ -71,18 +72,16 @@
         .search-summary { font-size: 10px; color: var(--mono-main); margin-top: 6px; margin-left: 5px; font-weight: 600; letter-spacing: 0.5px; }
         .highlight { background-color: var(--highlight-bg); color: #ffffff; border-radius: 3px; padding: 0 2px; }
 
-        .search-dropdown-box { position: absolute; top: 100%; left: 0; right: 0; margin-top: 8px; background: rgba(21, 21, 21, 0.98); border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 15px 35px rgba(0,0,0,0.9); z-index: 1000; overflow: hidden; animation: slideDownGlass 0.2s ease-out; will-change: transform, opacity; }
+        .search-dropdown-box { position: absolute; top: 100%; left: 0; right: 0; margin-top: 8px; background: rgba(21, 21, 21, 0.98); border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 15px 35px rgba(0,0,0,0.9); z-index: 1000; overflow: hidden; }
         .sd-title { font-size: 10px; color: var(--text-muted); padding: 12px 16px 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
-        .sd-title span.clear-btn { color: var(--danger); cursor: pointer; font-size: 9px; padding: 5px; margin: -5px; }
+        .sd-title span.clear-btn { color: var(--danger); cursor: pointer; font-size: 9px; padding: 12px; margin: -12px; display: flex; align-items: center; justify-content: center; }
         .sd-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; min-height: 44px; color: var(--text-light); font-size: 13px; font-weight: 600; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .sd-item:active { background-color: rgba(255,255,255,0.15); }
-        .sd-icon { color: var(--text-muted); width: 14px; height: 14px; }
-        .sd-icon.trend { color: var(--mono-sec); }
 
-        /* === 6. TABS & SORT === */
-        .tabs-row { display: flex; align-items: center; padding: 5px 16px 15px 16px; gap: 10px; }
+        /* === 6. TABS (LENGKET) === */
+        .tabs-row { display: flex; align-items: center; padding: 5px 16px 15px 16px; gap: 10px; position: sticky; top: 138px; background: var(--wa-bg); z-index: 85; }
         .tab { padding: 10px 18px; border-radius: 8px; background: var(--wa-card); border: 1px solid var(--border-color); font-size: 11px; color: var(--text-muted); cursor: pointer; font-weight: 700; font-family: 'Montserrat', sans-serif; text-transform: uppercase; transition: 0.2s; outline: none; min-height: 40px; }
-        .tab.active { background: rgba(255, 255, 255, 0.15); color: var(--mono-main); border-color: var(--mono-main); }
+        .tab.active { background: rgba(255, 255, 255, 0.15); color: var(--mono-main); border-color: var(--mono-main); box-shadow: 0 0 8px rgba(255, 255, 255, 0.1); }
         .sort-btn { margin-left: auto; color: var(--text-muted); background: transparent; border: none; cursor: pointer; display: flex; flex-direction: column; gap: 4px; align-items: flex-end; padding: 8px 4px; width: 44px; height: 44px; justify-content: center; outline: none; }
         .sort-btn span { display: block; height: 2px; background: currentColor; border-radius: 2px; }
         .sort-btn span:nth-child(1) { width: 18px; }
@@ -90,39 +89,18 @@
         .sort-btn span:nth-child(3) { width: 6px; }
         .sort-btn.active { color: var(--mono-main); }
 
-        /* === 7. VIRTUAL SCROLL CONTAINER & TRUE FLEXIBLE CARDS === */
-        .list { 
-            height: calc(100vh - 175px); 
-            overflow-y: auto; 
-            position: relative; 
-            padding-bottom: 15px; 
-            scroll-behavior: auto; 
-        }
+        /* === 7. VIRTUAL SCROLL CONTAINER === */
+        /* Tinggi scroll diperlebar karena kita menggunakan sticky tab */
+        .list { height: calc(100vh - 200px); overflow-y: auto; position: relative; padding-bottom: 40px; scroll-behavior: auto; }
+        .list.is-scrolling .render-container { pointer-events: none; }
         .spacer { position: absolute; top: 0; left: 0; width: 1px; }
         .render-container { position: absolute; top: 0; left: 0; width: 100%; padding-left: 16px; padding-right: 16px; will-change: transform; transform: translateZ(0); }
         
-        .card { 
-            position: relative; display: flex; align-items: flex-start; 
-            padding: 15px 18px 15px 18px; 
-            padding-right: 90px; 
-            background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; 
-            margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            height: auto; min-height: 90px; 
-            overflow: hidden; box-sizing: border-box;
-            contain: content; touch-action: pan-y;
-        }
-
-        .card-exp-mode {
-            height: auto !important;
-            min-height: 70px !important;
-            padding-bottom: 15px !important;
-            align-items: center !important;
-            padding-right: 18px !important; 
-        }
+        .card { position: relative; display: flex; align-items: flex-start; padding: 15px 18px 15px 18px; padding-right: 90px; background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); height: auto; min-height: 90px; overflow: hidden; box-sizing: border-box; contain: content; touch-action: pan-y; }
+        .card-exp-mode { height: auto !important; min-height: 70px !important; padding-bottom: 15px !important; align-items: center !important; padding-right: 18px !important; }
         
         .info { flex: 1; min-width: 0; pointer-events: none; }
         .name { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--text-light); display: flex; align-items: flex-start; }
-        
         .card-badge { font-size: 11px; color: #777777; margin-left: 8px; font-weight: 500; letter-spacing: 0.5px; white-space: nowrap; flex-shrink: 0; border: 1px solid #333; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.3); margin-top: -2px; }
         .card-price-ecer { font-size: 13px; color: var(--mono-sec); font-weight: 700; margin-bottom: 3px; }
         .card-price-grosir { font-size: 12px; color: var(--mono-sec); font-weight: 700; margin-bottom: 6px; }
@@ -132,7 +110,6 @@
         .card-exp.danger { color: var(--danger); }
         
         .btn-del-absolute { position: absolute; top: 4px; right: 4px; width: 44px; height: 44px; background: none; border: none; color: var(--danger); cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0.85; outline: none; }
-        .btn-del-absolute:active { opacity: 0.5; }
         .action-btns-absolute { position: absolute; bottom: 8px; right: 8px; display: flex; gap: 2px; }
         .card-action-btn { width: 44px; height: 44px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0.85; border-radius: 8px; outline: none; transition: background-color 0.15s ease, opacity 0.15s ease; }
         .card-action-btn:active { background: rgba(255,255,255,0.1); opacity: 1; }
@@ -140,67 +117,88 @@
         
         .empty-msg { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 100%; color: #555555; font-size: 12px; font-weight: 600; text-align: center; letter-spacing: 0.5px; z-index: 5; }
 
-        .scroll-letter {
-            position: fixed; right: 20px; top: 50%;
-            color: rgba(255, 255, 255, 0.7); font-size: 30px; font-weight: 800;
-            z-index: 100; opacity: 0; pointer-events: none;
-            text-shadow: 0px 4px 15px rgba(0, 0, 0, 1), 0px 0px 5px rgba(0, 0, 0, 0.8);
-            transform: translateY(-50%) scale(0.7);
-            transition: opacity 0.2s ease, transform 0.2s ease-out;
-        }
+        .scroll-letter { position: fixed; right: 20px; top: 50%; color: rgba(255, 255, 255, 0.7); font-size: 30px; font-weight: 800; z-index: 100; opacity: 0; pointer-events: none; text-shadow: 0px 4px 15px rgba(0, 0, 0, 1), 0px 0px 5px rgba(0, 0, 0, 0.8); transform: translateY(-50%) scale(0.7); transition: opacity 0.2s ease, transform 0.2s ease-out; }
         .scroll-letter.show { opacity: 1; transform: translateY(-50%) scale(1); }
 
-        /* === 8. MODAL KONTROL === */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-box { background: #181818; padding: 25px 20px; border-radius: 16px; width: 100%; max-width: 320px; border: 1px solid var(--border-color); border-top: 3px solid var(--mono-main); box-shadow: 0 20px 50px rgba(0,0,0,0.9); text-align: left; animation: popInBouncy 0.3s ease-out; max-height: 85vh; overflow-y: auto; will-change: transform; overscroll-behavior: contain; }
-        @keyframes popInBouncy { 0% { transform: scale(0.85); opacity: 0; } 60% { transform: scale(1.03); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
-        .modal-box label { display: block; font-size: 10px; color: var(--text-muted); margin-bottom: 6px; margin-top: 14px; font-weight: 600; }
-        .modal-box input { width: 100%; padding: 14px 12px; background: var(--wa-bg); border: 1px solid var(--border-color); color: var(--text-light); font-size: 16px; font-family: 'Montserrat', sans-serif; font-weight: 600; outline: none; border-radius: 8px; transition: border-color 0.3s; }
-        .modal-box input:focus { border-color: var(--text-light); }
+        /* === 8. MODAL KONTROL (MODE FOKUS & KOMPAK) === */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
         
-        .modal-btns { display: flex; gap: 10px; justify-content: center; margin-top: 25px; }
-        .btn-main { width: 100%; padding: 14px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; font-family: 'Montserrat', sans-serif; text-transform: uppercase; background-color: #222222 !important; transition: transform 0.15s ease, opacity 0.2s; border: 1px solid transparent; color: white; display: flex; justify-content: center; align-items: center; min-height: 44px; outline:none; }
-        .btn-main:active { transform: scale(0.96); opacity: 0.9; }
-        .btn-mono { border-color: var(--mono-main) !important; color: var(--mono-main) !important; }
-        .btn-cancel { border-color: var(--text-muted) !important; color: var(--text-muted) !important; }
+        .modal-box { 
+            background: #141414; padding: 18px 20px; border-radius: 12px; width: 100%; max-width: 290px; border: 1px solid #333333; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: left; animation: popInBouncy 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); max-height: 90vh; overflow-y: auto; overscroll-behavior: contain; 
+            /* Posisi sedikit ke atas untuk jangkauan jempol, tapi aman di layar kecil */
+            transform: translateY(-5vh); 
+        }
+        @keyframes popInBouncy { 0% { transform: scale(0.85) translateY(5vh); opacity: 0; } 100% { transform: scale(1) translateY(-5vh); opacity: 1; } }
+        
+        .modal-box label { display: block; font-size: 10px; color: #aaaaaa; margin-bottom: 4px; margin-top: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+        .modal-box label:first-child { margin-top: 0; }
 
-        /* === BIG PRICE POPUP === */
-        #price-popup-box { border-top: 5px solid #3CB371 !important; text-align: center; }
-        .pp-price-anim { animation: pulseGreen 1s infinite alternate; }
-        @keyframes pulseGreen { 0% { text-shadow: 0 0 10px rgba(60, 179, 113, 0.2); } 100% { text-shadow: 0 0 20px rgba(60, 179, 113, 0.8); transform: scale(1.05); } }
+        .modal-box input { width: 100%; padding: 10px 12px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-light); font-size: 14px; font-family: 'Montserrat', sans-serif; font-weight: 600; outline: none; border-radius: 8px; transition: all 0.2s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); margin-bottom: 2px; }
+        .modal-box input:focus { background: rgba(255, 255, 255, 0.05); border-color: var(--mono-main); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15), inset 0 2px 4px rgba(0,0,0,0.5); }
+        
+        /* Barcode Row Kompak */
+        .modal-box input[id="i-b"] { flex: 1; margin: 0; }
+        .barcode-row { display: flex; gap: 6px; align-items: center; }
+        .modal-box button[onclick*="openScanner"] { background: rgba(0,0,0,0.5) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; border-radius: 8px !important; height: 40px; width: 44px !important; transition: all 0.2s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); outline:none; display:flex; justify-content:center; align-items:center; }
+        .modal-box button[onclick*="openScanner"]:active { background: rgba(255, 255, 255, 0.1) !important; transform: scale(0.95); }
+        
+        /* Tombol Price Chips */
+        .chip-row { display: flex; gap: 8px; margin-top: 4px; margin-bottom: 8px; }
+        .chip-btn { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: var(--text-muted); font-weight: 700; padding: 8px 0; cursor: pointer; transition: 0.15s ease; font-family: 'Montserrat', monospace; font-size: 13px; outline: none; }
+        .chip-btn:active { background: rgba(255,255,255,0.15); transform: scale(0.95); color: #fff;}
+
+        /* Tombol Simpan Kompak */
+        .modal-btns { display: flex; gap: 8px; justify-content: center; margin-top: 15px; }
+        .btn-main { width: 100%; padding: 12px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; font-family: 'Montserrat', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; transition: transform 0.15s ease, opacity 0.2s; display: flex; justify-content: center; align-items: center; min-height: 42px; outline: none; }
+        .btn-main:active { transform: scale(0.96); }
+        .btn-mono { background-color: var(--mono-main) !important; color: #000000 !important; border: none !important; box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1); }
+        .btn-cancel { background-color: transparent !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; color: var(--text-light) !important; }
+        
+        button:disabled, input:disabled, .btn-main:disabled { opacity: 0.5 !important; cursor: not-allowed; transform: scale(1) !important; pointer-events: none; }
 
         /* === 9. FAB BUTTON === */
         .fab { position: fixed; bottom: calc(30px + env(safe-area-inset-bottom, 0px)); right: 20px; background: #000000; width: 60px; height: 60px; border-radius: 18px; display: flex; justify-content: center; align-items: center; border: 2px solid var(--border-color); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8); z-index: 500; cursor: pointer; transition: transform 0.2s, border-color 0.2s; outline: none; }
         .fab:active { transform: scale(0.9); border-color: var(--mono-sec); }
 
-        /* === 10. SCANNER === */
+        /* === 10. SCANNER UI BARU (MINIMALIS & MURNI) === */
         #scanner-wrap { display: none; background: #000; position: fixed; inset: 0; z-index: 3500; }
-        #reader { width: 100%; height: 100%; }
-        .scanner-overlay { position: absolute; inset: 0; pointer-events: none; display: flex; justify-content: center; align-items: center; z-index: 3510; box-shadow: inset 0 0 0 4000px rgba(0,0,0,0.6); }
-        .scanner-box { width: 250px; height: 200px; border: 2px solid #ffffff; position: relative; border-radius: 16px; overflow: hidden; box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); }
-        .scanner-laser { width: 100%; height: 2px; background: red; position: absolute; box-shadow: 0 0 10px 2px red; animation: scan-anim 2s infinite ease-in-out; }
-        @keyframes scan-anim { 0% { top: 5%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 95%; opacity: 0; } }
-        .scan-stop { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); background: #000000; color: var(--danger); border: 1px solid var(--danger); padding: 15px 40px; border-radius: 12px; font-weight: 700; font-family: 'Montserrat', sans-serif; z-index: 3520; cursor: pointer; min-height: 48px; }
+        #reader { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        #reader video { object-fit: cover; width: 100%; height: 100%; }
+        
+        /* Sembunyikan border jelek bawaan library */
+        #qr-shaded-region { display: none !important; } 
 
-        /* === 11. TOAST === */
-        #toast-notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-30px); background: rgba(21, 21, 21, 0.95); border: 1px solid var(--border-color); border-bottom: 2px solid var(--mono-main); color: var(--text-light); padding: 14px 24px; border-radius: 30px; font-size: 13px; font-weight: 700; z-index: 99999; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.9); opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; white-space: nowrap; will-change: transform, opacity; }
+        .scanner-overlay { position: absolute; inset: 0; pointer-events: none; display: flex; justify-content: center; align-items: center; z-index: 3510; }
+        
+        /* Kotak putih membulat dengan bayangan hitam pekat raksasa menutupi layar */
+        .scanner-box { width: 260px; height: 180px; border: 2px solid #ffffff; border-radius: 16px; position: relative; overflow: hidden; box-shadow: 0 0 0 4000px rgba(0,0,0,0.85); }
+        .scanner-laser { width: 100%; height: 2px; background: red; position: absolute; box-shadow: 0 0 15px 2px red; animation: scan-anim 2s infinite ease-in-out; }
+        @keyframes scan-anim { 0% { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+        
+        .scan-stop { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); background: #000000; color: var(--danger); border: 1px solid var(--danger); padding: 15px 40px; border-radius: 12px; font-weight: 700; font-family: 'Montserrat', sans-serif; z-index: 3520; cursor: pointer; min-height: 48px; pointer-events: auto; letter-spacing: 1px; outline:none;}
+
+        /* Senter Pintar (Flashlight) */
+        .btn-torch { position: absolute; top: 40px; right: 20px; width: 46px; height: 46px; border-radius: 23px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.3); color: #ffffff; display: flex; justify-content: center; align-items: center; z-index: 3520; cursor: pointer; pointer-events: auto; backdrop-filter: blur(5px); transition: all 0.2s ease; outline: none; }
+        .btn-torch:active { transform: scale(0.9); }
+
+        /* === 11. TOAST & NOTIF === */
+        #toast-notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-30px); background: rgba(21, 21, 21, 0.95); border: 1px solid var(--border-color); border-bottom: 2px solid var(--mono-main); color: var(--text-light); padding: 14px 24px; border-radius: 30px; font-size: 13px; font-weight: 700; z-index: 99999; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.9); opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; white-space: nowrap; }
         #toast-notification.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-
-        /* === 12. KALENDER === */
-        .picker-box-new { background: #111111; padding: 24px 20px; border-radius: 18px; width: 90%; max-width: 330px; border: 1px solid var(--border-color); box-shadow: 0 20px 50px rgba(0,0,0,0.9); text-align: center; margin: auto; animation: popInBouncy 0.3s ease-out; }
-        .picker-header-new { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 0 10px; }
-        .picker-nav-new { background: none; border: none; color: white; font-size: 20px; font-weight: 800; cursor: pointer; padding: 10px; outline: none; transition: 0.2s; min-width: 44px; }
-        .picker-nav-new:active { opacity: 0.5; }
+        #custom-alert, #pin-modal, #price-popup, #custom-picker { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 40000; align-items: center; justify-content: center; padding: 20px; }
+        
+        #price-popup-box { border-top: 4px solid #3CB371 !important; text-align: center; }
+        .pp-price-anim { animation: pulseGreen 1s infinite alternate; }
+        @keyframes pulseGreen { 0% { text-shadow: 0 0 10px rgba(60, 179, 113, 0.2); } 100% { text-shadow: 0 0 20px rgba(60, 179, 113, 0.8); transform: scale(1.05); } }
+        
+        .picker-box-new { background: #111111; padding: 24px 20px; border-radius: 12px; width: 90%; max-width: 300px; border: 1px solid #333; text-align: center; margin: auto; }
+        .picker-header-new { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 10px; }
+        .picker-nav-new { background: none; border: none; color: white; font-size: 20px; font-weight: 800; cursor: pointer; outline: none; }
         .picker-year-new { font-size: 16px; font-weight: 700; color: var(--mono-main); font-family: 'Montserrat', sans-serif; }
-        .picker-grid-new { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px 10px; margin-bottom: 30px; }
-        .month-item { color: white; font-size: 14px; font-weight: 600; padding: 12px 0; border-radius: 12px; cursor: pointer; transition: background 0.2s, transform 0.1s; user-select: none; }
-        .month-item:active { transform: scale(0.9); }
-        .month-item.active { background: var(--mono-main); color: #000; font-weight: 700; }
-        .picker-footer-new { display: flex; gap: 10px; justify-content: space-between; }
-        .btn-picker-new { flex: 1; background: transparent; border: 1.5px solid var(--mono-main); border-radius: 12px; padding: 14px 0; font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; transition: 0.2s; font-family: 'Montserrat', sans-serif; outline: none; min-height: 44px; }
-        .btn-picker-new.color-main { color: var(--mono-main); }
-        .btn-picker-new.color-danger { border-color: var(--danger); color: var(--danger); }
-        .btn-picker-new:active { background: rgba(255, 255, 255, 0.1); transform: scale(0.95); }
+        .picker-grid-new { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .month-item { color: white; font-size: 13px; font-weight: 600; padding: 10px 0; border-radius: 8px; cursor: pointer; }
+        .month-item.active { background: var(--mono-main); color: #000; }
+        .picker-footer-new { display: flex; gap: 8px; }
+        .btn-picker-new { flex: 1; background: transparent; border: 1px solid var(--mono-main); border-radius: 8px; padding: 10px 0; font-size: 11px; font-weight: 700; cursor: pointer; color: var(--mono-main); outline: none; }
     </style>
 </head>
 <body>
@@ -211,61 +209,21 @@
             <span id="current-date-location" class="header-date-location">Boyolali, Memuat...</span>
         </div>
         <div class="top-btns">
-            <button class="icon-btn" onclick="openScanner('search')" title="Scan Pencarian Cepat">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none">
-                    <rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke="white" stroke-width="1.5"></rect>
-                    <line class="laser-beam-header" x1="5" y1="12" x2="19" y2="12" stroke="red" stroke-width="2" stroke-linecap="round"></line>
-                </svg>
+            <button class="icon-btn" onclick="openScanner('search')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke="white" stroke-width="1.5"></rect><line class="laser-beam-header" x1="5" y1="12" x2="19" y2="12" stroke="red" stroke-width="2" stroke-linecap="round"></line></svg>
             </button>
             <button class="icon-btn header-upload-btn" onclick="backupToCloud()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#87CEFA" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="glow-cloud">
-                    <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
-                    <path d="M12 16V8"></path>
-                    <path d="M9 11l3-3 3 3"></path>
-                </svg>
-                <span style="font-size: 8px; font-weight: 700; letter-spacing: 0.5px; color:#87CEFA;">UPLOAD</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#87CEFA" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="glow-cloud"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path><path d="M12 16V8"></path><path d="M9 11l3-3 3 3"></path></svg>
+                <span style="font-size: 8px; font-weight: 700; color:#87CEFA;">UPLOAD</span>
             </button>
             <div class="dropdown-wrapper">
-                <button class="icon-btn" id="kebab-btn" onclick="toggleMenu(event)">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
-                        <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-                    </svg>
-                </button>
+                <button class="icon-btn" id="kebab-btn" onclick="toggleMenu(event)"><svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></button>
                 <div id="dropdown-menu" class="dropdown-content hidden">
-                    <div class="dropdown-item" onclick="loadFromCloud()" style="color: #87CEFA;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#87CEFA" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path><path d="M12 8v8"></path><path d="M9 13l3 3 3-3"></path>
-                        </svg> Load Cloud
-                    </div>
-                    <div style="border-top: 1px solid rgba(255,255,255,0.05); margin: 4px 0;"></div>
-                    <div class="dropdown-item" onclick="exportData()" style="color: #3CB371;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3CB371" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><rect x="8" y="13" width="8" height="6" rx="0.5"></rect><line x1="12" y1="13" x2="12" y2="19"></line><line x1="8" y1="16" x2="16" y2="16"></line>
-                        </svg> Save Excel
-                    </div>
-                    <label class="dropdown-item" style="color: #3CB371;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3CB371" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M12 18v-6"></path><path d="M9 15l3-3 3 3"></path>
-                        </svg> Load Excel
-                        <input type="file" accept=".xlsx, .xls" onchange="importData(event)">
-                    </label>
-                    <div style="border-top: 1px solid rgba(255,255,255,0.05); margin: 4px 0;"></div>
-                    
-                    <div class="dropdown-item" onclick="optimizeData()" style="color: #FFA500;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFA500" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M2.5 21.5l5.5-5.5"></path>
-                            <path d="M7 10l6-6c1.5-1.5 4.5-1.5 6 0s1.5 4.5 0 6l-6 6"></path>
-                            <path d="M12 8l4 4"></path>
-                            <path d="M8 12l4 4"></path>
-                        </svg> Bersihkan Cache
-                    </div>
-                    <div style="border-top: 1px solid rgba(255,255,255,0.05); margin: 4px 0;"></div>
-
-                    <div class="dropdown-item" onclick="deleteAllDataPrompt()" style="color: var(--danger);">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        </svg> Hapus Semua Data
-                    </div>
+                    <div class="dropdown-item" onclick="loadFromCloud()" style="color: #87CEFA;">Load Cloud</div>
+                    <div class="dropdown-item" onclick="exportData()" style="color: #3CB371;">Save Excel</div>
+                    <label class="dropdown-item" style="color: #3CB371;">Load Excel<input type="file" accept=".xlsx, .xls" onchange="importData(event)"></label>
+                    <div class="dropdown-item" onclick="optimizeData()" style="color: #FFA500;">Bersihkan Cache</div>
+                    <div class="dropdown-item" onclick="deleteAllDataPrompt()" style="color: var(--danger);">Hapus Semua Data</div>
                 </div>
             </div>
         </div>
@@ -274,20 +232,17 @@
     <div id="scanner-wrap">
         <div id="reader"></div>
         <div class="scanner-overlay"><div class="scanner-box"><div class="scanner-laser"></div></div></div>
+        <button class="btn-torch" onclick="toggleFlashlight()" id="torch-btn">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        </button>
         <button class="scan-stop" onclick="closeScanner()">BATAL SCAN</button>
     </div>
 
     <div class="search-area">
         <div class="search-box">
-            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" id="q" placeholder="search..." autocomplete="off">
-            <div id="q-x" class="q-clear" onclick="clearSearch()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6M9 9l6 6"></path>
-                </svg>
-            </div>
+            <div id="q-x" class="q-clear" onclick="clearSearch()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6M9 9l6 6"></path></svg></div>
             <div id="search-dropdown" class="search-dropdown-box hidden"><div id="sd-content"></div></div>
         </div>
         <div id="search-summary" class="search-summary hidden"></div>
@@ -309,33 +264,34 @@
     <div class="scroll-letter" id="scroll-letter">A</div>
 
     <button class="fab" onclick="showMod()">
-        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
     </button>
 
     <div id="mod" class="modal" onclick="if(event.target===this) hideMod()">
         <div class="modal-box">
-            <h3 id="m-tit" class="audiowide-regular" style="color:var(--mono-main); margin-top:0; margin-bottom:15px; font-size:16px;">Tambah Barang</h3>
+            <h3 id="m-tit" class="audiowide-regular" style="color:var(--mono-main); margin-top:0; margin-bottom:10px; font-size:15px;">Tambah Barang</h3>
+            
             <label>Nama Barang</label><input type="text" id="i-n" placeholder="Nama Barang" autocomplete="off" style="text-transform: capitalize;">
+            
             <label>Barcode</label>
-            <div style="display: flex; gap: 8px;">
-                <input type="text" id="i-b" inputmode="text" placeholder="Kode Barcode" autocomplete="off" style="flex: 1;">
-                <button type="button" onclick="openScanner('input')" style="background: transparent; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; outline: none;">
-                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none">
-                        <rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke="white" stroke-width="1.5"></rect>
-                        <line class="laser-beam-header" x1="5" y1="12" x2="19" y2="12" stroke="red" stroke-width="2" stroke-linecap="round"></line>
-                    </svg>
+            <div class="barcode-row">
+                <input type="text" id="i-b" inputmode="text" placeholder="Kode Barcode" autocomplete="off">
+                <button type="button" onclick="openScanner('input')">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke="white" stroke-width="1.5"></rect><line x1="5" y1="12" x2="19" y2="12" stroke="red" stroke-width="2"></line></svg>
                 </button>
             </div>
             
-            <label>Singkatan / Kode Cepat (Opsional)</label>
-            <input type="text" id="i-t" placeholder="Kosongkan untuk otomatis" autocomplete="off" style="text-transform: lowercase;">
-
-            <label>Tanggal Kedaluwarsa (Bulan Tahun)</label>
-            <input type="text" id="i-exp" placeholder="- Tidak Ada -" readonly onclick="openPicker('i-exp', 'date', 'var(--mono-main)')" style="cursor: pointer; caret-color: transparent;">
+            <label>Singkatan / Kode Cepat</label><input type="text" id="i-t" placeholder="Kosongkan untuk otomatis" autocomplete="off" style="text-transform: lowercase;">
+            <label>Kedaluwarsa (Bulan Tahun)</label><input type="text" id="i-exp" placeholder="- Tidak Ada -" readonly onclick="openPicker('i-exp', 'date', 'var(--mono-main)')" style="cursor: pointer; caret-color: transparent;">
+            
             <label>Harga Eceran</label><input type="text" id="i-p1" inputmode="numeric" placeholder="0" oninput="formatRp(this)">
             <label>Harga Grosir</label><input type="text" id="i-p2" inputmode="numeric" placeholder="0" oninput="formatRp(this)">
+            
+            <div class="chip-row">
+                <button class="chip-btn" type="button" onclick="addZero('00')">+00</button>
+                <button class="chip-btn" type="button" onclick="addZero('000')">+000</button>
+            </div>
+
             <div class="modal-btns">
                 <button class="btn-main btn-cancel" onclick="hideMod()">BATAL</button>
                 <button class="btn-main btn-mono" onclick="save()">SIMPAN</button>
@@ -343,53 +299,40 @@
         </div>
     </div>
 
-    <div id="pin-modal" class="modal hidden" style="z-index: 45000; align-items: center;">
-        <div class="modal-box" style="text-align: center; max-width: 280px; border-top: 3px solid var(--danger);">
-            <h3 style="margin-top:0; font-size:15px; font-weight:700; color: var(--danger);">Otorisasi Dibutuhkan</h3>
-            <p style="font-size:12px; color:var(--text-light); opacity:0.9; margin-bottom:15px;">Masukkan PIN untuk menghapus seluruh memori database permanen.</p>
-            <input type="password" id="pin-input" inputmode="numeric" placeholder="••••••" autocomplete="off" style="text-align:center; font-size:18px; letter-spacing: 5px; margin-bottom: 20px;">
+    <div id="pin-modal">
+        <div class="modal-box" style="text-align: center; border-top-color: var(--danger);">
+            <h3 style="margin-top:0; color: var(--danger);">Otorisasi</h3>
+            <p style="font-size:11px; color:var(--text-light); margin-bottom:15px;">Masukkan PIN hapus massal.</p>
+            <input type="password" id="pin-input" inputmode="numeric" placeholder="••••••" style="text-align:center; letter-spacing:5px;">
             <div class="modal-btns">
                 <button class="btn-main btn-cancel" onclick="closePinModal()">BATAL</button>
-                <button class="btn-main" style="border-color: var(--danger) !important; color: var(--danger) !important;" onclick="verifyPinAndExecute()">HAPUS</button>
+                <button class="btn-main" style="border: 1px solid var(--danger)!important; color: var(--danger)!important; background:transparent!important;" onclick="verifyPinAndExecute()">HAPUS</button>
             </div>
         </div>
     </div>
 
-    <div id="price-popup" class="modal" style="z-index: 50000; align-items: center;" onclick="closePricePopup(event)">
+    <div id="price-popup" onclick="closePricePopup(event)">
         <div class="modal-box" id="price-popup-box">
-            <div style="display: flex; justify-content: center; margin-bottom: 15px;">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#3CB371" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-            </div>
-            <h2 id="pp-name" style="margin:0; font-size: 18px; color: var(--text-light); text-transform: uppercase;">Nama Barang</h2>
-            <p id="pp-price" class="pp-price-anim" style="font-size: 38px; font-weight: 900; color: #3CB371; margin: 15px 0; font-family: 'Montserrat', sans-serif;">Rp 0</p>
-            <p id="pp-price-grosir" style="font-size: 14px; color: var(--warning); margin-top: 0; font-weight: 700;"></p>
-            <p id="pp-barcode" style="font-size: 12px; color: var(--text-muted); font-family: monospace;"></p>
-            <button class="btn-main" style="border-color: #3CB371 !important; color: #3CB371 !important; margin-top: 20px;" onclick="closePricePopup(event, true)">TUTUP</button>
+            <h2 id="pp-name" style="margin:0; font-size: 16px; color: var(--text-light); text-transform: uppercase;">Barang</h2>
+            <p id="pp-price" class="pp-price-anim" style="font-size: 32px; font-weight: 900; color: #3CB371; margin: 10px 0; font-family: 'Montserrat', sans-serif;">Rp 0</p>
+            <p id="pp-price-grosir" style="font-size: 12px; color: var(--warning); margin-top: 0;"></p>
+            <p id="pp-barcode" style="font-size: 11px; color: var(--text-muted); font-family: monospace;"></p>
+            <button class="btn-main" style="border: 1px solid #3CB371 !important; color: #3CB371 !important; background:transparent!important; margin-top: 15px;" onclick="closePricePopup(event, true)">TUTUP</button>
         </div>
     </div>
 
-    <div id="custom-picker" class="modal hidden" style="z-index: 30000; align-items: center;" onclick="if(event.target===this) hidePicker()">
+    <div id="custom-picker" onclick="if(event.target===this) hidePicker()">
         <div class="picker-box-new">
-            <div class="picker-header-new">
-                <button class="picker-nav-new" onclick="cpChangeYear(-1)">❮</button>
-                <div id="cp-year" class="picker-year-new">2026</div>
-                <button class="picker-nav-new" onclick="cpChangeYear(1)">❯</button>
-            </div>
+            <div class="picker-header-new"><button class="picker-nav-new" onclick="cpChangeYear(-1)">❮</button><div id="cp-year" class="picker-year-new">2026</div><button class="picker-nav-new" onclick="cpChangeYear(1)">❯</button></div>
             <div id="cp-grid" class="picker-grid-new"></div>
-            <div class="picker-footer-new">
-                <button class="btn-picker-new color-danger" onclick="clearPickerDate()">HAPUS</button>
-                <button class="btn-picker-new color-main" onclick="hidePicker()">BATAL</button>
-                <button class="btn-picker-new color-main" onclick="setPickerDate()">SETEL</button>
-            </div>
+            <div class="picker-footer-new"><button class="btn-picker-new" style="border-color:var(--danger);color:var(--danger);" onclick="clearPickerDate()">HAPUS</button><button class="btn-picker-new" onclick="hidePicker()">BATAL</button><button class="btn-picker-new" style="background:var(--mono-main);color:#000;" onclick="setPickerDate()">SETEL</button></div>
         </div>
     </div>
 
-    <div id="custom-alert" class="modal hidden" style="z-index: 40000; align-items: center;">
-        <div class="picker-box" id="alert-box" style="background: rgba(21, 21, 21, 0.85); padding: 20px; border-radius: 16px; border-top: 3px solid var(--mono-main); width: 85%; max-width: 320px;">
-            <h3 id="alert-title" style="margin-top:0; font-size:15px; font-weight:700;">Notifikasi</h3>
-            <p id="alert-msg" style="font-size:13px; color:var(--text-light); opacity:0.9; line-height:1.5; margin-bottom:20px;"></p>
+    <div id="custom-alert">
+        <div class="modal-box" id="alert-box">
+            <h3 id="alert-title" style="margin-top:0; font-size:14px;">Info</h3>
+            <p id="alert-msg" style="font-size:12px; color:var(--text-light); opacity:0.9; margin-bottom:15px;"></p>
             <div class="modal-btns" id="alert-btns"></div>
         </div>
     </div>
@@ -397,491 +340,102 @@
     <div id="toast-notification" class="hidden"><span id="toast-message"></span></div>
 
     <script>
-        // === 1. UTILITAS DOM & GLOBAL ===
         const $ = (id) => document.getElementById(id);
-        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbykkqKgvQ9u5uGpUJ3_dv4Qy0WSy64V0ACi2AnhI00GvyVdXoZ34nrk9AKpRDQCsg-_1A/exec";
+        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbyzjVZ_aUbn4yznjxh-8pdzAAFA0X43L3atxuchVW5cz2FrEc2hjG8Zbxnz3SHJPipLow/exec";
         const NamaBln = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         const NamaBlnPendek = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 
-        let db = [], idb;
-        let worker, workerResult = null; 
-        let filteredData = []; 
-        let listOffsets = []; 
-        let lastStartIndex = -1; 
-        let lastEndIndex = -1;
-        let currentSearchReqId = 0; 
-        let inputBuffer = '';
-        let bufferTimer;
-        
-        let barcodeMap = new Map();
-        let acronymMap = new Map();
-        let physicalInputBuffer = "";
-        let lastKeyTime = 0;
-
+        let db = [], idb, worker, workerResult = null, filteredData = [], listOffsets = [];
+        let lastStartIndex = -1, lastEndIndex = -1, currentSearchReqId = 0, inputBuffer = '', bufferTimer;
+        let barcodeMap = new Map(), acronymMap = new Map(), physicalInputBuffer = "", lastKeyTime = 0;
         let tab = 'all', activeId = null, html5QrCode = null, isScanning = false, isStartingScan = false, sortAZ = false, scanMode = 'search'; 
-        let toastTimeoutHide, toastTimeoutRemove;
+        let toastTimeoutHide, toastTimeoutRemove, isSaving = false, scrollLetterTimeout;
         const Picker = { sel: new Date(), targetId: '', tempYear: new Date().getFullYear(), tempMonth: new Date().getMonth() };
-        
         let recentSearches = JSON.parse(localStorage.getItem('DB_WA_RECENT')) || [];
         let trendingSearches = JSON.parse(localStorage.getItem('DB_WA_TRENDING')) || {};
-        
-        let isSaving = false;
-        let isScrollLetterActive = false;
-        let scrollLetterTimeout;
 
-        const TemaNotifikasi = {
-            "Error": "var(--danger)", "Gagal": "var(--danger)", "Hapus": "var(--danger)",
-            "Peringatan": "var(--warning)", "Optimasi Sistem": "#FFA500", "Sistem Bersih": "#FFA500",
-            "Backup": "#87CEFA", "Sinkronisasi": "#87CEFA", "Sukses": "#3CB371", "Info": "var(--mono-main)"
-        };
+        const TemaNotifikasi = { "Error": "var(--danger)", "Gagal": "var(--danger)", "Hapus": "var(--danger)", "Peringatan": "var(--warning)", "Optimasi Sistem": "#FFA500", "Sistem Bersih": "#FFA500", "Backup": "#87CEFA", "Sinkronisasi": "#87CEFA", "Sukses": "#3CB371", "Info": "var(--mono-main)" };
 
-        // === FITUR WAKE LOCK ===
-        let wakeLock = null;
-        let isWakeLockRequested = false;
+        // === WAKE LOCK ===
+        let wakeLock = null, isWakeLockRequested = false;
+        async function requestWakeLock() { try { if ('wakeLock' in navigator && wakeLock === null) wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {} }
+        document.addEventListener('click', () => { if (!isWakeLockRequested) { isWakeLockRequested = true; requestWakeLock(); } }, { once: true });
+        document.addEventListener('visibilitychange', async () => { if (isWakeLockRequested && document.visibilityState === 'visible') { wakeLock = null; await requestWakeLock(); } });
 
-        async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator && wakeLock === null) {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    console.log('Layar dikunci agar selalu menyala.');
-                }
-            } catch (err) {
-                console.warn('Wake Lock error:', err);
-            }
-        }
+        // === TOAST & IDB ===
+        function tampilkanToast(msg, color="var(--mono-main)") { const t = $('toast-notification'); $('toast-message').innerText = msg; t.style.borderBottomColor = color; clearTimeout(toastTimeoutHide); clearTimeout(toastTimeoutRemove); t.classList.remove('hidden'); setTimeout(() => t.classList.add('show'), 10); toastTimeoutHide = setTimeout(() => { t.classList.remove('show'); toastTimeoutRemove = setTimeout(() => t.classList.add('hidden'), 400); }, 3000); }
+        function initDB() { return new Promise((resolve, reject) => { const req = indexedDB.open('HargaDB_Pro', 1); req.onupgradeneeded = (e) => { const database = e.target.result; if (!database.objectStoreNames.contains('items')) database.createObjectStore('items', { keyPath: 'id' }); }; req.onsuccess = (e) => resolve(idb = e.target.result); req.onerror = (e) => reject(e.target.error); }); }
+        function loadAllFromIDB() { return new Promise((resolve, reject) => { const req = idb.transaction('items', 'readonly').objectStore('items').getAll(); req.onsuccess = () => resolve(req.result); req.onerror = () => reject("Gagal memuat data"); }); }
+        function saveItemToIDB(item) { return new Promise((resolve, reject) => { const tx = idb.transaction('items', 'readwrite'); tx.objectStore('items').put(item); tx.oncomplete = () => resolve(); tx.onerror = () => reject("Gagal menyimpan data"); }); }
 
-        document.addEventListener('click', () => {
-            if (!isWakeLockRequested) {
-                isWakeLockRequested = true;
-                requestWakeLock();
-            }
-        }, { once: true });
-
-        document.addEventListener('visibilitychange', async () => {
-            if (isWakeLockRequested && document.visibilityState === 'visible') {
-                wakeLock = null; 
-                await requestWakeLock();
-            }
-        });
-
-        function tampilkanToast(msg, color="var(--mono-main)") {
-            const t = $('toast-notification'); $('toast-message').innerText = msg; t.style.borderBottomColor = color;
-            clearTimeout(toastTimeoutHide); clearTimeout(toastTimeoutRemove);
-            t.classList.remove('hidden'); setTimeout(() => t.classList.add('show'), 10);
-            toastTimeoutHide = setTimeout(() => { t.classList.remove('show'); toastTimeoutRemove = setTimeout(() => t.classList.add('hidden'), 400); }, 3000);
-        }
-
-        // === 2. INDEXEDDB ===
-        function initDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open('HargaDB_Pro', 1);
-                request.onupgradeneeded = (e) => {
-                    const database = e.target.result;
-                    if (!database.objectStoreNames.contains('items')) {
-                        database.createObjectStore('items', { keyPath: 'id' });
-                    }
-                };
-                request.onsuccess = (e) => resolve(idb = e.target.result);
-                request.onerror = (e) => reject(e.target.error);
-            });
-        }
-        
-        function loadAllFromIDB() {
-            return new Promise((resolve, reject) => {
-                const req = idb.transaction('items', 'readonly').objectStore('items').getAll();
-                req.onsuccess = () => resolve(req.result);
-                req.onerror = () => reject("Gagal memuat data");
-            });
-        }
-
-        function saveItemToIDB(item) {
-            return new Promise((resolve, reject) => {
-                const tx = idb.transaction('items', 'readwrite');
-                tx.objectStore('items').put(item);
-                tx.oncomplete = () => resolve();
-                tx.onerror = () => reject("Gagal menyimpan data");
-            });
-        }
-
-        // === 3. UTILITAS FORMAT & SECURITY ===
-        function updateMaps() {
-            barcodeMap.clear();
-            acronymMap.clear();
-            db.forEach(item => {
-                if (!item.deleted) {
-                    if (item.b) barcodeMap.set(String(item.b).trim(), item);
-                    if (item.t) acronymMap.set(String(item.t).trim().toLowerCase(), item);
-                }
-            });
-        }
-
-        function generateUniqueId() {
-            if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
-            return Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
-        }
-
-        const fetchWithTimeout = (url, options, timeout = 30000) => {
-            return Promise.race([
-                fetch(url, options),
-                new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT_ERROR')), timeout))
-            ]);
-        };
-
-        function isAcronymUsed(acr, excludeId, tempSet = null) {
-            if (tempSet && tempSet.has(acr)) return true;
-            const existing = acronymMap.get(acr);
-            if (!existing) return false;
-            if (excludeId && String(existing.id) === String(excludeId)) return false; 
-            return true;
-        }
-
-        function generateSmartAcronym(name, excludeId = null, tempSet = null) {
-            if (!name) return "xxx";
-            let cleanName = String(name).toLowerCase();
-            let numMatch = cleanName.match(/\d+/g);
-            let numbers = numMatch ? numMatch.join('') : ''; 
-            let textOnly = cleanName.replace(/[0-9]/g, '');
-            let stopWords = /^(dan|yg|pcs|isi|dengan|rasa|untuk)$/;
-            let words = textOnly.replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(w => w.length > 0 && !stopWords.test(w));
-            if (words.length === 0) return "xxx" + numbers;
-            let tryAcr = "";
-            if (words.length === 1) {
-                let w = words[0];
-                let cons = w.replace(/[aeiou]/g, '');
-                if (cons.length >= 2) { tryAcr = cons.substring(0, 3) + numbers; } 
-                else { tryAcr = w.substring(0, 3) + numbers; }
-                if (!isAcronymUsed(tryAcr, excludeId, tempSet)) return tryAcr;
-                let c = 2;
-                while (isAcronymUsed(tryAcr + c, excludeId, tempSet)) c++;
-                return tryAcr + c;
-            }
-            let baseLetters = words.slice(0, 5).map(w => w[0]).join('');
-            tryAcr = baseLetters + numbers;
-            if (!isAcronymUsed(tryAcr, excludeId, tempSet)) return tryAcr;
-            if (words[0].length >= 2) {
-                let alt1 = words[0].substring(0, 2) + words.slice(1, 4).map(w => w[0]).join('') + numbers;
-                if (!isAcronymUsed(alt1, excludeId, tempSet)) return alt1;
-            }
-            if (words.length >= 2 && words[0].length >= 2 && words[1].length >= 2) {
-                let alt2 = words[0].substring(0, 2) + words[1].substring(0, 2) + words.slice(2, 4).map(w => w[0]).join('') + numbers;
-                if (!isAcronymUsed(alt2, excludeId, tempSet)) return alt2;
-            }
-            let c = 2;
-            while (isAcronymUsed(tryAcr + c, excludeId, tempSet)) c++;
-            return tryAcr + c;
-        }
-
-        function playBeep() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain); gain.connect(ctx.destination);
-                osc.type = 'sine'; osc.frequency.setValueAtTime(800, ctx.currentTime); 
-                gain.gain.setValueAtTime(0.5, ctx.currentTime);
-                osc.start(); osc.stop(ctx.currentTime + 0.1); 
-            } catch(e) {}
-        }
-
-        function normalizeDateYMD(dStr) {
-            if (!dStr) return ''; 
-            const pts = dStr.split(/[\-\/]/);
-            if (pts.length === 3) {
-                let y = pts[0].length === 4 ? pts[0] : pts[2];
-                let m = pts[1];
-                let d = pts[0].length === 4 ? pts[2] : pts[0];
-                return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-            }
-            return '';
-        }
-
-        function formatBulanTahun(dStr) {
-            if (!dStr) return ''; 
-            const parts = String(dStr).split('-');
-            if (parts.length >= 2) return `${NamaBln[parseInt(parts[1], 10) - 1]} ${parts[0]}`;
-            return dStr;
-        }
-
-        function parseBulanTahunExcel(str) {
-            if (str === undefined || str === null || str === '') return ""; 
-            if (!isNaN(str) && Number(str) > 20000) {
-                let excelDays = Math.floor(Number(str) - 25569);
-                let dateInfo = new Date(Date.UTC(1970, 0, 1 + excelDays));
-                return `${dateInfo.getUTCFullYear()}-${String(dateInfo.getUTCMonth() + 1).padStart(2, '0')}-01`;
-            }
-            const parts = String(str).trim().split(/[\s-]+/);
-            if (parts.length === 2) { 
-                let b = NamaBln.findIndex(x => x.toLowerCase() === parts[0].toLowerCase()); 
-                if (b === -1) b = NamaBlnPendek.findIndex(x => x.toLowerCase() === parts[0].toLowerCase());
-                if (b !== -1) return `${parts[1]}-${String(b + 1).padStart(2, '0')}-01`; 
-            }
-            return normalizeDateYMD(String(str));
-        }
-
-        function parseExcelPrice(val) {
-            if (val === null || val === undefined || val === '') return null;
-            let num = Number(val);
-            if (!isNaN(num)) return Math.floor(num); 
-            let str = String(val).trim().replace(/Rp\s?/gi, '');
-            if (/^\d{1,3}(,\d{3})*(\.\d+)?$/.test(str)) { str = str.replace(/,/g, '').split('.')[0]; } 
-            else if (/^\d{1,3}(\.\d{3})*(,\d+)?$/.test(str)) { str = str.replace(/\./g, '').split(',')[0]; } 
-            else { str = str.split(',')[0].split('.')[0].replace(/\D/g, ''); }
-            return parseInt(str, 10) || 0;
-        }
-
+        // === UTILS ===
+        function updateMaps() { barcodeMap.clear(); acronymMap.clear(); db.forEach(item => { if (!item.deleted) { if (item.b) barcodeMap.set(String(item.b).trim(), item); if (item.t) acronymMap.set(String(item.t).trim().toLowerCase(), item); } }); }
+        function generateUniqueId() { return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2, 8); }
+        const fetchWithTimeout = (url, options, timeout = 30000) => Promise.race([ fetch(url, options), new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT_ERROR')), timeout)) ]);
+        function isAcronymUsed(acr, excludeId, tempSet = null) { if (tempSet && tempSet.has(acr)) return true; const existing = acronymMap.get(acr); if (!existing) return false; return excludeId && String(existing.id) === String(excludeId) ? false : true; }
+        function generateSmartAcronym(name, excludeId = null, tempSet = null) { if (!name) return "xxx"; let words = String(name).toLowerCase().replace(/[0-9]/g, '').replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(w => w.length > 0 && !/^(dan|yg|pcs|isi|dengan|rasa|untuk)$/.test(w)); let numMatch = String(name).toLowerCase().match(/\d+/g); let numbers = numMatch ? numMatch.join('') : ''; if (words.length === 0) return "xxx" + numbers; let tryAcr = words.length === 1 ? (words[0].replace(/[aeiou]/g, '').length >= 2 ? words[0].replace(/[aeiou]/g, '').substring(0, 3) : words[0].substring(0, 3)) + numbers : words.slice(0, 5).map(w => w[0]).join('') + numbers; if (!isAcronymUsed(tryAcr, excludeId, tempSet)) return tryAcr; let c = 2; while (isAcronymUsed(tryAcr + c, excludeId, tempSet)) c++; return tryAcr + c; }
+        function playBeep() { try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.type = 'sine'; osc.frequency.setValueAtTime(800, ctx.currentTime); gain.gain.setValueAtTime(0.5, ctx.currentTime); osc.start(); osc.stop(ctx.currentTime + 0.1); } catch(e) {} }
+        function formatBulanTahun(dStr) { if (!dStr) return ''; const parts = String(dStr).split('-'); return parts.length >= 2 ? `${NamaBln[parseInt(parts[1], 10) - 1]} ${parts[0]}` : dStr; }
+        function parseBulanTahunExcel(str) { if (!str) return ""; if (!isNaN(str) && Number(str) > 20000) { let d = new Date(Date.UTC(1970, 0, Math.floor(Number(str) - 25569) + 1)); return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-01`; } let p = String(str).trim().split(/[\s-]+/); if (p.length === 2) { let b = NamaBln.findIndex(x => x.toLowerCase() === p[0].toLowerCase()); if(b===-1) b = NamaBlnPendek.findIndex(x => x.toLowerCase() === p[0].toLowerCase()); if (b !== -1) return `${p[1]}-${String(b + 1).padStart(2, '0')}-01`; } let pt = String(str).split(/[\-\/]/); return pt.length === 3 ? `${pt[0].length === 4 ? pt[0] : pt[2]}-${String(pt[1]).padStart(2, '0')}-${String(pt[0].length === 4 ? pt[2] : pt[0]).padStart(2, '0')}` : ''; }
+        function parseExcelPrice(val) { if (!val) return null; let num = Number(val); if (!isNaN(num)) return Math.floor(num); let s = String(val).trim().replace(/Rp\s?/gi, ''); return parseInt(/^\d{1,3}(,\d{3})*(\.\d+)?$/.test(s) ? s.replace(/,/g, '').split('.')[0] : /^\d{1,3}(\.\d{3})*(,\d+)?$/.test(s) ? s.replace(/\./g, '').split(',')[0] : s.split(',')[0].split('.')[0].replace(/\D/g, ''), 10) || 0; }
         function fmt(n) { return n ? new Intl.NumberFormat('id-ID').format(n) : "0"; }
-        function escapeHTML(str) { return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)); }
-        
-        function prop(s) { 
-            if (!s) return "";
-            let clean = String(s).replace(/<\/?[^>]+(>|$)/g, ""); 
-            return clean.trim().split(/([\s/-])/).map(w => w && !/[\s/-]/.test(w) ? w.charAt(0).toUpperCase() + w.slice(1) : w).join('').replace(/\s+/g, ' '); 
+        function escapeHTML(str) { return String(str).replace(/[&<>'"]/g, t => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[t] || t)); }
+        function prop(s) { return !s ? "" : String(s).replace(/<\/?[^>]+(>|$)/g, "").trim().split(/([\s/-])/).map(w => w && !/[\s/-]/.test(w) ? w.charAt(0).toUpperCase() + w.slice(1) : w).join('').replace(/\s+/g, ' '); }
+        function highlightMatch(text, term) { const safeText = escapeHTML(text || ""); if (!term || term.trim() === '') return safeText; const regex = new RegExp(`(${escapeHTML(term.trim()).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'); return safeText.replace(regex, '<span class="highlight">$1</span>'); }
+        function formatRp(input) { let val = input.value.replace(/\D/g, ""); input.value = val ? fmt(parseInt(val, 10) || 0) : ""; }
+        function debounce(func, wait) { let timeout; return function(...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), wait); }; }
+
+        // === QUICK PRICE CHIPS ===
+        let lastPriceInput = null;
+        $('i-p1').addEventListener('focus', () => lastPriceInput = $('i-p1'));
+        $('i-p2').addEventListener('focus', () => lastPriceInput = $('i-p2'));
+        function addZero(zeros) {
+            if(!lastPriceInput) lastPriceInput = $('i-p1');
+            let val = lastPriceInput.value.replace(/\D/g, "");
+            if(val.length > 0) { lastPriceInput.value = val + zeros; formatRp(lastPriceInput); lastPriceInput.focus(); }
         }
 
-        function highlightMatch(text, searchTerm) {
-            const safeText = escapeHTML(text || "");
-            if (!searchTerm || searchTerm.trim() === '') return safeText;
-            const safeTerm = escapeHTML(searchTerm.trim());
-            const regex = new RegExp(`(${safeTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-            return safeText.replace(regex, '<span class="highlight">$1</span>');
-        }
-        
-        function formatRp(input) {
-            let val = input.value.replace(/\D/g, "");
-            input.value = val ? fmt(parseInt(val, 10) || 0) : "";
-        }
-
-        function debounce(func, wait) {
-            let timeout;
-            return function(...args) {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func.apply(this, args), wait);
-            };
-        }
-
-        // === 4. TANGKAPAN GLOBAL & AUTO DETECT SCANNER ===
+        // === KEYBOARD SCANNER ===
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                hideMod(); hidePicker(); closeCustomAlert(); closePinModal(); closePricePopup(e, true);
-                if (isScanning) closeScanner();
-                document.body.classList.remove('modal-open');
-                return;
-            }
-            if (document.body.classList.contains('modal-open') || isScanning) return;
-            const activeTag = document.activeElement.tagName.toLowerCase();
-            if (activeTag === 'input' || activeTag === 'textarea') return;
-            const currentTime = Date.now();
-            
-            if (currentTime - lastKeyTime > 150) { physicalInputBuffer = ""; }
-            lastKeyTime = currentTime;
-            
+            if (e.key === 'Escape') { hideMod(); hidePicker(); closeCustomAlert(); closePinModal(); closePricePopup(e, true); if (isScanning) closeScanner(); document.body.classList.remove('modal-open'); return; }
+            if (document.body.classList.contains('modal-open') || isScanning || document.activeElement.tagName.toLowerCase() === 'input') return;
+            const t = Date.now(); if (t - lastKeyTime > 150) physicalInputBuffer = ""; lastKeyTime = t;
             if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
-                physicalInputBuffer += e.key;
-                inputBuffer += e.key;
-                clearTimeout(bufferTimer);
-                bufferTimer = setTimeout(() => {
-                    if (inputBuffer.length > 0) { 
-                        const searchBox = $('q');
-                        searchBox.value = inputBuffer;
-                        $('q-x').style.display = 'flex';
-                        $('list').scrollTop = 0; 
-                        handleSearchLogic(inputBuffer); 
-                    }
-                    inputBuffer = ''; 
-                }, 150); 
+                physicalInputBuffer += e.key; inputBuffer += e.key; clearTimeout(bufferTimer);
+                bufferTimer = setTimeout(() => { if (inputBuffer.length > 0) { $('q').value = inputBuffer; $('q-x').style.display = 'flex'; $('list').scrollTop = 0; handleSearchLogic(inputBuffer); } inputBuffer = ''; }, 150); 
             } else if (e.key === 'Enter') {
-                if (physicalInputBuffer.length >= 5) {
-                    const scannedBarcode = physicalInputBuffer;
-                    physicalInputBuffer = ""; inputBuffer = "";
-                    clearTimeout(bufferTimer); e.preventDefault(); 
-                    handlePhysicalScanner(scannedBarcode);
-                    return;
-                }
-                if (inputBuffer.length > 0) {
-                    physicalInputBuffer = ""; clearTimeout(bufferTimer);
-                    const searchBox = $('q'); searchBox.value = inputBuffer;
-                    $('q-x').style.display = 'flex'; $('list').scrollTop = 0; 
-                    handleSearchLogic(inputBuffer); inputBuffer = ''; searchBox.blur(); 
-                }
+                if (physicalInputBuffer.length >= 5) { let b = physicalInputBuffer; physicalInputBuffer = inputBuffer = ""; clearTimeout(bufferTimer); e.preventDefault(); handlePhysicalScanner(b); return; }
+                if (inputBuffer.length > 0) { physicalInputBuffer = ""; clearTimeout(bufferTimer); $('q').value = inputBuffer; $('q-x').style.display = 'flex'; $('list').scrollTop = 0; handleSearchLogic(inputBuffer); inputBuffer = ''; $('q').blur(); }
             }
         });
 
-        function handlePhysicalScanner(barcode) {
-            const item = barcodeMap.get(barcode);
-            if (item) {
-                playBeep();
-                $('pp-name').innerText = item.n;
-                $('pp-price').innerText = "Rp " + fmt(item.p1);
-                $('pp-price-grosir').innerText = item.p2 ? "Grosir: Rp " + fmt(item.p2) : "";
-                $('pp-barcode').innerText = item.b || "";
-                $('price-popup').style.display = 'flex';
-                document.body.classList.add('modal-open');
-            } else { tampilkanToast("Barcode tidak ditemukan!", "var(--danger)"); }
-        }
+        function handlePhysicalScanner(barcode) { const item = barcodeMap.get(barcode); if (item) { playBeep(); $('pp-name').innerText = item.n; $('pp-price').innerText = "Rp " + fmt(item.p1); $('pp-price-grosir').innerText = item.p2 ? "Grosir: Rp " + fmt(item.p2) : ""; $('pp-barcode').innerText = item.b || ""; $('price-popup').style.display = 'flex'; document.body.classList.add('modal-open'); } else { tampilkanToast("Barcode tidak ditemukan!", "var(--danger)"); } }
+        function closePricePopup(e, force = false) { if (force || e.target === $('price-popup')) { $('price-popup').style.display = 'none'; document.body.classList.remove('modal-open'); $('q').value = ''; clearSearch(); } }
 
-        function closePricePopup(e, force = false) {
-            if (force || e.target === $('price-popup')) {
-                $('price-popup').style.display = 'none';
-                document.body.classList.remove('modal-open');
-                $('q').value = ''; clearSearch();
-            }
-        }
+        function handleSearchLogic(query) { const q = query.trim(), qL = q.toLowerCase(), exact = barcodeMap.get(q) || acronymMap.get(qL); if (exact && q.length > 0) { currentSearchReqId++; workerResult = [exact]; applyFiltersAndRender(); } else { worker.postMessage({ type: 'search', query: q, reqId: ++currentSearchReqId }); } }
 
-        function handleSearchLogic(query) {
-            const qVal = query.trim();
-            const qValLower = qVal.toLowerCase();
-            const exactItem = barcodeMap.get(qVal) || acronymMap.get(qValLower);
-            if (exactItem && qVal.length > 0) {
-                currentSearchReqId++; 
-                workerResult = [exactItem]; applyFiltersAndRender();
-            } else {
-                worker.postMessage({ type: 'search', query: qVal, reqId: ++currentSearchReqId });
-            }
-        }
-
-        // === 5. LOGIKA PENCARIAN (WEB WORKER) ===
+        // === WEB WORKER SEARCH ===
         const searchInput = $('q'), searchDropdown = $('search-dropdown'), sdContent = $('sd-content');
-        const workerScript = `
-            importScripts('https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js');
-            let fuse;
-            let workerList = [];
-            
-            function rebuildIndex() {
-                fuse = new Fuse(workerList, { keys: [{name: 'n', weight: 0.6}, {name: 't', weight: 0.4}, {name: 'b', weight: 0.8}], threshold: 0.2, ignoreLocation: true });
-            }
-            
-            self.onmessage = function(e) {
-                if (e.data.type === 'init') {
-                    workerList = e.data.db;
-                    rebuildIndex();
-                } else if (e.data.type === 'add') {
-                    if(!fuse) return;
-                    workerList.push(e.data.item);
-                    fuse.add(e.data.item);
-                } else if (e.data.type === 'update') {
-                    if(!fuse) return;
-                    workerList = workerList.filter(x => String(x.id) !== String(e.data.item.id));
-                    workerList.push(e.data.item);
-                    rebuildIndex();
-                } else if (e.data.type === 'remove') {
-                    if(!fuse) return;
-                    workerList = workerList.filter(x => String(x.id) !== String(e.data.id));
-                    rebuildIndex();
-                } else if (e.data.type === 'search') {
-                    if(!fuse) return;
-                    const hasil = fuse.search(e.data.query);
-                    self.postMessage({ type: 'result', data: hasil.map(r => r.item), query: e.data.query, reqId: e.data.reqId });
-                }
-            };
-        `;
-        const workerBlob = new Blob([workerScript], { type: 'application/javascript' });
-        worker = new Worker(URL.createObjectURL(workerBlob));
-        worker.onmessage = function(e) {
-            if (e.data.type === 'result' && e.data.reqId === currentSearchReqId) {
-                workerResult = e.data.data; applyFiltersAndRender();
-            }
-        };
+        const workerScript = `importScripts('https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js'); let fuse, workerList = []; function rebuildIndex() { fuse = new Fuse(workerList, { keys: [{name: 'n', weight: 0.6}, {name: 't', weight: 0.4}, {name: 'b', weight: 0.8}], threshold: 0.2, ignoreLocation: true }); } self.onmessage = function(e) { if (e.data.type === 'init') { workerList = e.data.db; rebuildIndex(); } else if (e.data.type === 'add') { if(!fuse) return; workerList.push(e.data.item); fuse.add(e.data.item); } else if (e.data.type === 'update') { if(!fuse) return; workerList = workerList.filter(x => String(x.id) !== String(e.data.item.id)); workerList.push(e.data.item); rebuildIndex(); } else if (e.data.type === 'remove') { if(!fuse) return; workerList = workerList.filter(x => String(x.id) !== String(e.data.id)); rebuildIndex(); } else if (e.data.type === 'search') { if(!fuse) return; const hasil = fuse.search(e.data.query); self.postMessage({ type: 'result', data: hasil.map(r => r.item), query: e.data.query, reqId: e.data.reqId }); } };`;
+        worker = new Worker(URL.createObjectURL(new Blob([workerScript], { type: 'application/javascript' })));
+        worker.onmessage = function(e) { if (e.data.type === 'result' && e.data.reqId === currentSearchReqId) { workerResult = e.data.data; applyFiltersAndRender(); } };
 
-        function recordSearchLog(term) {
-            const clean = term.trim(); if(!clean) return;
-            recentSearches = [clean, ...recentSearches.filter(t => t.toLowerCase() !== clean.toLowerCase())].slice(0, 5);
-            localStorage.setItem('DB_WA_RECENT', JSON.stringify(recentSearches));
-            
-            trendingSearches[clean.toLowerCase()] = (trendingSearches[clean.toLowerCase()] || 0) + 1;
-            
-            const trendKeys = Object.keys(trendingSearches);
-            if (trendKeys.length > 50) {
-                let minKey = trendKeys.reduce((a, b) => trendingSearches[a] < trendingSearches[b] ? a : b);
-                delete trendingSearches[minKey];
-            }
-            
-            localStorage.setItem('DB_WA_TRENDING', JSON.stringify(trendingSearches));
-        }
-
+        function recordSearchLog(term) { const c = term.trim(); if(!c) return; recentSearches = [c, ...recentSearches.filter(t => t.toLowerCase() !== c.toLowerCase())].slice(0, 5); localStorage.setItem('DB_WA_RECENT', JSON.stringify(recentSearches)); trendingSearches[c.toLowerCase()] = (trendingSearches[c.toLowerCase()] || 0) + 1; const keys = Object.keys(trendingSearches); if (keys.length > 50) { let min = keys.reduce((a, b) => trendingSearches[a] < trendingSearches[b] ? a : b); delete trendingSearches[min]; } localStorage.setItem('DB_WA_TRENDING', JSON.stringify(trendingSearches)); }
         function clearRecentLogs() { recentSearches = []; localStorage.setItem('DB_WA_RECENT', JSON.stringify([])); showSearchSuggestions(); }
-        
-        function showSearchSuggestions() {
-            const val = searchInput.value.trim(); sdContent.innerHTML = '';
-            if (val === '') {
-                let html = ''; const topTrends = Object.keys(trendingSearches).sort((a,b) => trendingSearches[b] - trendingSearches[a]).slice(0, 3);
-                if(topTrends.length > 0) html += `<div class="sd-title">Sering Dicari</div>` + topTrends.map(t => `<div class="sd-item" onmousedown="executeQuickSearch('${escapeHTML(t)}')"><svg class="sd-icon trend" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>${escapeHTML(prop(t))}</div>`).join('');
-                if(recentSearches.length > 0) html += `<div class="sd-title">Terakhir Dicari <span class="clear-btn" onmousedown="clearRecentLogs()">HAPUS</span></div>` + recentSearches.map(t => `<div class="sd-item" onmousedown="executeQuickSearch('${escapeHTML(t)}')"><svg class="sd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>${escapeHTML(t)}</div>`).join('');
-                html ? (sdContent.innerHTML = html, searchDropdown.classList.remove('hidden')) : searchDropdown.classList.add('hidden');
-            } else { searchDropdown.classList.add('hidden'); }
-        }
-        
+        function showSearchSuggestions() { const val = searchInput.value.trim(); sdContent.innerHTML = ''; if (val === '') { let html = ''; const top = Object.keys(trendingSearches).sort((a,b) => trendingSearches[b] - trendingSearches[a]).slice(0, 3); if(top.length > 0) html += `<div class="sd-title">Sering Dicari</div>` + top.map(t => `<div class="sd-item" onmousedown="executeQuickSearch('${escapeHTML(t)}')">📍 ${escapeHTML(prop(t))}</div>`).join(''); if(recentSearches.length > 0) html += `<div class="sd-title">Terakhir Dicari <span class="clear-btn" onmousedown="clearRecentLogs()">HAPUS</span></div>` + recentSearches.map(t => `<div class="sd-item" onmousedown="executeQuickSearch('${escapeHTML(t)}')">🕒 ${escapeHTML(t)}</div>`).join(''); html ? (sdContent.innerHTML = html, searchDropdown.classList.remove('hidden')) : searchDropdown.classList.add('hidden'); } else { searchDropdown.classList.add('hidden'); } }
         function executeQuickSearch(term) { searchInput.value = term; recordSearchLog(term); searchDropdown.classList.add('hidden'); $('q-x').style.display = 'flex'; $('list').scrollTop = 0; handleSearchLogic(term); }
-        
-        const handleSearchInput = debounce(() => { 
-            const val = searchInput.value.trim(); $('list').scrollTop = 0; 
-            if (val) handleSearchLogic(val); else { workerResult = null; applyFiltersAndRender(); }
-            showSearchSuggestions(); 
-        }, 150);
-        
+        const handleSearchInput = debounce(() => { const val = searchInput.value.trim(); $('list').scrollTop = 0; if (val) handleSearchLogic(val); else { workerResult = null; applyFiltersAndRender(); } showSearchSuggestions(); }, 150);
         searchInput.addEventListener('input', (e) => { $('q-x').style.display = e.target.value.trim() ? 'flex' : 'none'; handleSearchInput(); });
         searchInput.addEventListener('focus', showSearchSuggestions);
         searchInput.addEventListener('keypress', function(e) { if(e.key === 'Enter') { searchDropdown.classList.add('hidden'); recordSearchLog(this.value); this.blur(); } });
         function clearSearch() { searchInput.value = ''; $('q-x').style.display = 'none'; workerResult = null; currentSearchReqId++; $('list').scrollTop = 0; showSearchSuggestions(); applyFiltersAndRender(); searchInput.blur(); }
 
-        // === SENSOR KEYBOARD AKTIF ===
-        $('q').addEventListener('focus', () => {
-            $('list').style.paddingBottom = '350px';
-            const fab = document.querySelector('.fab');
-            if (fab) { fab.style.transform = 'scale(0)'; setTimeout(() => fab.style.display = 'none', 200); }
-        });
-        
-        $('q').addEventListener('blur', () => {
-            setTimeout(() => {
-                $('list').style.paddingBottom = '15px';
-                const fab = document.querySelector('.fab');
-                if (fab) { fab.style.display = 'flex'; setTimeout(() => fab.style.transform = 'scale(1)', 10); }
-            }, 200);
-        });
-
-        // === 6. UI CONTROLS & MODALS ===
-        document.addEventListener('click', (e) => { 
-            const menu = $('dropdown-menu'); 
-            if (menu && !menu.classList.contains('hidden') && !e.target.closest('.dropdown-wrapper')) {
-                menu.classList.add('hidden'); 
-            }
-            
-            const searchDropdown = $('search-dropdown');
-            if (searchDropdown && !searchDropdown.classList.contains('hidden') && !e.target.closest('.search-box')) {
-                searchDropdown.classList.add('hidden');
-            }
-        });
-        
+        // === UI CONTROLS ===
+        document.addEventListener('click', (e) => { if (!$('dropdown-menu').classList.contains('hidden') && !e.target.closest('.dropdown-wrapper')) $('dropdown-menu').classList.add('hidden'); if (!$('search-dropdown').classList.contains('hidden') && !e.target.closest('.search-box')) $('search-dropdown').classList.add('hidden'); });
         function toggleMenu(e) { e.stopPropagation(); $('dropdown-menu').classList.toggle('hidden'); }
-        function closeCustomAlert() { $('custom-alert').classList.add('hidden'); $('custom-alert').style.display = 'none'; }
-        
-        function getWarnaDariJudul(judul) {
-            return TemaNotifikasi[judul] || "var(--mono-main)";
-        }
-
-        function showAlert(msg, title = "Info", color = null) {
-            const finalColor = color || getWarnaDariJudul(title);
-            $('alert-title').innerText = title; 
-            $('alert-title').style.color = finalColor; 
-            $('alert-box').style.borderTopColor = finalColor; 
-            $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>');
-            $('alert-btns').innerHTML = `<button class="btn-main" style="border-color: ${finalColor} !important; color: ${finalColor} !important;" onclick="closeCustomAlert()">OKE</button>`;
-            $('custom-alert').style.display = 'flex'; $('custom-alert').classList.remove('hidden');
-        }
-        
-        function showConfirm(msg, title, colorOrCallback, callback) {
-            let color = typeof colorOrCallback === 'string' ? colorOrCallback : null;
-            let onConfirmCallback = typeof colorOrCallback === 'function' ? colorOrCallback : callback;
-            
-            const finalColor = color || getWarnaDariJudul(title);
-            $('alert-title').innerText = title; 
-            $('alert-title').style.color = finalColor; 
-            $('alert-box').style.borderTopColor = finalColor; 
-            $('alert-msg').innerText = msg;
-            
-            $('alert-btns').innerHTML = `<button class="btn-main btn-cancel" onclick="closeCustomAlert()">BATAL</button><button class="btn-main" style="border-color: ${finalColor} !important; color: ${finalColor} !important;" id="confirm-ok-btn">OKE</button>`;
-            $('confirm-ok-btn').onclick = () => { closeCustomAlert(); onConfirmCallback(); };
-            $('custom-alert').style.display = 'flex'; $('custom-alert').classList.remove('hidden');
-        }
+        function closeCustomAlert() { $('custom-alert').style.display = 'none'; }
+        function showAlert(msg, title = "Info", color = null) { const c = color || TemaNotifikasi[title] || "var(--mono-main)"; $('alert-title').innerText = title; $('alert-title').style.color = c; $('alert-box').style.borderTopColor = c; $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); $('alert-btns').innerHTML = `<button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" onclick="closeCustomAlert()">OKE</button>`; $('custom-alert').style.display = 'flex'; }
+        function showConfirm(msg, title, callback) { const c = TemaNotifikasi[title] || "var(--mono-main)"; $('alert-title').innerText = title; $('alert-title').style.color = c; $('alert-box').style.borderTopColor = c; $('alert-msg').innerText = msg; $('alert-btns').innerHTML = `<button class="btn-main btn-cancel" onclick="closeCustomAlert()">BATAL</button><button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" id="confirm-ok-btn">OKE</button>`; $('confirm-ok-btn').onclick = () => { closeCustomAlert(); callback(); }; $('custom-alert').style.display = 'flex'; }
         
         function showMod(id = null) {
             activeId = id; const b = $('i-b'), n = $('i-n'), p1 = $('i-p1'), p2 = $('i-p2'), exp = $('i-exp'), t = $('i-t');
@@ -889,192 +443,115 @@
                 const it = db.find(x => String(x.id) === String(id)); if(!it) return;
                 $('m-tit').innerText = "Edit Barang"; b.value = it.b || ''; n.value = it.n || ''; p1.value = fmt(it.p1); p2.value = it.p2 ? fmt(it.p2) : ''; 
                 exp.dataset.rawDate = it.exp || ''; exp.value = it.exp ? formatBulanTahun(it.exp) : ''; t.value = it.t || '';
-            } else {
-                $('m-tit').innerText = "Tambah Barang"; b.value = n.value = p1.value = p2.value = exp.dataset.rawDate = exp.value = t.value = '';
-            }
-            $('mod').style.display = 'flex'; document.body.classList.add('modal-open');
-            setTimeout(() => $('i-n').focus(), 100); 
+            } else { $('m-tit').innerText = "Tambah Barang"; b.value = n.value = p1.value = p2.value = exp.dataset.rawDate = exp.value = t.value = ''; }
+            $('mod').style.display = 'flex'; document.body.classList.add('modal-open'); setTimeout(() => $('i-n').focus(), 100); 
         }
-        
         function hideMod() { activeId = null; $('mod').style.display = 'none'; document.body.classList.remove('modal-open'); }
-        
-        function deleteAllDataPrompt() {
-            if (db.filter(i => !i.deleted).length === 0) return showAlert("Data sudah kosong!", "Info");
-            $('dropdown-menu').classList.add('hidden');
-            $('pin-input').value = '';
-            $('pin-modal').style.display = 'flex';
-            $('pin-modal').classList.remove('hidden');
-            setTimeout(() => $('pin-input').focus(), 100);
-        }
-        
-        function closePinModal() {
-            $('pin-modal').classList.add('hidden');
-            $('pin-modal').style.display = 'none';
-        }
-        
-        function verifyPinAndExecute() {
-            if ($('pin-input').value === '170823') { closePinModal(); executeDeleteAll(); } 
-            else { tampilkanToast("PIN Salah! Akses Ditolak.", "var(--danger)"); }
-        }
+        function deleteAllDataPrompt() { if (db.filter(i => !i.deleted).length === 0) return showAlert("Data sudah kosong!", "Info"); $('dropdown-menu').classList.add('hidden'); $('pin-input').value = ''; $('pin-modal').style.display = 'flex'; setTimeout(() => $('pin-input').focus(), 100); }
+        function closePinModal() { $('pin-modal').style.display = 'none'; }
+        function verifyPinAndExecute() { if ($('pin-input').value === '170823') { closePinModal(); executeDeleteAll(); } else { tampilkanToast("PIN Salah!", "var(--danger)"); } }
 
-        // === 7. KALENDER ===
-        function openPicker(id, m, w) {
-            Picker.targetId = id; const el = $(id); if (!el) return; let val = el.dataset.rawDate || el.value;
-            if (!val || val.trim() === '') { Picker.sel = new Date(); Picker.tempYear = Picker.sel.getFullYear(); Picker.tempMonth = Picker.sel.getMonth(); } 
-            else { const parts = val.split('-'); Picker.tempYear = parseInt(parts[0], 10); Picker.tempMonth = parseInt(parts[1], 10) - 1; }
-            renderKalenderGrid(); $('custom-picker').style.display = 'flex'; $('custom-picker').classList.remove('hidden');
-        }
-        function hidePicker() { $('custom-picker').classList.add('hidden'); $('custom-picker').style.display = 'none'; }
-        function clearPickerDate() { const el = $(Picker.targetId); if(el) { el.dataset.rawDate = ''; el.value = ''; } hidePicker(); }
+        // === KALENDER ===
+        function openPicker(id, m, w) { Picker.targetId = id; const el = $(id); if (!el) return; let val = el.dataset.rawDate || el.value; if (!val) { Picker.sel = new Date(); Picker.tempYear = Picker.sel.getFullYear(); Picker.tempMonth = Picker.sel.getMonth(); } else { const p = val.split('-'); Picker.tempYear = parseInt(p[0], 10); Picker.tempMonth = parseInt(p[1], 10) - 1; } renderKalenderGrid(); $('custom-picker').style.display = 'flex'; }
+        function hidePicker() { $('custom-picker').style.display = 'none'; }
+        function clearPickerDate() { const el = $(Picker.targetId); if(el) { el.dataset.rawDate = el.value = ''; } hidePicker(); }
         function renderKalenderGrid() { $('cp-year').innerText = Picker.tempYear; $('cp-grid').innerHTML = NamaBlnPendek.map((bln, i) => `<div class="month-item ${i === Picker.tempMonth ? 'active' : ''}" onclick="cpSelectMonth(${i})">${bln}</div>`).join(''); }
         function cpChangeYear(arah) { Picker.tempYear += arah; renderKalenderGrid(); }
         function cpSelectMonth(m) { Picker.tempMonth = m; renderKalenderGrid(); }
         function setPickerDate() { const el = $(Picker.targetId); if(el) { el.dataset.rawDate = `${Picker.tempYear}-${String(Picker.tempMonth + 1).padStart(2, '0')}-01`; el.value = `${NamaBln[Picker.tempMonth]} ${Picker.tempYear}`; } hidePicker(); }
 
-        // === 8. DYNAMIC VIRTUAL SCROLL & RENDER LIST ===
+        // === VIRTUAL SCROLL & RENDER ===
         function setTab(t) { tab = t; ['all', 'fav', 'exp'].forEach(x => $(`t-${x}`).className = t === x ? 'tab active' : 'tab'); $('list').scrollTop = 0; applyFiltersAndRender(); }
         function toggleSort() { sortAZ = !sortAZ; $('s-btn').classList.toggle('active', sortAZ); $('list').scrollTop = 0; applyFiltersAndRender(); }
-        function computeDVS() {
-            listOffsets = [0]; let currentOffset = 0; let dHeight = tab === 'exp' ? 85 : 90;
-            for (let i = 0; i < filteredData.length; i++) {
-                let h = filteredData[i]._cHeight || dHeight;
-                currentOffset += h; listOffsets.push(currentOffset);
-            }
-            $('spacer').style.height = currentOffset + 'px';
-        }
-        function getDVSStartIndex(scrollTop) {
-            let low = 0, high = listOffsets.length - 1;
-            while (low <= high) {
-                let mid = Math.floor((low + high) / 2);
-                if (listOffsets[mid] === scrollTop) return mid;
-                if (listOffsets[mid] < scrollTop) low = mid + 1;
-                else high = mid - 1;
-            }
-            return high > 0 ? high : 0;
-        }
+        function computeDVS() { listOffsets = [0]; let cur = 0; for (let i = 0; i < filteredData.length; i++) { cur += filteredData[i]._cHeight || (tab === 'exp' ? 85 : 90); listOffsets.push(cur); } $('spacer').style.height = cur + 'px'; }
+        function getDVSStartIndex(st) { let l = 0, h = listOffsets.length - 1; while (l <= h) { let m = Math.floor((l + h) / 2); if (listOffsets[m] === st) return m; if (listOffsets[m] < st) l = m + 1; else h = m - 1; } return h > 0 ? h : 0; }
         
-        function applyFiltersAndRender(silentBarcode = null) {
-            const qVal = $('q').value.trim(); const qValLower = qVal.toLowerCase();
-            let dataAktif = db.filter(i => !i.deleted);
-            const exactBarcodeMatch = dataAktif.find(i => i.b && String(i.b).toLowerCase() === qValLower);
-            let baseData = silentBarcode ? dataAktif.filter(i => i.b === silentBarcode) : (exactBarcodeMatch ? [exactBarcodeMatch] : (workerResult !== null && qVal !== '' ? workerResult : dataAktif));
-            const todayReset = new Date(); todayReset.setHours(0,0,0,0);
-            const utcToday = Date.UTC(todayReset.getFullYear(), todayReset.getMonth(), todayReset.getDate());
+        function applyFiltersAndRender(silentB = null) {
+            const q = $('q').value.trim(), qL = q.toLowerCase(); let active = db.filter(i => !i.deleted);
+            const exact = active.find(i => i.b && String(i.b).toLowerCase() === qL);
+            let base = silentB ? active.filter(i => i.b === silentB) : (exact ? [exact] : (workerResult !== null && q !== '' ? workerResult : active));
+            const today = Date.now();
             
-            filteredData = baseData.filter(i => {
+            filteredData = base.filter(i => {
                 if (tab === 'fav') return i.f;
-                if (tab === 'exp') {
-                    if (!i.exp) return false;
-                    const pts = i.exp.split('-'); const utcExp = Date.UTC(pts[0], pts[1]-1, pts[2] || 1);
-                    return !isNaN(utcExp) && Math.floor((utcExp - utcToday) / 86400000) <= 210;
-                }
+                if (tab === 'exp') { if (!i.exp) return false; const utcExp = new Date(i.exp).getTime(); return !isNaN(utcExp) && Math.floor((utcExp - today) / 86400000) <= 210; }
                 return true;
             });
 
-            if (!qVal || tab === 'exp') {
-                if (tab === 'exp') { filteredData.sort((a, b) => { const getT = (d) => { if (!d) return Infinity; const pts = String(d).split('-'); return Date.UTC(pts[0], (pts[1] || 1)-1, 1); }; return getT(a.exp) - getT(b.exp); }); }
-                else if (sortAZ) { filteredData.sort((a,b) => String(a.n || "").localeCompare(String(b.n || "")) || (b.updatedAt || 0) - (a.updatedAt || 0)); } 
-                else { filteredData.sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0)); }
+            if (!q || tab === 'exp') {
+                if (tab === 'exp') { filteredData.sort((a, b) => new Date(a.exp||'9999').getTime() - new Date(b.exp||'9999').getTime()); }
+                else if (sortAZ) { filteredData.sort((a,b) => String(a.n||"").localeCompare(String(b.n||"")) || (b.updatedAt||0) - (a.updatedAt||0)); } 
+                else { filteredData.sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0)); }
             }
-            const summaryEl = $('search-summary');
-            if (qVal && !silentBarcode && !exactBarcodeMatch) { summaryEl.innerText = `Ditemukan ${filteredData.length} barang`; summaryEl.classList.remove('hidden'); } 
-            else summaryEl.classList.add('hidden');
+            const sumEl = $('search-summary');
+            if (q && !silentB && !exact) { sumEl.innerText = `Ditemukan ${filteredData.length} barang`; sumEl.classList.remove('hidden'); } else sumEl.classList.add('hidden');
             
-            lastStartIndex = -1; 
-            lastEndIndex = -1;
-            computeDVS(); 
-            renderVirtualList(false);
+            lastStartIndex = lastEndIndex = -1; computeDVS(); renderVirtualList(false);
         }
 
         function renderVirtualList(isScrolling = false) {
-            const container = $('list'); const renderCont = $('render-container'); const spacer = $('spacer'); const emptyEl = $('empty-message-container'); 
-            if (filteredData.length === 0) {
-                spacer.style.height = '0px'; renderCont.innerHTML = '';
-                emptyEl.innerHTML = `<div class="empty-msg">${tab === 'fav' ? "Belum ada favorit" : (tab === 'exp' ? "Tidak ada barang expired" : "Belum ada data")}</div>`; 
-                emptyEl.classList.remove('hidden'); 
-                return;
-            }
-            emptyEl.classList.add('hidden'); 
+            const cont = $('list'), rend = $('render-container'), space = $('spacer'), empty = $('empty-message-container'); 
+            if (filteredData.length === 0) { space.style.height = '0px'; rend.innerHTML = ''; empty.innerHTML = `<div class="empty-msg">${tab === 'fav' ? "Belum ada favorit" : (tab === 'exp' ? "Tidak ada barang expired" : "Belum ada data")}</div>`; empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden'); 
             
-            let scrollTop = container.scrollTop; 
-            let startIndex = getDVSStartIndex(scrollTop); 
-            let visibleHeight = container.clientHeight;
-            let endIndex = startIndex; 
-            let currentVisibleHeight = 0;
+            let st = cont.scrollTop, start = getDVSStartIndex(st), visH = cont.clientHeight, end = start, curVisH = 0;
+            start = Math.max(0, start - 5);
+            while(end < filteredData.length && curVisH < visH + 800) { curVisH += (filteredData[end]._cHeight || (tab === 'exp' ? 85 : 90)); end++; }
+            if (isScrolling && start === lastStartIndex && end === lastEndIndex) return; 
+            lastStartIndex = start; lastEndIndex = end;
+
+            rend.style.transform = `translateY(${listOffsets[start]}px)`; let html = ''; 
+            const today = Date.now(), sq = $('q').value.trim(); 
             
-            const bufferItems = 5; 
-            startIndex = Math.max(0, startIndex - bufferItems);
-
-            while(endIndex < filteredData.length && currentVisibleHeight < visibleHeight + 800) { 
-                currentVisibleHeight += (filteredData[endIndex]._cHeight || (tab === 'exp' ? 85 : 90));
-                endIndex++;
-            }
-
-            if (isScrolling && startIndex === lastStartIndex && endIndex === lastEndIndex) {
-                return; 
-            }
-            lastStartIndex = startIndex;
-            lastEndIndex = endIndex;
-
-            renderCont.style.transform = `translateY(${listOffsets[startIndex]}px)`;
-            let html = ''; 
-            const utcToday = Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()); 
-            const currentSearchQuery = $('q').value.trim(); 
-            
-            for (let i = startIndex; i < endIndex; i++) {
-                const item = filteredData[i]; let diffDays = 999, expT = '';
-                if (item.exp) { const pts = String(item.exp).split('-'); const utcExp = Date.UTC(pts[0], pts[1]-1, pts[2] || 1); if (!isNaN(utcExp)) { diffDays = Math.floor((utcExp - utcToday) / 86400000); expT = formatBulanTahun(item.exp); } }
-                const displayNama = highlightMatch(item.n, currentSearchQuery);
-                const btnX = tab === 'all' ? `<button class="btn-del-absolute action-del" data-id="${item.id}"><svg pointer-events="none" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg></button>` : '';
+            for (let i = start; i < end; i++) {
+                const it = filteredData[i]; let diff = 999, expT = '';
+                if (it.exp) { const utcExp = new Date(it.exp).getTime(); if (!isNaN(utcExp)) { diff = Math.floor((utcExp - today) / 86400000); expT = formatBulanTahun(it.exp); } }
+                const dn = highlightMatch(it.n, sq);
+                const bx = tab === 'all' ? `<button class="btn-del-absolute action-del" data-id="${it.id}"><svg pointer-events="none" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg></button>` : '';
                 
                 if (tab === 'exp') {
-                    const col = diffDays <= 30 ? 'var(--danger)' : (diffDays <= 90 ? '#FFA500' : (diffDays <= 180 ? '#FFD700' : 'var(--mono-main)')); 
-                    html += `<div class="card card-exp-mode" id="card-${item.id}"><div class="info" style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:10px;"><div class="name" style="margin:0; flex:1; min-width:0;"><span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${displayNama}</span> <span class="card-badge">${item.t || ''}</span></div><div style="font-size:15px; font-weight:800; color:${col};">${expT}</div></div>${btnX}</div>`;
+                    const c = diff <= 30 ? 'var(--danger)' : (diff <= 90 ? '#FFA500' : (diff <= 180 ? '#FFD700' : 'var(--mono-main)')); 
+                    html += `<div class="card card-exp-mode" id="c-${it.id}"><div class="info" style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:10px;"><div class="name" style="margin:0; flex:1; min-width:0;"><span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${dn}</span> <span class="card-badge">${it.t || ''}</span></div><div style="font-size:13px; font-weight:800; color:${c};">${expT}</div></div>${bx}</div>`;
                 } else {
-                    let expHtml = item.exp ? `<div class="card-exp ${diffDays < 0 ? 'danger' : (diffDays <= 90 ? 'warning' : '')}"><span>${diffDays < 0 ? '🚨' : (diffDays <= 90 ? '⚠️' : '📅')}</span> ${diffDays < 0 ? 'Kedaluwarsa!' : (diffDays <= 90 ? `Exp dlm ${diffDays} hari` : `Exp: ${expT}`)}</div>` : '';
-                    html += `<div class="card" id="card-${item.id}"><div class="info"><div class="name"><span>${displayNama}</span> <span class="card-badge">${item.t || ''}</span></div>${item.p1?`<div class="card-price-ecer">Ecer: Rp ${fmt(item.p1)}</div>`:''}${item.p2?`<div class="card-price-grosir">Grosir: Rp ${fmt(item.p2)}</div>`:''}<div class="card-barcode">${item.b || '- Tanpa Barcode -'}</div>${expHtml}</div>${btnX}<div class="action-btns-absolute">
-                    <button class="card-action-btn action-fav" data-id="${item.id}" style="color:${item.f?'var(--mono-main)':'var(--text-muted)'};"><svg pointer-events="none" viewBox="0 0 24 24" width="20" height="20" fill="${item.f?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
-                    <button class="card-action-btn btn-edit-icon action-edit" data-id="${item.id}"><svg pointer-events="none" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></div></div>`;
+                    let exH = it.exp ? `<div class="card-exp ${diff < 0 ? 'danger' : (diff <= 90 ? 'warning' : '')}"><span>${diff < 0 ? '🚨' : (diff <= 90 ? '⚠️' : '📅')}</span> ${diff < 0 ? 'Kedaluwarsa!' : (diff <= 90 ? `Exp dlm ${diff} hari` : `Exp: ${expT}`)}</div>` : '';
+                    html += `<div class="card" id="c-${it.id}"><div class="info"><div class="name"><span>${dn}</span> <span class="card-badge">${it.t || ''}</span></div>${it.p1?`<div class="card-price-ecer">Ecer: Rp ${fmt(it.p1)}</div>`:''}${it.p2?`<div class="card-price-grosir">Grosir: Rp ${fmt(it.p2)}</div>`:''}<div class="card-barcode">${it.b || '- Tanpa Barcode -'}</div>${exH}</div>${bx}<div class="action-btns-absolute"><button class="card-action-btn action-fav" data-id="${it.id}" style="color:${it.f?'var(--mono-main)':'var(--text-muted)'};"><svg pointer-events="none" viewBox="0 0 24 24" width="18" height="18" fill="${it.f?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button><button class="card-action-btn btn-edit-icon action-edit" data-id="${it.id}"><svg pointer-events="none" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></div></div>`;
                 }
             }
-            renderCont.innerHTML = html;
+            rend.innerHTML = html;
             
-            const newHeights = [];
-            for (let i = startIndex; i < endIndex; i++) {
-                const item = filteredData[i]; 
-                const el = document.getElementById(`card-${item.id}`);
-                newHeights.push(el ? el.offsetHeight + 12 : null);
-            }
-            
-            let heightChanged = false;
-            for (let i = startIndex; i < endIndex; i++) {
-                const measuredHeight = newHeights[i - startIndex];
-                if (measuredHeight && filteredData[i]._cHeight !== measuredHeight) {
-                    filteredData[i]._cHeight = measuredHeight;
-                    heightChanged = true;
+            requestAnimationFrame(() => {
+                let hc = false; const dom = rend.children;
+                for (let i = 0; i < dom.length; i++) {
+                    const h = dom[i].offsetHeight + 12; const idx = start + i;
+                    if (filteredData[idx] && filteredData[idx]._cHeight !== h) { filteredData[idx]._cHeight = h; hc = true; }
                 }
-            }
-
-            if (heightChanged) computeDVS();
+                if (hc) computeDVS();
+            });
         }
 
         $('render-container').addEventListener('click', (e) => {
-            const btnDel = e.target.closest('.action-del');
-            if (btnDel) { e.stopPropagation(); return del(btnDel.dataset.id); }
-            
-            const btnFav = e.target.closest('.action-fav');
-            if (btnFav) { e.stopPropagation(); return toggleFav(btnFav.dataset.id, btnFav); }
-            
-            const btnEdit = e.target.closest('.action-edit');
-            if (btnEdit) { e.stopPropagation(); return showMod(btnEdit.dataset.id); }
+            const d = e.target.closest('.action-del'); if (d) { e.stopPropagation(); return del(d.dataset.id); }
+            const f = e.target.closest('.action-fav'); if (f) { e.stopPropagation(); return toggleFav(f.dataset.id, f); }
+            const ed = e.target.closest('.action-edit'); if (ed) { e.stopPropagation(); return showMod(ed.dataset.id); }
         });
 
+        // === SMART HEADER & SCROLL LOCK ===
+        let scrollTimeoutLock, lastScrollY = 0;
         $('list').addEventListener('scroll', () => { 
+            const cont = $('list'); let sy = cont.scrollTop;
+            
+            if (sy > lastScrollY && sy > 60) { document.body.classList.add('hide-header'); } 
+            else if (sy < lastScrollY) { document.body.classList.remove('hide-header'); }
+            lastScrollY = sy;
+
+            cont.classList.add('is-scrolling'); clearTimeout(scrollTimeoutLock);
+            scrollTimeoutLock = setTimeout(() => { cont.classList.remove('is-scrolling'); }, 150);
+
             if (!$('dropdown-menu').classList.contains('hidden')) $('dropdown-menu').classList.add('hidden');
             if (sortAZ && filteredData.length > 0) {
-                const scrollTop = $('list').scrollTop; const startIndex = getDVSStartIndex(scrollTop);
-                if (filteredData[startIndex]) {
-                    let h = String(filteredData[startIndex].n || "#").charAt(0).toUpperCase();
+                const sIdx = getDVSStartIndex(sy);
+                if (filteredData[sIdx]) {
+                    let h = String(filteredData[sIdx].n || "#").charAt(0).toUpperCase();
                     const sL = $('scroll-letter'); sL.innerText = /[A-Z]/.test(h) ? h : '#'; sL.classList.add('show');
                     clearTimeout(scrollLetterTimeout); scrollLetterTimeout = setTimeout(() => sL.classList.remove('show'), 300);
                 }
@@ -1082,308 +559,120 @@
             window.requestAnimationFrame(() => renderVirtualList(true)); 
         }, { passive: true });
 
-        // === 9. DATABASE OPERATION ===
+        // === DATABASE OP ===
         async function save() {
             if (isSaving) return; isSaving = true;
-            try {
-                const nRaw = $('i-n').value; const b = $('i-b').value.trim(); const exp = $('i-exp').dataset.rawDate || '';
-                const p1 = parseInt($('i-p1').value.replace(/[^\d]/g, ''), 10) || 0;
-                const p2 = parseInt($('i-p2').value.replace(/[^\d]/g, ''), 10) || null;
-                if (!nRaw.trim() || p1 === 0) { isSaving = false; return showAlert("Data tidak valid!", "Gagal"); }
-                const nameClean = prop(nRaw);
+            const btn = document.querySelector('.btn-mono'); if(btn) btn.disabled = true;
 
-                const existItem = db.find(x => !x.deleted && String(x.n || "").toLowerCase() === nameClean.toLowerCase() && String(x.id) !== String(activeId));
-                if (existItem) { isSaving = false; return showAlert("Nama sudah ada!", "Gagal"); }
+            try {
+                const nRaw = $('i-n').value, b = $('i-b').value.trim(), exp = $('i-exp').dataset.rawDate || '';
+                const p1 = parseInt($('i-p1').value.replace(/[^\d]/g, ''), 10) || 0, p2 = parseInt($('i-p2').value.replace(/[^\d]/g, ''), 10) || null;
+                if (!nRaw.trim() || p1 === 0) { isSaving = false; if(btn) btn.disabled = false; return showAlert("Data tidak valid!", "Gagal"); }
+                const clean = prop(nRaw);
+
+                const ex = db.find(x => !x.deleted && String(x.n || "").toLowerCase() === clean.toLowerCase() && String(x.id) !== String(activeId));
+                if (ex) { isSaving = false; if(btn) btn.disabled = false; return showAlert("Nama sudah ada!", "Gagal"); }
+                if (b !== '') { const exB = db.find(x => !x.deleted && String(x.b) === b && String(x.id) !== String(activeId)); if (exB) { isSaving = false; if(btn) btn.disabled = false; return showAlert("Barcode dipakai barang lain!", "Gagal"); } }
                 
-                if (b !== '') {
-                    const existBarcode = db.find(x => !x.deleted && String(x.b) === b && String(x.id) !== String(activeId));
-                    if (existBarcode) { isSaving = false; return showAlert("Barcode ini sudah dipakai oleh barang lain!", "Gagal"); }
-                }
-                
-                let customT = $('i-t').value.trim().toLowerCase();
-                if (customT && isAcronymUsed(customT, activeId)) { isSaving = false; return showAlert("Singkatan sudah dipakai!", "Gagal"); }
-                if (!customT) customT = generateSmartAcronym(nameClean, activeId);
+                let t = $('i-t').value.trim().toLowerCase();
+                if (t && isAcronymUsed(t, activeId)) { isSaving = false; if(btn) btn.disabled = false; return showAlert("Singkatan sudah dipakai!", "Gagal"); }
+                if (!t) t = generateSmartAcronym(clean, activeId);
                 
                 const ts = Date.now();
                 if (activeId) {
                     const idx = db.findIndex(x => String(x.id) === String(activeId));
-                    db[idx] = { ...db[idx], b, n: nameClean, p1, p2, exp, t: customT, updatedAt: ts };
-                    await saveItemToIDB(db[idx]);
-                    worker.postMessage({ type: 'update', item: db[idx] }); 
-                    
-                    if (workerResult !== null) {
-                        const wIdx = workerResult.findIndex(x => String(x.id) === String(activeId));
-                        if (wIdx > -1) workerResult[wIdx] = db[idx]; 
-                    }
+                    db[idx] = { ...db[idx], b, n: clean, p1, p2, exp, t, updatedAt: ts };
+                    await saveItemToIDB(db[idx]); worker.postMessage({ type: 'update', item: db[idx] }); 
+                    if (workerResult) { const wIdx = workerResult.findIndex(x => String(x.id) === String(activeId)); if (wIdx > -1) workerResult[wIdx] = db[idx]; }
                 } else {
-                    const newItem = { id: generateUniqueId(), b, n: nameClean, p1, p2, f: false, exp, t: customT, updatedAt: ts, deleted: false };
-                    db.push(newItem); await saveItemToIDB(newItem);
-                    worker.postMessage({ type: 'add', item: newItem }); 
-                    
-                    if (workerResult !== null) {
-                        workerResult.unshift(newItem); 
-                    }
+                    const nIt = { id: generateUniqueId(), b, n: clean, p1, p2, f: false, exp, t, updatedAt: ts, deleted: false };
+                    db.push(nIt); await saveItemToIDB(nIt); worker.postMessage({ type: 'add', item: nIt }); 
+                    if (workerResult) workerResult.unshift(nIt); 
                 }
-                
-                updateMaps(); 
-                hideMod(); 
-                applyFiltersAndRender(); 
-                tampilkanToast("Data disimpan!");
-            } catch (e) { console.error(e); } finally { isSaving = false; }
+                updateMaps(); hideMod(); applyFiltersAndRender(); tampilkanToast("Tersimpan!");
+            } catch (e) { console.error(e); } finally { isSaving = false; if(btn) btn.disabled = false; }
         }
 
         async function del(id) {
             const idx = db.findIndex(x => String(x.id) === String(id)); if(idx === -1) return;
             showConfirm(`Hapus "${db[idx].n}"?`, "Hapus", async () => {
-                db[idx].deleted = true; db[idx].updatedAt = Date.now();
-                await saveItemToIDB(db[idx]); 
-                worker.postMessage({ type: 'remove', id: String(id) });
-                
-                if (workerResult !== null) {
-                    workerResult = workerResult.filter(x => String(x.id) !== String(id));
-                }
-                
-                updateMaps();
-                applyFiltersAndRender();
-                tampilkanToast("Dihapus!", "var(--danger)");
+                db[idx].deleted = true; db[idx].updatedAt = Date.now(); await saveItemToIDB(db[idx]); worker.postMessage({ type: 'remove', id: String(id) });
+                if (workerResult) workerResult = workerResult.filter(x => String(x.id) !== String(id));
+                updateMaps(); applyFiltersAndRender(); tampilkanToast("Dihapus!", "var(--danger)");
             });
         }
 
         async function executeDeleteAll() {
-            tampilkanToast("Memproses penghapusan massal...", "var(--danger)");
-            $('list').style.pointerEvents = 'none'; 
+            tampilkanToast("Menghapus...", "var(--danger)"); $('list').style.pointerEvents = 'none'; 
             try {
-                const tx = idb.transaction('items', 'readwrite'); const store = tx.objectStore('items'); const ts = Date.now();
-                db.forEach(item => { if (!item.deleted) { item.deleted = true; item.updatedAt = ts; store.put(item); } });
-                tx.oncomplete = () => { 
-                    worker.postMessage({ type: 'init', db: [] });
-                    updateMaps();
-                    applyFiltersAndRender();
-                    $('list').style.pointerEvents = 'auto'; 
-                    tampilkanToast("Semua data berhasil dihapus!", "var(--danger)"); 
-                };
-            } catch(e) { $('list').style.pointerEvents = 'auto'; showAlert("Gagal menghapus data massal.", "Error"); }
+                const tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'), ts = Date.now();
+                db.forEach(i => { if (!i.deleted) { i.deleted = true; i.updatedAt = ts; s.put(i); } });
+                tx.oncomplete = () => { worker.postMessage({ type: 'init', db: [] }); updateMaps(); applyFiltersAndRender(); $('list').style.pointerEvents = 'auto'; tampilkanToast("Bersih!", "var(--danger)"); };
+            } catch(e) { $('list').style.pointerEvents = 'auto'; showAlert("Gagal.", "Error"); }
         }
 
-        async function toggleFav(id, btnElement) {
-            const idx = db.findIndex(x => String(x.id) === String(id));
-            if(idx !== -1) { 
-                db[idx].f = !db[idx].f; db[idx].updatedAt = Date.now(); await saveItemToIDB(db[idx]); 
-                if (btnElement) {
-                    btnElement.style.color = db[idx].f ? 'var(--mono-main)' : 'var(--text-muted)';
-                    btnElement.innerHTML = `<svg pointer-events="none" viewBox="0 0 24 24" width="20" height="20" fill="${db[idx].f?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
-                }
-                if (tab === 'fav') applyFiltersAndRender();
+        async function toggleFav(id, btn) { const idx = db.findIndex(x => String(x.id) === String(id)); if(idx !== -1) { db[idx].f = !db[idx].f; db[idx].updatedAt = Date.now(); await saveItemToIDB(db[idx]); if (btn) { btn.style.color = db[idx].f ? 'var(--mono-main)' : 'var(--text-muted)'; btn.innerHTML = `<svg pointer-events="none" viewBox="0 0 24 24" width="18" height="18" fill="${db[idx].f?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`; } if (tab === 'fav') applyFiltersAndRender(); } }
+
+        function optimizeData() {
+            $('dropdown-menu').classList.add('hidden'); 
+            showConfirm("Bersihkan memori sampah?", "Optimasi", () => {
+                tampilkanToast("Mengoptimalkan...", "#FFA500");
+                recentSearches = []; trendingSearches = {}; localStorage.removeItem('DB_WA_RECENT'); localStorage.removeItem('DB_WA_TRENDING');
+                const tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'); let c = 0; const aDb = []; 
+                db.forEach(i => { if (i.deleted) { s.delete(i.id); c++; } else { aDb.push(i); } });
+                tx.oncomplete = () => { db = aDb; worker.postMessage({ type: 'init', db: db }); updateMaps(); clearSearch(); setTimeout(() => showAlert(`BERHASIL!!!\nSampah: ${c} Data`, "Info"), 500); };
+            });
+        }
+
+        // === CLOUD ===
+        function backupToCloud() { if (db.length === 0) return; showConfirm("Upload Cloud?", "Backup", () => { tampilkanToast("Menyimpan..."); fetchWithTimeout(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backup', data: db }) }).then(() => tampilkanToast("Berhasil!", "#87CEFA")).catch(() => showAlert("Gagal upload.", "Error")); }); }
+        function loadFromCloud() { showConfirm("Load Cloud?", "Sinkronisasi", () => { tampilkanToast("Memuat..."); fetchWithTimeout(CLOUD_URL + "?action=load&t=" + Date.now()).then(r => r.json()).then(async dC => { if (Array.isArray(dC)) { const tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'); dC.forEach(iC => { const lIdx = db.findIndex(l => l.id === iC.id); if (lIdx > -1) { if ((iC.updatedAt || 0) > (db[lIdx].updatedAt || 0)) { db[lIdx] = iC; if (iC.deleted) s.delete(iC.id); else s.put(iC); } } else { db.push(iC); if (!iC.deleted) s.put(iC); } }); tx.oncomplete = () => { worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); updateMaps(); clearSearch(); tampilkanToast("Selesai!", "#87CEFA"); }; } }).catch(() => showAlert("Gagal load.", "Error")); }); }
+        function exportData() { const data = db.filter(i => !i.deleted).map(i => ({ "ID": i.id, "Barcode": i.b, "Nama": i.n, "Eceran": i.p1, "Grosir": i.p2, "Singkatan": i.t, "Favorit": i.f ? "Ya" : "Tidak", "Expired": i.exp || "" })); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Data"); XLSX.writeFile(wb, "Harga.xlsx"); }
+        function importData(e) { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = (ev) => { const w = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'}), jD = XLSX.utils.sheet_to_json(w.Sheets[w.SheetNames[0]], { raw: false, defval: "" }), tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'), tA = new Set(), ts = Date.now(); jD.forEach(ro => { const n = prop(ro["Nama Barang"] || ro["Nama"]); if(!n) return; let cT = ro["Singkatan"]; if (!cT) cT = generateSmartAcronym(n, null, tA); if (cT) tA.add(cT); const eI = ro["ID"] ? String(ro["ID"]).trim() : null, sB = ro["Barcode"] ? String(ro["Barcode"]).trim() : '', iF = ro["Favorit"] === "Ya" || ro["Favorit"] === "TRUE", eD = parseBulanTahunExcel(ro["Expired"]); let eIdx = db.findIndex(x => (eI && String(x.id) === String(eI)) || (x.n.toLowerCase() === n.toLowerCase())); if (eIdx > -1) { db[eIdx] = { ...db[eIdx], b: sB, p1: parseExcelPrice(ro["Eceran"]||ro["Harga Eceran"]), p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, updatedAt: ts, deleted: false }; s.put(db[eIdx]); } else { const nI = { id: eI || generateUniqueId(), b: sB, n: n, p1: parseExcelPrice(ro["Eceran"]||ro["Harga Eceran"]), p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, updatedAt: ts, deleted: false }; db.push(nI); s.put(nI); } }); tx.oncomplete = () => { worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); updateMaps(); clearSearch(); tampilkanToast("Import Selesai!"); }; }; r.readAsArrayBuffer(f); }
+        
+        // === SENTER & SCANNER MINIMALIS ===
+        let torchState = false; 
+        function toggleFlashlight() {
+            const vid = document.querySelector('#reader video');
+            if (vid && vid.srcObject) {
+                try {
+                    const track = vid.srcObject.getVideoTracks()[0];
+                    const cap = track.getCapabilities();
+                    if (cap.torch) {
+                        torchState = !torchState;
+                        track.applyConstraints({ advanced: [{ torch: torchState }] }).catch(e => console.log(e));
+                        $('torch-btn').style.color = torchState ? "var(--warning)" : "white";
+                    } else { tampilkanToast("HP tidak dukung senter", "var(--warning)"); }
+                } catch(e) { console.log(e); }
             }
         }
 
-        // === FITUR OPTIMASI & BERSIHKAN CACHE ===
-        function optimizeData() {
-            $('dropdown-menu').classList.add('hidden'); 
-            showConfirm("Membersihkan memori dari data sampah dan riwayat pencarian?", "Optimasi Sistem", () => {
-                tampilkanToast("Mengoptimalkan sistem...", "#FFA500");
-                
-                recentSearches = [];
-                trendingSearches = {};
-                localStorage.removeItem('DB_WA_RECENT');
-                localStorage.removeItem('DB_WA_TRENDING');
-                
-                const tx = idb.transaction('items', 'readwrite'); 
-                const store = tx.objectStore('items');
-                let ghostCount = 0;
-                const activeDb = []; 
-                
-                db.forEach(item => {
-                    if (item.deleted) {
-                        store.delete(item.id); 
-                        ghostCount++;
-                    } else {
-                        activeDb.push(item); 
-                    }
-                });
-                
-                tx.oncomplete = () => {
-                    db = activeDb; 
-                    worker.postMessage({ type: 'init', db: db }); 
-                    updateMaps(); 
-                    clearSearch(); 
-                    setTimeout(() => {
-                        showAlert(`BERHASIL!!!\n\nMembersihkan: ${ghostCount} Data Sampah`, "Pembersihan Cache");
-                    }, 500);
-                };
-                tx.onerror = () => { showAlert("Gagal melakukan optimasi database.", "Error"); };
-            });
-        }
-
-        // === 10. CLOUD SYNC & EXPORT/IMPORT ===
-        function backupToCloud() {
-            if (db.length === 0) return;
-            showConfirm("Upload ke Cloud?", "Backup", () => {
-                tampilkanToast("Menyimpan...");
-                fetchWithTimeout(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backup', data: db }) }, 30000)
-                .then(() => tampilkanToast("Berhasil!", "#87CEFA"))
-                .catch(() => showAlert("Gagal upload.", "Error"));
-            });
-        }
-        
-        function loadFromCloud() {
-            showConfirm("Load Cloud", "Sinkronisasi", () => {
-                tampilkanToast("Memuat...");
-                fetchWithTimeout(CLOUD_URL + "?action=load&t=" + Date.now(), {}, 30000)
-                .then(res => res.json()).then(async dataCloud => {
-                    if (Array.isArray(dataCloud)) {
-                        const tx = idb.transaction('items', 'readwrite'); const store = tx.objectStore('items');
-                        dataCloud.forEach(itemCloud => { 
-                            const localIdx = db.findIndex(l => l.id === itemCloud.id);
-                            if (localIdx > -1) {
-                                if ((itemCloud.updatedAt || 0) > (db[localIdx].updatedAt || 0)) {
-                                    db[localIdx] = itemCloud;
-                                    if (itemCloud.deleted) { store.delete(itemCloud.id); } else { store.put(itemCloud); }
-                                }
-                            } else {
-                                db.push(itemCloud);
-                                if (!itemCloud.deleted) { store.put(itemCloud); }
-                            }
-                        });
-                        tx.oncomplete = () => { 
-                            worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) });
-                            updateMaps(); 
-                            clearSearch();
-                            tampilkanToast("Sinkronisasi Selesai!", "#87CEFA"); 
-                        };
-                    }
-                }).catch(() => showAlert("Gagal load.", "Error"));
-            });
-        }
-        
-        function exportData() {
-            const data = db.filter(i => !i.deleted).map(i => ({ 
-                "ID": i.id,
-                "Barcode": i.b, 
-                "Nama Barang": i.n, 
-                "Harga Eceran": i.p1, 
-                "Harga Grosir": i.p2, 
-                "Singkatan": i.t,
-                "Favorit": i.f ? "Ya" : "Tidak",
-                "Expired": i.exp || ""
-            }));
-            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Data"); XLSX.writeFile(wb, "Data_Harga.xlsx");
-        }
-        
-        function importData(e) {
-            const file = e.target.files[0]; if(!file) return;
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                const workbook = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'});
-                const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { raw: false, defval: "" });
-                const tx = idb.transaction('items', 'readwrite'); const store = tx.objectStore('items');
-                let tempAcronyms = new Set();
-                const ts = Date.now();
-                
-                jsonData.forEach(row => {
-                    const name = prop(row["Nama Barang"] || row["Nama"]); if(!name) return;
-                    let customT = row["Singkatan"]; if (!customT) { customT = generateSmartAcronym(name, null, tempAcronyms); }
-                    if (customT) tempAcronyms.add(customT); 
-                    
-                    const excelId = row["ID"] ? String(row["ID"]).trim() : null;
-                    const safeBarcode = row["Barcode"] ? String(row["Barcode"]).trim() : '';
-                    
-                    const isFav = row["Favorit"] === "Ya" || row["Favorit"] === "TRUE";
-                    const expDate = parseBulanTahunExcel(row["Expired"]);
-                    
-                    let existingIdx = db.findIndex(x => (excelId && String(x.id) === String(excelId)) || (x.n.toLowerCase() === name.toLowerCase()));
-
-                    if (existingIdx > -1) {
-                        db[existingIdx] = {
-                            ...db[existingIdx],
-                            b: safeBarcode,
-                            p1: parseExcelPrice(row["Harga Eceran"]),
-                            p2: parseExcelPrice(row["Harga Grosir"]),
-                            t: customT,
-                            f: isFav,
-                            exp: expDate,
-                            updatedAt: ts,
-                            deleted: false
-                        };
-                        store.put(db[existingIdx]);
-                    } else {
-                        const newItem = { 
-                            id: excelId || generateUniqueId(), 
-                            b: safeBarcode, 
-                            n: name, 
-                            p1: parseExcelPrice(row["Harga Eceran"]), 
-                            p2: parseExcelPrice(row["Harga Grosir"]), 
-                            t: customT, 
-                            f: isFav,
-                            exp: expDate,
-                            updatedAt: ts, 
-                            deleted: false 
-                        };
-                        db.push(newItem); 
-                        store.put(newItem);
-                    }
-                });
-                tx.oncomplete = () => { 
-                    worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) });
-                    updateMaps(); 
-                    clearSearch();
-                    tampilkanToast("Import Selesai!"); 
-                };
-            };
-            reader.readAsArrayBuffer(file);
-        }
-        
         async function openScanner(mode) {
             if(isStartingScan || isScanning) return; 
             isStartingScan = true; scanMode = mode;
             $('scanner-wrap').style.display = 'block'; 
             if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
-            
+            torchState = false; $('torch-btn').style.color = "white"; 
             try {
-                const cameraConfig = { 
-                    fps: 15, 
-                    qrbox: { width: 250, height: 150 }, 
-                    disableFlip: false 
-                };
-
-                await html5QrCode.start(
-                    { facingMode: "environment" }, 
-                    cameraConfig, 
+                // UI BERSIH: Sengaja TANPA konfigurasi qrbox agar kotak library mati
+                await html5QrCode.start( { facingMode: "environment" }, { fps: 15, disableFlip: false }, 
                     async (text) => {
                         playBeep(); await closeScanner();
                         if (scanMode === 'search') {
-                            const exist = db.find(i => !i.deleted && String(i.b) === text.trim());
-                            if (exist) { 
-                                $('q').value = text.trim(); $('q-x').style.display = 'flex'; handleSearchLogic(text.trim()); 
-                            } else { showMod(); $('i-b').value = text.trim(); }
+                            const ex = db.find(i => !i.deleted && String(i.b) === text.trim());
+                            if (ex) { $('q').value = text.trim(); $('q-x').style.display = 'flex'; handleSearchLogic(text.trim()); } 
+                            else { showMod(); $('i-b').value = text.trim(); }
                         } else { $('i-b').value = text.trim(); }
                     }
                 );
                 isScanning = true;
-            } catch (e) { 
-                await closeScanner(); 
-                showAlert("Kamera Error atau Izin Kamera Ditolak.", "Error Kamera"); 
-                console.error("Scanner Error:", e);
-            } finally { 
-                isStartingScan = false; 
-            }
+            } catch (e) { await closeScanner(); showAlert("Kamera Error/Izin Ditolak.", "Error"); } 
+            finally { isStartingScan = false; }
         }
 
-        async function closeScanner() {
-            $('scanner-wrap').style.display = 'none'; 
-            if (isScanning && html5QrCode) { try { await html5QrCode.stop(); html5QrCode.clear(); } catch(e) {} }
-            isScanning = false;
-        }
+        async function closeScanner() { $('scanner-wrap').style.display = 'none'; if (isScanning && html5QrCode) { try { await html5QrCode.stop(); html5QrCode.clear(); } catch(e) {} } isScanning = false; }
 
-        async function initApp() {
-            try {
-                const t = new Date(); $('current-date-location').innerText = `Boyolali, ${t.getDate()} ${NamaBln[t.getMonth()]} ${t.getFullYear()}`;
-                await initDB(); db = await loadAllFromIDB(); 
-                worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) });
-                updateMaps(); 
-                applyFiltersAndRender();
-            } catch (e) { showAlert("DB Error", "Error"); }
-        }
+        async function initApp() { try { const t = new Date(); $('current-date-location').innerText = `Boyolali, ${t.getDate()} ${NamaBln[t.getMonth()]} ${t.getFullYear()}`; await initDB(); db = await loadAllFromIDB(); worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); updateMaps(); applyFiltersAndRender(); } catch (e) { showAlert("DB Error", "Error"); } }
         initApp();
     </script>
 </body>
