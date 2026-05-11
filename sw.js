@@ -1,10 +1,9 @@
 /**
- * SERVICE WORKER DAFTAR HARGA - ENTERPRISE GRADE FINAL
+ * SERVICE WORKER DAFTAR HARGA - ENTERPRISE GRADE FINAL (OPTIMIZED)
  * Strategi: Network-First, Cache-First (CDN Presisi), Stale-While-Revalidate (Background Safe)
  */
 
-// Dokumentasi: Ubah angka ini jika Anda mengubah isi file HTML/JS/CSS agar pengguna mendapatkan versi terbaru
-const APP_VERSION = '3.0'; 
+const APP_VERSION = '3.1'; // Ganti angka ini setiap kali Anda merilis pembaruan HTML/CSS/JS
 const CACHE_CORE = 'core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
 const CACHE_CDN = 'cdn-v1'; 
@@ -15,45 +14,35 @@ const MAX_CDN_ITEMS = 30;
 const coreUrls = ['./', './index.html', './manifest.json'];
 const cdnDomains = ['unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'cdn.jsdelivr.net'];
 
-// Helper: Trim Cache untuk membersihkan tumpukan memori lama
+// Helper: Trim Cache secara Paralel
 async function trimCache(cacheName, maxItems) {
   try {
     const cache = await caches.open(cacheName);
     const keys = await cache.keys();
     if (keys.length > maxItems) {
-      for (let i = 0; i < keys.length - maxItems; i++) {
-        await cache.delete(keys[i]);
-      }
+      const keysToDelete = keys.slice(0, keys.length - maxItems);
+      await Promise.all(keysToDelete.map(key => cache.delete(key)));
     }
-  } catch (err) {
-    // Abaikan error secara diam-diam jika terjadi kegagalan penghapusan
-  }
+  } catch (err) {} // Fail-safe senyap
 }
 
-// Helper: Fetch dengan batas waktu dan pemutus koneksi (AbortController)
-function fetchWithTimeout(request, timeout = 1200) {
-  // Membuat controller untuk membatalkan proses jaringan
+// Helper: Fetch dengan Timeout 3 Detik
+function fetchWithTimeout(request, timeout = 3000) {
   const controller = new AbortController();
-  
-  // Pasang timer. Jika waktu habis, batalkan koneksi jaringan
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-  // Jalankan fetch dengan menyematkan sinyal dari controller
   return fetch(request, { signal: controller.signal })
     .then(res => {
-      clearTimeout(timeoutId); // Bersihkan timer jika berhasil sebelum batas waktu
+      clearTimeout(timeoutId); 
       return res;
     })
     .catch(err => {
-      // Jika error terjadi karena fungsi abort() dipanggil, kembalikan pesan TIMEOUT
-      if (err.name === 'AbortError') {
-        throw new Error('TIMEOUT');
-      }
-      throw err; // Lempar error lain (misal koneksi putus tiba-tiba)
+      if (err.name === 'AbortError') throw new Error('TIMEOUT');
+      throw err; 
     });
 }
 
-// Tahap 1: Menginstal Service Worker dan memasukkan file inti ke dalam cache
+// Tahap 1: Install & Caching Core
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_CORE)
@@ -62,85 +51,87 @@ self.addEventListener('install', event => {
   );
 });
 
-// Tahap 2: Mengaktifkan Service Worker dan menghapus cache versi lama
+// Tahap 2: Activate, Cleanup Old Cache, & Notify Client
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
       return Promise.all(keys.map(key => {
-        // Hapus nama cache yang tidak cocok dengan versi aplikasi saat ini
         if (key !== CACHE_CORE && key !== CACHE_DYNAMIC && key !== CACHE_CDN) {
           return caches.delete(key);
         }
       }));
-    }).then(() => self.clients.claim())
+    })
+    .then(() => self.clients.claim())
+    .then(() => {
+      // IDE BRILIAN: Kirim sinyal ke index.html bahwa ada versi baru
+      return self.clients.matchAll({ type: 'window' }).then(clients => {
+        clients.forEach(client => {
+          client.postMessage({ type: 'UPDATE_TERSEDIA' });
+        });
+      });
+    })
   );
 });
 
-// Tahap 3: Menangkap lalu lintas data (Fetch)
+// Tahap 3: Fetch Interceptor
 self.addEventListener('fetch', event => {
   const req = event.request;
   const url = new URL(req.url);
 
-  // Abaikan metode POST atau permintaan ke database Google Script agar tidak bentrok
   if (req.method !== 'GET' || url.hostname.includes('script.google') || !url.protocol.startsWith('http')) return;
 
-  // STRATEGI 1: NETWORK-FIRST (Utamakan Internet untuk File Inti/HTML)
+  // STRATEGI 1: NETWORK-FIRST (HTML & Navigasi)
   if (req.mode === 'navigate' || url.pathname.match(/\/(index\.html)?$/)) {
     event.respondWith(
-      fetchWithTimeout(req, 1200)
+      fetchWithTimeout(req, 3000)
         .then(res => {
           const resClone = res.clone();
           caches.open(CACHE_CORE).then(cache => cache.put(req, resClone));
           return res;
         })
-        .catch(() => caches.match('./index.html', { ignoreSearch: true }))
+        .catch(() => {
+          return caches.match('./index.html', { ignoreSearch: true })
+            .then(cachedRes => cachedRes || new Response('Aplikasi Offline. Harap aktifkan internet.', { status: 503 }));
+        })
     );
     return;
   }
 
-  // STRATEGI 2: CACHE-FIRST (Utamakan Memori HP untuk CDN/Library)
+  // STRATEGI 2: CACHE-FIRST (CDN & Library)
   if (cdnDomains.some(domain => url.hostname.includes(domain))) {
     event.respondWith(
-      // PERBAIKAN 2: Menghapus { ignoreSearch: true } agar pembacaan Google Fonts presisi
       caches.match(req).then(cachedRes => cachedRes || fetch(req).then(res => {
         if (res.status === 200) {
           const resClone = res.clone();
           caches.open(CACHE_CDN).then(async cache => {
-            await cache.put(req, resClone); // Tunggu proses simpan selesai
-            trimCache(CACHE_CDN, MAX_CDN_ITEMS); // Baru lakukan pembersihan memori
+            await cache.put(req, resClone); 
+            trimCache(CACHE_CDN, MAX_CDN_ITEMS); 
           });
         }
         return res;
-      }).catch(() => {
-        return new Response('', { status: 503, statusText: 'Offline' });
-      }))
+      }).catch(() => new Response('', { status: 503 })))
     );
     return;
   }
 
-  // STRATEGI 3: STALE-WHILE-REVALIDATE (Tampilkan Cache, Update di Latar Belakang)
+  // STRATEGI 3: STALE-WHILE-REVALIDATE (Aset lainnya)
   event.respondWith(
     caches.match(req, { ignoreSearch: true }).then(cachedRes => {
-      
       const fetchPromise = fetch(req).then(res => {
         if (res.status === 200) {
           const resClone = res.clone();
           caches.open(CACHE_DYNAMIC).then(async cache => {
-            await cache.put(req, resClone); // Tunggu proses simpan selesai
-            trimCache(CACHE_DYNAMIC, MAX_DYNAMIC_ITEMS); // Baru bersihkan memori
+            await cache.put(req, resClone); 
+            trimCache(CACHE_DYNAMIC, MAX_DYNAMIC_ITEMS); 
           });
         }
         return res;
-      }).catch(() => {
-        return new Response('', { status: 503, statusText: 'Offline' });
-      });
+      }).catch(() => new Response('', { status: 503 }));
 
-      // PERBAIKAN 1: Lindungi proses fetchPromise agar tidak "dibunuh" browser
       if (cachedRes) {
-        event.waitUntil(fetchPromise); // Pesan ke browser untuk tidak mematikan latar belakang
+        event.waitUntil(fetchPromise); 
         return cachedRes;
       }
-      
       return fetchPromise;
     })
   );
