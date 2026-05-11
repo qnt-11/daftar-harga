@@ -8,7 +8,6 @@
     <link rel="manifest" href="manifest.json">
     
     <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     
@@ -36,12 +35,8 @@
         .hidden { display: none !important; }
         .audiowide-regular { font-family: "Audiowide", sans-serif !important; font-weight: 400 !important; }
 
-        /* === 3. HEADER & DROPDOWN (SMART HEADER) === */
-        .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--wa-header); backdrop-filter: blur(8px); z-index: 100; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); transition: margin-top 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        
-        /* SOLUSI SMART HEADER: Margin-top menarik semua elemen di bawahnya tanpa blank space */
-        body.hide-header .header { margin-top: -74px; }
-
+        /* === 3. HEADER (Z-INDEX 100, SCROLL ALAMI) === */
+        .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: relative; background: var(--wa-header); z-index: 100; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); }
         .header-left { display: flex; flex-direction: column; justify-content: center; }
         .header h1 { font-size: 18px; margin: 0; color: var(--text-light); }
         .header-date-location { font-size: 10px; color: var(--text-muted); margin-top: 2px; font-weight: 600; letter-spacing: 0.5px; }
@@ -51,6 +46,7 @@
         .icon-btn:active { transform: scale(0.9); opacity: 0.8; }
         .header-upload-btn { display: flex; flex-direction: column; gap: 2px; color: #87CEFA; padding: 0; }
         
+        /* DROPDOWN MENU */
         .dropdown-wrapper { position: relative; display: flex; align-items: center; }
         .dropdown-content { position: absolute; top: 48px; right: 0; background: rgba(21, 21, 21, 0.95); backdrop-filter: blur(8px); min-width: 180px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.9); z-index: 10000; overflow: hidden; border: 1px solid var(--border-color); border-top: 1px solid rgba(255,255,255,0.15); border-left: 1px solid rgba(255,255,255,0.05); }
         .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 15px 16px; color: var(--text-light); font-size: 13px; font-weight: 500; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); min-height: 44px; }
@@ -58,14 +54,13 @@
         .dropdown-item:active { background-color: rgba(255,255,255,0.15); }
         .dropdown-item input[type="file"] { display: none; }
 
-        /* === 4. ANIMASI IKON === */
         @keyframes laser-updown-header { 0% { transform: translateY(-4px); } 50% { transform: translateY(4px); } 100% { transform: translateY(-4px); } }
         .laser-beam-header { animation: laser-updown-header 1.5s infinite ease-in-out; filter: drop-shadow(0 0 2px red); }
         .glow-cloud { filter: drop-shadow(0 0 6px rgba(135, 206, 250, 0.8)); }
 
-        /* === 5. SEARCH AREA === */
-        .search-area { padding: 10px 16px; background: var(--wa-bg); position: sticky; top: 74px; z-index: 90; }
-        .search-box { display: flex; align-items: center; background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 0 12px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        /* === 4. SEARCH AREA (Z-INDEX 90, STICKY TOP) === */
+        .search-area { padding: 10px 16px; background: var(--wa-bg); position: sticky; top: 0; z-index: 90; box-shadow: 0 4px 10px -5px rgba(0,0,0,0.8); }
+        .search-box { display: flex; align-items: center; background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 0 12px; position: relative; }
         .search-box input { width: 100%; background: transparent; border: none; padding: 14px 44px 14px 5px; color: var(--text-light); font-size: 16px; font-family: 'Montserrat', sans-serif; font-weight: 600; outline: none; }
         .search-icon { width: 20px; height: 20px; color: var(--text-muted); pointer-events: none; margin-right: 8px; }
         .q-clear { position: absolute; right: 2px; top: 2px; bottom: 2px; display: none; width: 44px; cursor: pointer; align-items: center; justify-content: center; }
@@ -78,8 +73,12 @@
         .sd-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; min-height: 44px; color: var(--text-light); font-size: 13px; font-weight: 600; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .sd-item:active { background-color: rgba(255,255,255,0.15); }
 
-        /* === 6. TABS (LENGKET) === */
-        .tabs-row { display: flex; align-items: center; padding: 5px 16px 15px 16px; gap: 10px; position: sticky; top: 138px; background: var(--wa-bg); z-index: 85; }
+        /* === 5. TABS (Z-INDEX 85, STICKY DENGAN BAYANGAN) === */
+        .tabs-row { 
+            display: flex; align-items: center; padding: 5px 16px 15px 16px; gap: 10px; 
+            position: sticky; top: 66px; background: var(--wa-bg); z-index: 85; 
+            box-shadow: 0 10px 15px -10px rgba(0,0,0,0.8); 
+        }
         .tab { padding: 10px 18px; border-radius: 8px; background: var(--wa-card); border: 1px solid var(--border-color); font-size: 11px; color: var(--text-muted); cursor: pointer; font-weight: 700; font-family: 'Montserrat', sans-serif; text-transform: uppercase; transition: 0.2s; outline: none; min-height: 40px; }
         .tab.active { background: rgba(255, 255, 255, 0.15); color: var(--mono-main); border-color: var(--mono-main); box-shadow: 0 0 8px rgba(255, 255, 255, 0.1); }
         .sort-btn { margin-left: auto; color: var(--text-muted); background: transparent; border: none; cursor: pointer; display: flex; flex-direction: column; gap: 4px; align-items: flex-end; padding: 8px 4px; width: 44px; height: 44px; justify-content: center; outline: none; }
@@ -89,14 +88,13 @@
         .sort-btn span:nth-child(3) { width: 6px; }
         .sort-btn.active { color: var(--mono-main); }
 
-        /* === 7. VIRTUAL SCROLL CONTAINER === */
-        /* Tinggi scroll diperlebar karena kita menggunakan sticky tab */
-        .list { height: calc(100vh - 200px); overflow-y: auto; position: relative; padding-bottom: 40px; scroll-behavior: auto; }
+        /* === 6. VIRTUAL SCROLL CONTAINER === */
+        .list { height: calc(100vh - 145px); overflow-y: auto; position: relative; padding-bottom: 25px; scroll-behavior: auto; }
         .list.is-scrolling .render-container { pointer-events: none; }
         .spacer { position: absolute; top: 0; left: 0; width: 1px; }
         .render-container { position: absolute; top: 0; left: 0; width: 100%; padding-left: 16px; padding-right: 16px; will-change: transform; transform: translateZ(0); }
         
-        .card { position: relative; display: flex; align-items: flex-start; padding: 15px 18px 15px 18px; padding-right: 90px; background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); height: auto; min-height: 90px; overflow: hidden; box-sizing: border-box; contain: content; touch-action: pan-y; }
+        .card { position: relative; display: flex; align-items: flex-start; padding: 15px 18px 15px 18px; padding-right: 90px; background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 12px; height: auto; min-height: 90px; overflow: hidden; box-sizing: border-box; contain: content; touch-action: pan-y; }
         .card-exp-mode { height: auto !important; min-height: 70px !important; padding-bottom: 15px !important; align-items: center !important; padding-right: 18px !important; }
         
         .info { flex: 1; min-width: 0; pointer-events: none; }
@@ -116,89 +114,85 @@
         .btn-edit-icon { color: var(--mono-main); }
         
         .empty-msg { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 100%; color: #555555; font-size: 12px; font-weight: 600; text-align: center; letter-spacing: 0.5px; z-index: 5; }
-
         .scroll-letter { position: fixed; right: 20px; top: 50%; color: rgba(255, 255, 255, 0.7); font-size: 30px; font-weight: 800; z-index: 100; opacity: 0; pointer-events: none; text-shadow: 0px 4px 15px rgba(0, 0, 0, 1), 0px 0px 5px rgba(0, 0, 0, 0.8); transform: translateY(-50%) scale(0.7); transition: opacity 0.2s ease, transform 0.2s ease-out; }
         .scroll-letter.show { opacity: 1; transform: translateY(-50%) scale(1); }
 
-        /* === 8. MODAL KONTROL (MODE FOKUS & KOMPAK) === */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
-        
-        .modal-box { 
-            background: #141414; padding: 18px 20px; border-radius: 12px; width: 100%; max-width: 290px; border: 1px solid #333333; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: left; animation: popInBouncy 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); max-height: 90vh; overflow-y: auto; overscroll-behavior: contain; 
-            /* Posisi sedikit ke atas untuk jangkauan jempol, tapi aman di layar kecil */
-            transform: translateY(-5vh); 
-        }
-        @keyframes popInBouncy { 0% { transform: scale(0.85) translateY(5vh); opacity: 0; } 100% { transform: scale(1) translateY(-5vh); opacity: 1; } }
-        
-        .modal-box label { display: block; font-size: 10px; color: #aaaaaa; margin-bottom: 4px; margin-top: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
-        .modal-box label:first-child { margin-top: 0; }
-
-        .modal-box input { width: 100%; padding: 10px 12px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-light); font-size: 14px; font-family: 'Montserrat', sans-serif; font-weight: 600; outline: none; border-radius: 8px; transition: all 0.2s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); margin-bottom: 2px; }
-        .modal-box input:focus { background: rgba(255, 255, 255, 0.05); border-color: var(--mono-main); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15), inset 0 2px 4px rgba(0,0,0,0.5); }
-        
-        /* Barcode Row Kompak */
-        .modal-box input[id="i-b"] { flex: 1; margin: 0; }
-        .barcode-row { display: flex; gap: 6px; align-items: center; }
-        .modal-box button[onclick*="openScanner"] { background: rgba(0,0,0,0.5) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; border-radius: 8px !important; height: 40px; width: 44px !important; transition: all 0.2s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); outline:none; display:flex; justify-content:center; align-items:center; }
-        .modal-box button[onclick*="openScanner"]:active { background: rgba(255, 255, 255, 0.1) !important; transform: scale(0.95); }
-        
-        /* Tombol Price Chips */
-        .chip-row { display: flex; gap: 8px; margin-top: 4px; margin-bottom: 8px; }
-        .chip-btn { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: var(--text-muted); font-weight: 700; padding: 8px 0; cursor: pointer; transition: 0.15s ease; font-family: 'Montserrat', monospace; font-size: 13px; outline: none; }
-        .chip-btn:active { background: rgba(255,255,255,0.15); transform: scale(0.95); color: #fff;}
-
-        /* Tombol Simpan Kompak */
-        .modal-btns { display: flex; gap: 8px; justify-content: center; margin-top: 15px; }
-        .btn-main { width: 100%; padding: 12px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; font-family: 'Montserrat', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; transition: transform 0.15s ease, opacity 0.2s; display: flex; justify-content: center; align-items: center; min-height: 42px; outline: none; }
-        .btn-main:active { transform: scale(0.96); }
-        .btn-mono { background-color: var(--mono-main) !important; color: #000000 !important; border: none !important; box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1); }
-        .btn-cancel { background-color: transparent !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; color: var(--text-light) !important; }
-        
-        button:disabled, input:disabled, .btn-main:disabled { opacity: 0.5 !important; cursor: not-allowed; transform: scale(1) !important; pointer-events: none; }
-
-        /* === 9. FAB BUTTON === */
+        /* === 7. FAB BUTTON === */
         .fab { position: fixed; bottom: calc(30px + env(safe-area-inset-bottom, 0px)); right: 20px; background: #000000; width: 60px; height: 60px; border-radius: 18px; display: flex; justify-content: center; align-items: center; border: 2px solid var(--border-color); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8); z-index: 500; cursor: pointer; transition: transform 0.2s, border-color 0.2s; outline: none; }
         .fab:active { transform: scale(0.9); border-color: var(--mono-sec); }
 
-        /* === 10. SCANNER UI BARU (MINIMALIS & MURNI) === */
+        /* === 8. SEMUA POP-UP MODAL (STANDARISASI NORMAL & SIMETRIS) === */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
+        
+        .modal-box { 
+            background: var(--wa-card); padding: 24px 22px; border-radius: 16px; 
+            width: 100%; max-width: 320px; 
+            border: 2px solid var(--border-color);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9); 
+            text-align: left; animation: popInBouncy 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            max-height: 85vh; overflow-y: auto; overscroll-behavior: contain; margin: auto;
+            transition: border-color 0.3s ease;
+        }
+        @keyframes popInBouncy { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        
+        .modal-box label { display: block; font-size: 10px; color: #888888; margin-bottom: 6px; margin-top: 14px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+        .modal-box label:first-child { margin-top: 0; }
+
+        .modal-box input { width: 100%; padding: 12px 14px; background: var(--wa-bg); border: 1px solid var(--border-color); color: var(--text-light); font-size: 14px; font-family: 'Montserrat', sans-serif; font-weight: 600; outline: none; border-radius: 8px; transition: border-color 0.2s; margin-bottom: 2px;}
+        .modal-box input:focus { border-color: var(--mono-main); }
+        
+        .barcode-row { display: flex; gap: 8px; align-items: center; }
+        .modal-box input[id="i-b"] { flex: 1; margin: 0; }
+        .modal-box button[onclick*="openScanner"] { background: var(--wa-bg); border: 1px solid var(--border-color); border-radius: 8px; height: 44px; width: 46px; transition: all 0.2s ease; outline:none; display:flex; justify-content:center; align-items:center; }
+        .modal-box button[onclick*="openScanner"]:active { background: #222; transform: scale(0.95); }
+        
+        .modal-btns { display: flex; gap: 10px; justify-content: center; margin-top: 25px; }
+        .btn-main { width: 100%; padding: 14px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; font-family: 'Montserrat', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; transition: transform 0.15s ease, opacity 0.2s; display: flex; justify-content: center; align-items: center; min-height: 44px; outline: none; }
+        .btn-main:active { transform: scale(0.96); }
+        .btn-mono { background-color: var(--mono-main) !important; color: #000000 !important; border: none !important; }
+        .btn-cancel { background-color: transparent !important; border: 1px solid var(--border-color) !important; color: var(--text-light) !important; }
+        
+        button:disabled, input:disabled, .btn-main:disabled { opacity: 0.5 !important; cursor: not-allowed; transform: scale(1) !important; pointer-events: none; }
+
+        /* MODAL KHUSUS HARGA & KALENDER */
+        #price-popup-box { border-color: #3CB371 !important; text-align: center; }
+        .pp-price-anim { animation: pulseGreen 1s infinite alternate; }
+        @keyframes pulseGreen { 0% { text-shadow: 0 0 10px rgba(60, 179, 113, 0.2); } 100% { text-shadow: 0 0 20px rgba(60, 179, 113, 0.8); transform: scale(1.05); } }
+        
+        .picker-header-new { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 5px; }
+        .picker-nav-new { background: none; border: none; color: white; font-size: 18px; font-weight: 800; cursor: pointer; outline: none; }
+        .picker-year-new { font-size: 15px; font-weight: 700; color: var(--mono-main); font-family: 'Montserrat', sans-serif; }
+        .picker-grid-new { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .month-item { color: white; font-size: 13px; font-weight: 600; padding: 12px 0; border-radius: 8px; cursor: pointer; text-align: center; }
+        .month-item.active { background: var(--mono-main); color: #000; }
+        
+        /* SPINNER LOADING CLOUD */
+        .spinner { 
+            width: 45px; height: 45px; border: 4px solid rgba(255,255,255,0.1); 
+            border-top: 4px solid var(--mono-main); border-radius: 50%; 
+            animation: spin 1s linear infinite; margin: 0 auto 20px; 
+            transition: border-top-color 0.3s ease;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* === 9. SCANNER UI BARU (MINIMALIS MURNI & SENTER) === */
         #scanner-wrap { display: none; background: #000; position: fixed; inset: 0; z-index: 3500; }
         #reader { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
         #reader video { object-fit: cover; width: 100%; height: 100%; }
-        
-        /* Sembunyikan border jelek bawaan library */
         #qr-shaded-region { display: none !important; } 
 
         .scanner-overlay { position: absolute; inset: 0; pointer-events: none; display: flex; justify-content: center; align-items: center; z-index: 3510; }
-        
-        /* Kotak putih membulat dengan bayangan hitam pekat raksasa menutupi layar */
         .scanner-box { width: 260px; height: 180px; border: 2px solid #ffffff; border-radius: 16px; position: relative; overflow: hidden; box-shadow: 0 0 0 4000px rgba(0,0,0,0.85); }
         .scanner-laser { width: 100%; height: 2px; background: red; position: absolute; box-shadow: 0 0 15px 2px red; animation: scan-anim 2s infinite ease-in-out; }
         @keyframes scan-anim { 0% { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
         
         .scan-stop { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); background: #000000; color: var(--danger); border: 1px solid var(--danger); padding: 15px 40px; border-radius: 12px; font-weight: 700; font-family: 'Montserrat', sans-serif; z-index: 3520; cursor: pointer; min-height: 48px; pointer-events: auto; letter-spacing: 1px; outline:none;}
-
-        /* Senter Pintar (Flashlight) */
         .btn-torch { position: absolute; top: 40px; right: 20px; width: 46px; height: 46px; border-radius: 23px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.3); color: #ffffff; display: flex; justify-content: center; align-items: center; z-index: 3520; cursor: pointer; pointer-events: auto; backdrop-filter: blur(5px); transition: all 0.2s ease; outline: none; }
         .btn-torch:active { transform: scale(0.9); }
 
-        /* === 11. TOAST & NOTIF === */
+        /* === 10. TOAST NOTIF === */
         #toast-notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-30px); background: rgba(21, 21, 21, 0.95); border: 1px solid var(--border-color); border-bottom: 2px solid var(--mono-main); color: var(--text-light); padding: 14px 24px; border-radius: 30px; font-size: 13px; font-weight: 700; z-index: 99999; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.9); opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; white-space: nowrap; }
         #toast-notification.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-        #custom-alert, #pin-modal, #price-popup, #custom-picker { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 40000; align-items: center; justify-content: center; padding: 20px; }
-        
-        #price-popup-box { border-top: 4px solid #3CB371 !important; text-align: center; }
-        .pp-price-anim { animation: pulseGreen 1s infinite alternate; }
-        @keyframes pulseGreen { 0% { text-shadow: 0 0 10px rgba(60, 179, 113, 0.2); } 100% { text-shadow: 0 0 20px rgba(60, 179, 113, 0.8); transform: scale(1.05); } }
-        
-        .picker-box-new { background: #111111; padding: 24px 20px; border-radius: 12px; width: 90%; max-width: 300px; border: 1px solid #333; text-align: center; margin: auto; }
-        .picker-header-new { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 10px; }
-        .picker-nav-new { background: none; border: none; color: white; font-size: 20px; font-weight: 800; cursor: pointer; outline: none; }
-        .picker-year-new { font-size: 16px; font-weight: 700; color: var(--mono-main); font-family: 'Montserrat', sans-serif; }
-        .picker-grid-new { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .month-item { color: white; font-size: 13px; font-weight: 600; padding: 10px 0; border-radius: 8px; cursor: pointer; }
-        .month-item.active { background: var(--mono-main); color: #000; }
-        .picker-footer-new { display: flex; gap: 8px; }
-        .btn-picker-new { flex: 1; background: transparent; border: 1px solid var(--mono-main); border-radius: 8px; padding: 10px 0; font-size: 11px; font-weight: 700; cursor: pointer; color: var(--mono-main); outline: none; }
     </style>
 </head>
 <body>
@@ -227,15 +221,6 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <div id="scanner-wrap">
-        <div id="reader"></div>
-        <div class="scanner-overlay"><div class="scanner-box"><div class="scanner-laser"></div></div></div>
-        <button class="btn-torch" onclick="toggleFlashlight()" id="torch-btn">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-        </button>
-        <button class="scan-stop" onclick="closeScanner()">BATAL SCAN</button>
     </div>
 
     <div class="search-area">
@@ -267,42 +252,41 @@
         <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
     </button>
 
-    <div id="mod" class="modal" onclick="if(event.target===this) hideMod()">
-        <div class="modal-box">
-            <h3 id="m-tit" class="audiowide-regular" style="color:var(--mono-main); margin-top:0; margin-bottom:10px; font-size:15px;">Tambah Barang</h3>
-            
-            <label>Nama Barang</label><input type="text" id="i-n" placeholder="Nama Barang" autocomplete="off" style="text-transform: capitalize;">
-            
+    <div id="mod" class="modal" onclick="if(event.target===this && !isSaving) hideMod()">
+        <div class="modal-box" id="mod-box">
+            <h3 id="m-tit" class="audiowide-regular" style="color:var(--mono-main); margin-top:0; margin-bottom:12px; font-size:16px;">Tambah Barang</h3>
+            <label>Nama Barang</label><input type="text" id="i-n" autocomplete="off" style="text-transform: capitalize;">
             <label>Barcode</label>
             <div class="barcode-row">
-                <input type="text" id="i-b" inputmode="text" placeholder="Kode Barcode" autocomplete="off">
+                <input type="text" id="i-b" inputmode="text" autocomplete="off">
                 <button type="button" onclick="openScanner('input')">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke="white" stroke-width="1.5"></rect><line x1="5" y1="12" x2="19" y2="12" stroke="red" stroke-width="2"></line></svg>
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke="white" stroke-width="1.5"></rect><line x1="5" y1="12" x2="19" y2="12" stroke="red" stroke-width="2"></line></svg>
                 </button>
             </div>
-            
-            <label>Singkatan / Kode Cepat</label><input type="text" id="i-t" placeholder="Kosongkan untuk otomatis" autocomplete="off" style="text-transform: lowercase;">
+            <label>Singkatan / Kode Cepat</label><input type="text" id="i-t" placeholder="Otomatis jika kosong" autocomplete="off" style="text-transform: lowercase;">
             <label>Kedaluwarsa (Bulan Tahun)</label><input type="text" id="i-exp" placeholder="- Tidak Ada -" readonly onclick="openPicker('i-exp', 'date', 'var(--mono-main)')" style="cursor: pointer; caret-color: transparent;">
-            
             <label>Harga Eceran</label><input type="text" id="i-p1" inputmode="numeric" placeholder="0" oninput="formatRp(this)">
             <label>Harga Grosir</label><input type="text" id="i-p2" inputmode="numeric" placeholder="0" oninput="formatRp(this)">
-            
-            <div class="chip-row">
-                <button class="chip-btn" type="button" onclick="addZero('00')">+00</button>
-                <button class="chip-btn" type="button" onclick="addZero('000')">+000</button>
-            </div>
-
             <div class="modal-btns">
-                <button class="btn-main btn-cancel" onclick="hideMod()">BATAL</button>
-                <button class="btn-main btn-mono" onclick="save()">SIMPAN</button>
+                <button class="btn-main btn-cancel" id="btn-cancel-item" onclick="hideMod()">BATAL</button>
+                <button class="btn-main btn-mono" id="btn-save-item" onclick="save()">SIMPAN</button>
             </div>
         </div>
     </div>
 
-    <div id="pin-modal">
-        <div class="modal-box" style="text-align: center; border-top-color: var(--danger);">
-            <h3 style="margin-top:0; color: var(--danger);">Otorisasi</h3>
-            <p style="font-size:11px; color:var(--text-light); margin-bottom:15px;">Masukkan PIN hapus massal.</p>
+    <div id="scanner-wrap">
+        <div id="reader"></div>
+        <div class="scanner-overlay"><div class="scanner-box"><div class="scanner-laser"></div></div></div>
+        <button class="btn-torch" onclick="toggleFlashlight()" id="torch-btn">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        </button>
+        <button class="scan-stop" onclick="closeScanner()">BATAL SCAN</button>
+    </div>
+
+    <div id="pin-modal" class="modal" style="z-index: 40000;">
+        <div class="modal-box" style="text-align: center; border-color: var(--danger);">
+            <h3 style="margin-top:0; font-size:15px; color: var(--danger);">Otorisasi Dibutuhkan</h3>
+            <p style="font-size:11px; color:#888; margin-bottom:20px;">Masukkan PIN hapus massal.</p>
             <input type="password" id="pin-input" inputmode="numeric" placeholder="••••••" style="text-align:center; letter-spacing:5px;">
             <div class="modal-btns">
                 <button class="btn-main btn-cancel" onclick="closePinModal()">BATAL</button>
@@ -311,35 +295,48 @@
         </div>
     </div>
 
-    <div id="price-popup" onclick="closePricePopup(event)">
+    <div id="price-popup" class="modal" style="z-index: 40000;" onclick="closePricePopup(event)">
         <div class="modal-box" id="price-popup-box">
             <h2 id="pp-name" style="margin:0; font-size: 16px; color: var(--text-light); text-transform: uppercase;">Barang</h2>
-            <p id="pp-price" class="pp-price-anim" style="font-size: 32px; font-weight: 900; color: #3CB371; margin: 10px 0; font-family: 'Montserrat', sans-serif;">Rp 0</p>
-            <p id="pp-price-grosir" style="font-size: 12px; color: var(--warning); margin-top: 0;"></p>
+            <p id="pp-price" class="pp-price-anim" style="font-size: 32px; font-weight: 900; color: #3CB371; margin: 15px 0; font-family: 'Montserrat', sans-serif;">Rp 0</p>
+            <p id="pp-price-grosir" style="font-size: 13px; color: var(--warning); margin-top: 0; font-weight: 600;"></p>
             <p id="pp-barcode" style="font-size: 11px; color: var(--text-muted); font-family: monospace;"></p>
-            <button class="btn-main" style="border: 1px solid #3CB371 !important; color: #3CB371 !important; background:transparent!important; margin-top: 15px;" onclick="closePricePopup(event, true)">TUTUP</button>
+            <button class="btn-main" style="border: 1px solid #3CB371 !important; color: #3CB371 !important; background:transparent!important; margin-top: 20px;" onclick="closePricePopup(event, true)">TUTUP</button>
         </div>
     </div>
 
-    <div id="custom-picker" onclick="if(event.target===this) hidePicker()">
-        <div class="picker-box-new">
+    <div id="custom-picker" class="modal" style="z-index: 30000;" onclick="if(event.target===this) hidePicker()">
+        <div class="modal-box" style="text-align:center; border-color: var(--mono-main);">
             <div class="picker-header-new"><button class="picker-nav-new" onclick="cpChangeYear(-1)">❮</button><div id="cp-year" class="picker-year-new">2026</div><button class="picker-nav-new" onclick="cpChangeYear(1)">❯</button></div>
             <div id="cp-grid" class="picker-grid-new"></div>
-            <div class="picker-footer-new"><button class="btn-picker-new" style="border-color:var(--danger);color:var(--danger);" onclick="clearPickerDate()">HAPUS</button><button class="btn-picker-new" onclick="hidePicker()">BATAL</button><button class="btn-picker-new" style="background:var(--mono-main);color:#000;" onclick="setPickerDate()">SETEL</button></div>
+            <div class="modal-btns" style="margin-top: 15px;">
+                <button class="btn-main" style="border: 1px solid var(--danger)!important; color: var(--danger)!important; background:transparent!important;" onclick="clearPickerDate()">HAPUS</button>
+                <button class="btn-main btn-cancel" onclick="hidePicker()">BATAL</button>
+                <button class="btn-main btn-mono" onclick="setPickerDate()">SETEL</button>
+            </div>
         </div>
     </div>
 
-    <div id="custom-alert">
-        <div class="modal-box" id="alert-box">
-            <h3 id="alert-title" style="margin-top:0; font-size:14px;">Info</h3>
-            <p id="alert-msg" style="font-size:12px; color:var(--text-light); opacity:0.9; margin-bottom:15px;"></p>
+    <div id="custom-alert" class="modal" style="z-index: 40000;">
+        <div class="modal-box" id="alert-box" style="text-align: center;">
+            <h3 id="alert-title" style="margin-top:0; font-size:15px; text-transform:uppercase;">Info</h3>
+            <p id="alert-msg" style="font-size:13px; color:#ccc; line-height:1.5; margin-bottom:20px;"></p>
             <div class="modal-btns" id="alert-btns"></div>
+        </div>
+    </div>
+
+    <div id="loading-modal" class="modal" style="z-index: 55000;">
+        <div class="modal-box" id="loading-box" style="text-align: center;">
+            <h3 id="loading-title" style="margin-top:0; font-size:15px; text-transform: uppercase;">Informasi</h3>
+            <div id="loading-spinner" class="spinner"></div>
+            <p id="loading-text" style="color: var(--text-light); font-size: 12px; font-weight: 600; line-height: 1.5; margin: 0;"></p>
         </div>
     </div>
 
     <div id="toast-notification" class="hidden"><span id="toast-message"></span></div>
 
     <script>
+        // === 1. GLOBAL UTILS & WAKE LOCK ===
         const $ = (id) => document.getElementById(id);
         const CLOUD_URL = "https://script.google.com/macros/s/AKfycbyzjVZ_aUbn4yznjxh-8pdzAAFA0X43L3atxuchVW5cz2FrEc2hjG8Zbxnz3SHJPipLow/exec";
         const NamaBln = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -356,22 +353,21 @@
 
         const TemaNotifikasi = { "Error": "var(--danger)", "Gagal": "var(--danger)", "Hapus": "var(--danger)", "Peringatan": "var(--warning)", "Optimasi Sistem": "#FFA500", "Sistem Bersih": "#FFA500", "Backup": "#87CEFA", "Sinkronisasi": "#87CEFA", "Sukses": "#3CB371", "Info": "var(--mono-main)" };
 
-        // === WAKE LOCK ===
         let wakeLock = null, isWakeLockRequested = false;
         async function requestWakeLock() { try { if ('wakeLock' in navigator && wakeLock === null) wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {} }
         document.addEventListener('click', () => { if (!isWakeLockRequested) { isWakeLockRequested = true; requestWakeLock(); } }, { once: true });
         document.addEventListener('visibilitychange', async () => { if (isWakeLockRequested && document.visibilityState === 'visible') { wakeLock = null; await requestWakeLock(); } });
+        setInterval(async () => { if (isWakeLockRequested && document.visibilityState === 'visible' && wakeLock === null) { await requestWakeLock(); } }, 120000);
 
-        // === TOAST & IDB ===
         function tampilkanToast(msg, color="var(--mono-main)") { const t = $('toast-notification'); $('toast-message').innerText = msg; t.style.borderBottomColor = color; clearTimeout(toastTimeoutHide); clearTimeout(toastTimeoutRemove); t.classList.remove('hidden'); setTimeout(() => t.classList.add('show'), 10); toastTimeoutHide = setTimeout(() => { t.classList.remove('show'); toastTimeoutRemove = setTimeout(() => t.classList.add('hidden'), 400); }, 3000); }
         function initDB() { return new Promise((resolve, reject) => { const req = indexedDB.open('HargaDB_Pro', 1); req.onupgradeneeded = (e) => { const database = e.target.result; if (!database.objectStoreNames.contains('items')) database.createObjectStore('items', { keyPath: 'id' }); }; req.onsuccess = (e) => resolve(idb = e.target.result); req.onerror = (e) => reject(e.target.error); }); }
         function loadAllFromIDB() { return new Promise((resolve, reject) => { const req = idb.transaction('items', 'readonly').objectStore('items').getAll(); req.onsuccess = () => resolve(req.result); req.onerror = () => reject("Gagal memuat data"); }); }
         function saveItemToIDB(item) { return new Promise((resolve, reject) => { const tx = idb.transaction('items', 'readwrite'); tx.objectStore('items').put(item); tx.oncomplete = () => resolve(); tx.onerror = () => reject("Gagal menyimpan data"); }); }
 
-        // === UTILS ===
         function updateMaps() { barcodeMap.clear(); acronymMap.clear(); db.forEach(item => { if (!item.deleted) { if (item.b) barcodeMap.set(String(item.b).trim(), item); if (item.t) acronymMap.set(String(item.t).trim().toLowerCase(), item); } }); }
         function generateUniqueId() { return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2, 8); }
-        const fetchWithTimeout = (url, options, timeout = 30000) => Promise.race([ fetch(url, options), new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT_ERROR')), timeout)) ]);
+        const fetchWithTimeout = (url, options, timeout = 15000) => Promise.race([ fetch(url, options), new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), timeout)) ]);
+        
         function isAcronymUsed(acr, excludeId, tempSet = null) { if (tempSet && tempSet.has(acr)) return true; const existing = acronymMap.get(acr); if (!existing) return false; return excludeId && String(existing.id) === String(excludeId) ? false : true; }
         function generateSmartAcronym(name, excludeId = null, tempSet = null) { if (!name) return "xxx"; let words = String(name).toLowerCase().replace(/[0-9]/g, '').replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(w => w.length > 0 && !/^(dan|yg|pcs|isi|dengan|rasa|untuk)$/.test(w)); let numMatch = String(name).toLowerCase().match(/\d+/g); let numbers = numMatch ? numMatch.join('') : ''; if (words.length === 0) return "xxx" + numbers; let tryAcr = words.length === 1 ? (words[0].replace(/[aeiou]/g, '').length >= 2 ? words[0].replace(/[aeiou]/g, '').substring(0, 3) : words[0].substring(0, 3)) + numbers : words.slice(0, 5).map(w => w[0]).join('') + numbers; if (!isAcronymUsed(tryAcr, excludeId, tempSet)) return tryAcr; let c = 2; while (isAcronymUsed(tryAcr + c, excludeId, tempSet)) c++; return tryAcr + c; }
         function playBeep() { try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.type = 'sine'; osc.frequency.setValueAtTime(800, ctx.currentTime); gain.gain.setValueAtTime(0.5, ctx.currentTime); osc.start(); osc.stop(ctx.currentTime + 0.1); } catch(e) {} }
@@ -385,19 +381,9 @@
         function formatRp(input) { let val = input.value.replace(/\D/g, ""); input.value = val ? fmt(parseInt(val, 10) || 0) : ""; }
         function debounce(func, wait) { let timeout; return function(...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), wait); }; }
 
-        // === QUICK PRICE CHIPS ===
-        let lastPriceInput = null;
-        $('i-p1').addEventListener('focus', () => lastPriceInput = $('i-p1'));
-        $('i-p2').addEventListener('focus', () => lastPriceInput = $('i-p2'));
-        function addZero(zeros) {
-            if(!lastPriceInput) lastPriceInput = $('i-p1');
-            let val = lastPriceInput.value.replace(/\D/g, "");
-            if(val.length > 0) { lastPriceInput.value = val + zeros; formatRp(lastPriceInput); lastPriceInput.focus(); }
-        }
-
-        // === KEYBOARD SCANNER ===
+        // === 2. KEYBOARD SCANNER & SEARCH (L'OREAL BUG FIXED) ===
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') { hideMod(); hidePicker(); closeCustomAlert(); closePinModal(); closePricePopup(e, true); if (isScanning) closeScanner(); document.body.classList.remove('modal-open'); return; }
+            if (e.key === 'Escape') { hideMod(); hidePicker(); closeCustomAlert(); closePinModal(); closePricePopup(e, true); if (isScanning) closeScanner(); return; }
             if (document.body.classList.contains('modal-open') || isScanning || document.activeElement.tagName.toLowerCase() === 'input') return;
             const t = Date.now(); if (t - lastKeyTime > 150) physicalInputBuffer = ""; lastKeyTime = t;
             if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
@@ -411,10 +397,8 @@
 
         function handlePhysicalScanner(barcode) { const item = barcodeMap.get(barcode); if (item) { playBeep(); $('pp-name').innerText = item.n; $('pp-price').innerText = "Rp " + fmt(item.p1); $('pp-price-grosir').innerText = item.p2 ? "Grosir: Rp " + fmt(item.p2) : ""; $('pp-barcode').innerText = item.b || ""; $('price-popup').style.display = 'flex'; document.body.classList.add('modal-open'); } else { tampilkanToast("Barcode tidak ditemukan!", "var(--danger)"); } }
         function closePricePopup(e, force = false) { if (force || e.target === $('price-popup')) { $('price-popup').style.display = 'none'; document.body.classList.remove('modal-open'); $('q').value = ''; clearSearch(); } }
-
         function handleSearchLogic(query) { const q = query.trim(), qL = q.toLowerCase(), exact = barcodeMap.get(q) || acronymMap.get(qL); if (exact && q.length > 0) { currentSearchReqId++; workerResult = [exact]; applyFiltersAndRender(); } else { worker.postMessage({ type: 'search', query: q, reqId: ++currentSearchReqId }); } }
 
-        // === WEB WORKER SEARCH ===
         const searchInput = $('q'), searchDropdown = $('search-dropdown'), sdContent = $('sd-content');
         const workerScript = `importScripts('https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js'); let fuse, workerList = []; function rebuildIndex() { fuse = new Fuse(workerList, { keys: [{name: 'n', weight: 0.6}, {name: 't', weight: 0.4}, {name: 'b', weight: 0.8}], threshold: 0.2, ignoreLocation: true }); } self.onmessage = function(e) { if (e.data.type === 'init') { workerList = e.data.db; rebuildIndex(); } else if (e.data.type === 'add') { if(!fuse) return; workerList.push(e.data.item); fuse.add(e.data.item); } else if (e.data.type === 'update') { if(!fuse) return; workerList = workerList.filter(x => String(x.id) !== String(e.data.item.id)); workerList.push(e.data.item); rebuildIndex(); } else if (e.data.type === 'remove') { if(!fuse) return; workerList = workerList.filter(x => String(x.id) !== String(e.data.id)); rebuildIndex(); } else if (e.data.type === 'search') { if(!fuse) return; const hasil = fuse.search(e.data.query); self.postMessage({ type: 'result', data: hasil.map(r => r.item), query: e.data.query, reqId: e.data.reqId }); } };`;
         worker = new Worker(URL.createObjectURL(new Blob([workerScript], { type: 'application/javascript' })));
@@ -422,23 +406,56 @@
 
         function recordSearchLog(term) { const c = term.trim(); if(!c) return; recentSearches = [c, ...recentSearches.filter(t => t.toLowerCase() !== c.toLowerCase())].slice(0, 5); localStorage.setItem('DB_WA_RECENT', JSON.stringify(recentSearches)); trendingSearches[c.toLowerCase()] = (trendingSearches[c.toLowerCase()] || 0) + 1; const keys = Object.keys(trendingSearches); if (keys.length > 50) { let min = keys.reduce((a, b) => trendingSearches[a] < trendingSearches[b] ? a : b); delete trendingSearches[min]; } localStorage.setItem('DB_WA_TRENDING', JSON.stringify(trendingSearches)); }
         function clearRecentLogs() { recentSearches = []; localStorage.setItem('DB_WA_RECENT', JSON.stringify([])); showSearchSuggestions(); }
-        function showSearchSuggestions() { const val = searchInput.value.trim(); sdContent.innerHTML = ''; if (val === '') { let html = ''; const top = Object.keys(trendingSearches).sort((a,b) => trendingSearches[b] - trendingSearches[a]).slice(0, 3); if(top.length > 0) html += `<div class="sd-title">Sering Dicari</div>` + top.map(t => `<div class="sd-item" onmousedown="executeQuickSearch('${escapeHTML(t)}')">📍 ${escapeHTML(prop(t))}</div>`).join(''); if(recentSearches.length > 0) html += `<div class="sd-title">Terakhir Dicari <span class="clear-btn" onmousedown="clearRecentLogs()">HAPUS</span></div>` + recentSearches.map(t => `<div class="sd-item" onmousedown="executeQuickSearch('${escapeHTML(t)}')">🕒 ${escapeHTML(t)}</div>`).join(''); html ? (sdContent.innerHTML = html, searchDropdown.classList.remove('hidden')) : searchDropdown.classList.add('hidden'); } else { searchDropdown.classList.add('hidden'); } }
+        function showSearchSuggestions() { 
+            const val = searchInput.value.trim(); sdContent.innerHTML = ''; 
+            if (val === '') { 
+                let html = ''; const top = Object.keys(trendingSearches).sort((a,b) => trendingSearches[b] - trendingSearches[a]).slice(0, 3); 
+                // BUG L'OREAL FIXED DENGAN data-term
+                if(top.length > 0) html += `<div class="sd-title">Sering Dicari</div>` + top.map(t => `<div class="sd-item" onmousedown="executeQuickSearch(this.getAttribute('data-term'))" data-term="${escapeHTML(t)}"> ${escapeHTML(prop(t))}</div>`).join(''); 
+                if(recentSearches.length > 0) html += `<div class="sd-title">Terakhir Dicari <span class="clear-btn" onmousedown="clearRecentLogs()">HAPUS</span></div>` + recentSearches.map(t => `<div class="sd-item" onmousedown="executeQuickSearch(this.getAttribute('data-term'))" data-term="${escapeHTML(t)}"> ${escapeHTML(t)}</div>`).join(''); 
+                html ? (sdContent.innerHTML = html, searchDropdown.classList.remove('hidden')) : searchDropdown.classList.add('hidden'); 
+            } else { searchDropdown.classList.add('hidden'); } 
+        }
         function executeQuickSearch(term) { searchInput.value = term; recordSearchLog(term); searchDropdown.classList.add('hidden'); $('q-x').style.display = 'flex'; $('list').scrollTop = 0; handleSearchLogic(term); }
         const handleSearchInput = debounce(() => { const val = searchInput.value.trim(); $('list').scrollTop = 0; if (val) handleSearchLogic(val); else { workerResult = null; applyFiltersAndRender(); } showSearchSuggestions(); }, 150);
         searchInput.addEventListener('input', (e) => { $('q-x').style.display = e.target.value.trim() ? 'flex' : 'none'; handleSearchInput(); });
         searchInput.addEventListener('focus', showSearchSuggestions);
         searchInput.addEventListener('keypress', function(e) { if(e.key === 'Enter') { searchDropdown.classList.add('hidden'); recordSearchLog(this.value); this.blur(); } });
+        
         function clearSearch() { searchInput.value = ''; $('q-x').style.display = 'none'; workerResult = null; currentSearchReqId++; $('list').scrollTop = 0; showSearchSuggestions(); applyFiltersAndRender(); searchInput.blur(); }
 
-        // === UI CONTROLS ===
+        // === 3. UI CONTROLS & PEWARNAAN DINAMIS ===
         document.addEventListener('click', (e) => { if (!$('dropdown-menu').classList.contains('hidden') && !e.target.closest('.dropdown-wrapper')) $('dropdown-menu').classList.add('hidden'); if (!$('search-dropdown').classList.contains('hidden') && !e.target.closest('.search-box')) $('search-dropdown').classList.add('hidden'); });
         function toggleMenu(e) { e.stopPropagation(); $('dropdown-menu').classList.toggle('hidden'); }
-        function closeCustomAlert() { $('custom-alert').style.display = 'none'; }
-        function showAlert(msg, title = "Info", color = null) { const c = color || TemaNotifikasi[title] || "var(--mono-main)"; $('alert-title').innerText = title; $('alert-title').style.color = c; $('alert-box').style.borderTopColor = c; $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); $('alert-btns').innerHTML = `<button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" onclick="closeCustomAlert()">OKE</button>`; $('custom-alert').style.display = 'flex'; }
-        function showConfirm(msg, title, callback) { const c = TemaNotifikasi[title] || "var(--mono-main)"; $('alert-title').innerText = title; $('alert-title').style.color = c; $('alert-box').style.borderTopColor = c; $('alert-msg').innerText = msg; $('alert-btns').innerHTML = `<button class="btn-main btn-cancel" onclick="closeCustomAlert()">BATAL</button><button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" id="confirm-ok-btn">OKE</button>`; $('confirm-ok-btn').onclick = () => { closeCustomAlert(); callback(); }; $('custom-alert').style.display = 'flex'; }
+        function closeCustomAlert() { $('custom-alert').style.display = 'none'; document.body.classList.remove('modal-open'); }
+        
+        function applyModalColor(title, customColor) {
+            const c = customColor || TemaNotifikasi[title] || "var(--mono-main)";
+            $('alert-title').innerText = title; 
+            $('alert-title').style.color = c; 
+            $('alert-box').style.borderColor = c; 
+            return c;
+        }
+
+        function showAlert(msg, title = "Info", color = null) { 
+            const c = applyModalColor(title, color);
+            $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); 
+            $('alert-btns').innerHTML = `<button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" onclick="closeCustomAlert()">OKE</button>`; 
+            $('custom-alert').style.display = 'flex'; document.body.classList.add('modal-open'); 
+        }
+        
+        // BUG FORMAT PESAN FIXED (innerHTML agar terbaca bold dan break)
+        function showConfirm(msg, title, color, callback, confirmText = "OKE") { 
+            const c = applyModalColor(title, color);
+            $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); 
+            $('alert-btns').innerHTML = `<button class="btn-main btn-cancel" onclick="closeCustomAlert()">BATAL</button><button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" id="confirm-ok-btn">${confirmText}</button>`; 
+            $('confirm-ok-btn').onclick = () => { closeCustomAlert(); callback(); }; 
+            $('custom-alert').style.display = 'flex'; document.body.classList.add('modal-open'); 
+        }
         
         function showMod(id = null) {
             activeId = id; const b = $('i-b'), n = $('i-n'), p1 = $('i-p1'), p2 = $('i-p2'), exp = $('i-exp'), t = $('i-t');
+            $('mod-box').style.borderColor = "var(--border-color)"; // Reset color form
             if (id) {
                 const it = db.find(x => String(x.id) === String(id)); if(!it) return;
                 $('m-tit').innerText = "Edit Barang"; b.value = it.b || ''; n.value = it.n || ''; p1.value = fmt(it.p1); p2.value = it.p2 ? fmt(it.p2) : ''; 
@@ -447,20 +464,20 @@
             $('mod').style.display = 'flex'; document.body.classList.add('modal-open'); setTimeout(() => $('i-n').focus(), 100); 
         }
         function hideMod() { activeId = null; $('mod').style.display = 'none'; document.body.classList.remove('modal-open'); }
-        function deleteAllDataPrompt() { if (db.filter(i => !i.deleted).length === 0) return showAlert("Data sudah kosong!", "Info"); $('dropdown-menu').classList.add('hidden'); $('pin-input').value = ''; $('pin-modal').style.display = 'flex'; setTimeout(() => $('pin-input').focus(), 100); }
-        function closePinModal() { $('pin-modal').style.display = 'none'; }
+        
+        function deleteAllDataPrompt() { if (db.filter(i => !i.deleted).length === 0) return showAlert("Data sudah kosong!", "Info"); $('dropdown-menu').classList.add('hidden'); $('pin-input').value = ''; $('pin-modal').style.display = 'flex'; document.body.classList.add('modal-open'); setTimeout(() => $('pin-input').focus(), 100); }
+        function closePinModal() { $('pin-modal').style.display = 'none'; document.body.classList.remove('modal-open'); }
         function verifyPinAndExecute() { if ($('pin-input').value === '170823') { closePinModal(); executeDeleteAll(); } else { tampilkanToast("PIN Salah!", "var(--danger)"); } }
 
-        // === KALENDER ===
-        function openPicker(id, m, w) { Picker.targetId = id; const el = $(id); if (!el) return; let val = el.dataset.rawDate || el.value; if (!val) { Picker.sel = new Date(); Picker.tempYear = Picker.sel.getFullYear(); Picker.tempMonth = Picker.sel.getMonth(); } else { const p = val.split('-'); Picker.tempYear = parseInt(p[0], 10); Picker.tempMonth = parseInt(p[1], 10) - 1; } renderKalenderGrid(); $('custom-picker').style.display = 'flex'; }
-        function hidePicker() { $('custom-picker').style.display = 'none'; }
+        function openPicker(id, m, w) { Picker.targetId = id; const el = $(id); if (!el) return; let val = el.dataset.rawDate || el.value; if (!val) { Picker.sel = new Date(); Picker.tempYear = Picker.sel.getFullYear(); Picker.tempMonth = Picker.sel.getMonth(); } else { const p = val.split('-'); Picker.tempYear = parseInt(p[0], 10); Picker.tempMonth = parseInt(p[1], 10) - 1; } renderKalenderGrid(); $('custom-picker').style.display = 'flex'; document.body.classList.add('modal-open');}
+        function hidePicker() { $('custom-picker').style.display = 'none'; document.body.classList.remove('modal-open');}
         function clearPickerDate() { const el = $(Picker.targetId); if(el) { el.dataset.rawDate = el.value = ''; } hidePicker(); }
         function renderKalenderGrid() { $('cp-year').innerText = Picker.tempYear; $('cp-grid').innerHTML = NamaBlnPendek.map((bln, i) => `<div class="month-item ${i === Picker.tempMonth ? 'active' : ''}" onclick="cpSelectMonth(${i})">${bln}</div>`).join(''); }
         function cpChangeYear(arah) { Picker.tempYear += arah; renderKalenderGrid(); }
         function cpSelectMonth(m) { Picker.tempMonth = m; renderKalenderGrid(); }
         function setPickerDate() { const el = $(Picker.targetId); if(el) { el.dataset.rawDate = `${Picker.tempYear}-${String(Picker.tempMonth + 1).padStart(2, '0')}-01`; el.value = `${NamaBln[Picker.tempMonth]} ${Picker.tempYear}`; } hidePicker(); }
 
-        // === VIRTUAL SCROLL & RENDER ===
+        // === 4. VIRTUAL SCROLL & RENDER ===
         function setTab(t) { tab = t; ['all', 'fav', 'exp'].forEach(x => $(`t-${x}`).className = t === x ? 'tab active' : 'tab'); $('list').scrollTop = 0; applyFiltersAndRender(); }
         function toggleSort() { sortAZ = !sortAZ; $('s-btn').classList.toggle('active', sortAZ); $('list').scrollTop = 0; applyFiltersAndRender(); }
         function computeDVS() { listOffsets = [0]; let cur = 0; for (let i = 0; i < filteredData.length; i++) { cur += filteredData[i]._cHeight || (tab === 'exp' ? 85 : 90); listOffsets.push(cur); } $('spacer').style.height = cur + 'px'; }
@@ -495,8 +512,8 @@
             empty.classList.add('hidden'); 
             
             let st = cont.scrollTop, start = getDVSStartIndex(st), visH = cont.clientHeight, end = start, curVisH = 0;
-            start = Math.max(0, start - 5);
-            while(end < filteredData.length && curVisH < visH + 800) { curVisH += (filteredData[end]._cHeight || (tab === 'exp' ? 85 : 90)); end++; }
+            start = Math.max(0, start - 15);
+            while(end < filteredData.length && curVisH < visH + 1200) { curVisH += (filteredData[end]._cHeight || (tab === 'exp' ? 85 : 90)); end++; }
             if (isScrolling && start === lastStartIndex && end === lastEndIndex) return; 
             lastStartIndex = start; lastEndIndex = end;
 
@@ -535,15 +552,10 @@
             const ed = e.target.closest('.action-edit'); if (ed) { e.stopPropagation(); return showMod(ed.dataset.id); }
         });
 
-        // === SMART HEADER & SCROLL LOCK ===
-        let scrollTimeoutLock, lastScrollY = 0;
+        // === 5. SCROLL LOCK ===
+        let scrollTimeoutLock;
         $('list').addEventListener('scroll', () => { 
             const cont = $('list'); let sy = cont.scrollTop;
-            
-            if (sy > lastScrollY && sy > 60) { document.body.classList.add('hide-header'); } 
-            else if (sy < lastScrollY) { document.body.classList.remove('hide-header'); }
-            lastScrollY = sy;
-
             cont.classList.add('is-scrolling'); clearTimeout(scrollTimeoutLock);
             scrollTimeoutLock = setTimeout(() => { cont.classList.remove('is-scrolling'); }, 150);
 
@@ -559,23 +571,25 @@
             window.requestAnimationFrame(() => renderVirtualList(true)); 
         }, { passive: true });
 
-        // === DATABASE OP ===
+        // === 6. DATABASE OP ===
         async function save() {
             if (isSaving) return; isSaving = true;
-            const btn = document.querySelector('.btn-mono'); if(btn) btn.disabled = true;
+            const btnSave = $('btn-save-item'), btnCancel = $('btn-cancel-item');
+            if (btnSave) btnSave.disabled = true; // LOCK ANTI DOUBLE TAP
+            if (btnCancel) btnCancel.disabled = true;
 
             try {
                 const nRaw = $('i-n').value, b = $('i-b').value.trim(), exp = $('i-exp').dataset.rawDate || '';
                 const p1 = parseInt($('i-p1').value.replace(/[^\d]/g, ''), 10) || 0, p2 = parseInt($('i-p2').value.replace(/[^\d]/g, ''), 10) || null;
-                if (!nRaw.trim() || p1 === 0) { isSaving = false; if(btn) btn.disabled = false; return showAlert("Data tidak valid!", "Gagal"); }
+                if (!nRaw.trim() || p1 === 0) { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; return showAlert("Data tidak valid!", "Gagal"); }
                 const clean = prop(nRaw);
 
                 const ex = db.find(x => !x.deleted && String(x.n || "").toLowerCase() === clean.toLowerCase() && String(x.id) !== String(activeId));
-                if (ex) { isSaving = false; if(btn) btn.disabled = false; return showAlert("Nama sudah ada!", "Gagal"); }
-                if (b !== '') { const exB = db.find(x => !x.deleted && String(x.b) === b && String(x.id) !== String(activeId)); if (exB) { isSaving = false; if(btn) btn.disabled = false; return showAlert("Barcode dipakai barang lain!", "Gagal"); } }
+                if (ex) { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; return showAlert("Nama sudah ada!", "Gagal"); }
+                if (b !== '') { const exB = db.find(x => !x.deleted && String(x.b) === b && String(x.id) !== String(activeId)); if (exB) { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; return showAlert("Barcode dipakai barang lain!", "Gagal"); } }
                 
                 let t = $('i-t').value.trim().toLowerCase();
-                if (t && isAcronymUsed(t, activeId)) { isSaving = false; if(btn) btn.disabled = false; return showAlert("Singkatan sudah dipakai!", "Gagal"); }
+                if (t && isAcronymUsed(t, activeId)) { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; return showAlert("Singkatan sudah dipakai!", "Gagal"); }
                 if (!t) t = generateSmartAcronym(clean, activeId);
                 
                 const ts = Date.now();
@@ -590,12 +604,13 @@
                     if (workerResult) workerResult.unshift(nIt); 
                 }
                 updateMaps(); hideMod(); applyFiltersAndRender(); tampilkanToast("Tersimpan!");
-            } catch (e) { console.error(e); } finally { isSaving = false; if(btn) btn.disabled = false; }
+            } catch (e) { console.error(e); } finally { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; }
         }
 
         async function del(id) {
             const idx = db.findIndex(x => String(x.id) === String(id)); if(idx === -1) return;
-            showConfirm(`Hapus "${db[idx].n}"?`, "Hapus", async () => {
+            // BUG SIMBOL HTML (XSS) FIXED DENGAN escapeHTML() PADA PESAN
+            showConfirm(`Hapus "<b>${escapeHTML(db[idx].n)}</b>"?`, "Hapus", "var(--danger)", async () => {
                 db[idx].deleted = true; db[idx].updatedAt = Date.now(); await saveItemToIDB(db[idx]); worker.postMessage({ type: 'remove', id: String(id) });
                 if (workerResult) workerResult = workerResult.filter(x => String(x.id) !== String(id));
                 updateMaps(); applyFiltersAndRender(); tampilkanToast("Dihapus!", "var(--danger)");
@@ -603,6 +618,7 @@
         }
 
         async function executeDeleteAll() {
+            $('pin-modal').style.display = 'none'; document.body.classList.remove('modal-open');
             tampilkanToast("Menghapus...", "var(--danger)"); $('list').style.pointerEvents = 'none'; 
             try {
                 const tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'), ts = Date.now();
@@ -615,22 +631,60 @@
 
         function optimizeData() {
             $('dropdown-menu').classList.add('hidden'); 
-            showConfirm("Bersihkan memori sampah?", "Optimasi", () => {
+            showConfirm("Bersihkan sampah?", "Optimasi Sistem", "#FFA500", () => {
                 tampilkanToast("Mengoptimalkan...", "#FFA500");
                 recentSearches = []; trendingSearches = {}; localStorage.removeItem('DB_WA_RECENT'); localStorage.removeItem('DB_WA_TRENDING');
                 const tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'); let c = 0; const aDb = []; 
                 db.forEach(i => { if (i.deleted) { s.delete(i.id); c++; } else { aDb.push(i); } });
-                tx.oncomplete = () => { db = aDb; worker.postMessage({ type: 'init', db: db }); updateMaps(); clearSearch(); setTimeout(() => showAlert(`BERHASIL!!!\nSampah: ${c} Data`, "Info"), 500); };
+                tx.oncomplete = () => { db = aDb; worker.postMessage({ type: 'init', db: db }); updateMaps(); clearSearch(); setTimeout(() => showAlert(`BERHASIL!!!\nSampah: ${c} Data dibersihkan.`, "Sistem Bersih", "#FFA500"), 500); };
             });
         }
 
-        // === CLOUD ===
-        function backupToCloud() { if (db.length === 0) return; showConfirm("Upload Cloud?", "Backup", () => { tampilkanToast("Menyimpan..."); fetchWithTimeout(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backup', data: db }) }).then(() => tampilkanToast("Berhasil!", "#87CEFA")).catch(() => showAlert("Gagal upload.", "Error")); }); }
-        function loadFromCloud() { showConfirm("Load Cloud?", "Sinkronisasi", () => { tampilkanToast("Memuat..."); fetchWithTimeout(CLOUD_URL + "?action=load&t=" + Date.now()).then(r => r.json()).then(async dC => { if (Array.isArray(dC)) { const tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'); dC.forEach(iC => { const lIdx = db.findIndex(l => l.id === iC.id); if (lIdx > -1) { if ((iC.updatedAt || 0) > (db[lIdx].updatedAt || 0)) { db[lIdx] = iC; if (iC.deleted) s.delete(iC.id); else s.put(iC); } } else { db.push(iC); if (!iC.deleted) s.put(iC); } }); tx.oncomplete = () => { worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); updateMaps(); clearSearch(); tampilkanToast("Selesai!", "#87CEFA"); }; } }).catch(() => showAlert("Gagal load.", "Error")); }); }
-        function exportData() { const data = db.filter(i => !i.deleted).map(i => ({ "ID": i.id, "Barcode": i.b, "Nama": i.n, "Eceran": i.p1, "Grosir": i.p2, "Singkatan": i.t, "Favorit": i.f ? "Ya" : "Tidak", "Expired": i.exp || "" })); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Data"); XLSX.writeFile(wb, "Harga.xlsx"); }
+        // === 7. CLOUD (WARNA DINAMIS & PERINGATAN DETAIL) ===
+        function showLoading(msg, color="#87CEFA") { 
+            $('loading-text').innerHTML = msg;
+            $('loading-spinner').style.borderTopColor = color;
+            $('loading-title').style.color = color;
+            $('loading-box').style.borderColor = color; 
+            $('loading-modal').style.display = 'flex'; 
+            document.body.classList.add('modal-open'); 
+        }
+        function hideLoading() { $('loading-modal').style.display = 'none'; document.body.classList.remove('modal-open'); }
+
+        function backupToCloud() { 
+            if (db.length === 0) return; 
+            // PERINGATAN DETAIL SESUAI DESAIN UI GAMBAR
+            const pesanPeringatan = "<b>Peringatan Keamanan!</b>\n\nTindakan ini akan mengunggah dan MENIMPA seluruh data yang ada di Cloud dengan data dari HP Anda saat ini.\n\nPastikan data di HP sudah benar.\nLanjutkan?";
+            
+            showConfirm(pesanPeringatan, "Informasi", "#87CEFA", () => { 
+                showLoading("Mengunggah data ke Cloud...<br>Mohon tunggu sebentar.", "#87CEFA"); 
+                fetchWithTimeout(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backup', data: db }) }, 15000)
+                .then(() => { hideLoading(); tampilkanToast("Berhasil Upload!", "#87CEFA"); })
+                .catch(() => { hideLoading(); showAlert("Koneksi Gagal / Timeout. Silakan coba lagi.", "Error"); }); 
+            }, "LANJUTKAN"); // TOMBOL SPESIFIK LANJUTKAN
+        }
+        
+        function loadFromCloud() { 
+            showConfirm("Load data dari Cloud?", "Sinkronisasi", "#87CEFA", () => { 
+                showLoading("Memuat data dari Cloud...<br>Mohon tunggu sebentar.", "#87CEFA");
+                fetchWithTimeout(CLOUD_URL + "?action=load&t=" + Date.now(), {}, 15000).then(r => r.json()).then(async dC => { 
+                    if (Array.isArray(dC)) { 
+                        const tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'); 
+                        dC.forEach(iC => { 
+                            const lIdx = db.findIndex(l => l.id === iC.id); 
+                            if (lIdx > -1) { if ((iC.updatedAt || 0) > (db[lIdx].updatedAt || 0)) { db[lIdx] = iC; if (iC.deleted) s.delete(iC.id); else s.put(iC); } } 
+                            else { db.push(iC); if (!iC.deleted) s.put(iC); } 
+                        }); 
+                        tx.oncomplete = () => { worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); updateMaps(); clearSearch(); hideLoading(); tampilkanToast("Sinkronisasi Selesai!", "#87CEFA"); }; 
+                    } 
+                }).catch(() => { hideLoading(); showAlert("Koneksi Gagal / Timeout. Silakan coba lagi.", "Error"); }); 
+            }); 
+        }
+        
+        function exportData() { const data = db.filter(i => !i.deleted).map(i => ({ "ID": i.id, "Barcode": i.b, "Nama Barang": i.n, "Harga Eceran": i.p1, "Harga Grosir": i.p2, "Singkatan": i.t, "Favorit": i.f ? "Ya" : "Tidak", "Expired": i.exp || "" })); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Data"); XLSX.writeFile(wb, "Data_Harga.xlsx"); }
         function importData(e) { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = (ev) => { const w = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'}), jD = XLSX.utils.sheet_to_json(w.Sheets[w.SheetNames[0]], { raw: false, defval: "" }), tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'), tA = new Set(), ts = Date.now(); jD.forEach(ro => { const n = prop(ro["Nama Barang"] || ro["Nama"]); if(!n) return; let cT = ro["Singkatan"]; if (!cT) cT = generateSmartAcronym(n, null, tA); if (cT) tA.add(cT); const eI = ro["ID"] ? String(ro["ID"]).trim() : null, sB = ro["Barcode"] ? String(ro["Barcode"]).trim() : '', iF = ro["Favorit"] === "Ya" || ro["Favorit"] === "TRUE", eD = parseBulanTahunExcel(ro["Expired"]); let eIdx = db.findIndex(x => (eI && String(x.id) === String(eI)) || (x.n.toLowerCase() === n.toLowerCase())); if (eIdx > -1) { db[eIdx] = { ...db[eIdx], b: sB, p1: parseExcelPrice(ro["Eceran"]||ro["Harga Eceran"]), p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, updatedAt: ts, deleted: false }; s.put(db[eIdx]); } else { const nI = { id: eI || generateUniqueId(), b: sB, n: n, p1: parseExcelPrice(ro["Eceran"]||ro["Harga Eceran"]), p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, updatedAt: ts, deleted: false }; db.push(nI); s.put(nI); } }); tx.oncomplete = () => { worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); updateMaps(); clearSearch(); tampilkanToast("Import Selesai!"); }; }; r.readAsArrayBuffer(f); }
         
-        // === SENTER & SCANNER MINIMALIS ===
+        // === 8. SCANNER UI BARU (MINIMALIS MURNI & SENTER) ===
         let torchState = false; 
         function toggleFlashlight() {
             const vid = document.querySelector('#reader video');
@@ -642,7 +696,7 @@
                         torchState = !torchState;
                         track.applyConstraints({ advanced: [{ torch: torchState }] }).catch(e => console.log(e));
                         $('torch-btn').style.color = torchState ? "var(--warning)" : "white";
-                    } else { tampilkanToast("HP tidak dukung senter", "var(--warning)"); }
+                    } else { tampilkanToast("Kamera tidak dukung senter", "var(--warning)"); }
                 } catch(e) { console.log(e); }
             }
         }
@@ -650,11 +704,10 @@
         async function openScanner(mode) {
             if(isStartingScan || isScanning) return; 
             isStartingScan = true; scanMode = mode;
-            $('scanner-wrap').style.display = 'block'; 
+            $('scanner-wrap').style.display = 'block'; document.body.classList.add('modal-open');
             if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
             torchState = false; $('torch-btn').style.color = "white"; 
             try {
-                // UI BERSIH: Sengaja TANPA konfigurasi qrbox agar kotak library mati
                 await html5QrCode.start( { facingMode: "environment" }, { fps: 15, disableFlip: false }, 
                     async (text) => {
                         playBeep(); await closeScanner();
@@ -666,11 +719,18 @@
                     }
                 );
                 isScanning = true;
-            } catch (e) { await closeScanner(); showAlert("Kamera Error/Izin Ditolak.", "Error"); } 
+            } catch (e) { await closeScanner(); showAlert("Kamera Error / Izin Ditolak.", "Error"); } 
             finally { isStartingScan = false; }
         }
 
-        async function closeScanner() { $('scanner-wrap').style.display = 'none'; if (isScanning && html5QrCode) { try { await html5QrCode.stop(); html5QrCode.clear(); } catch(e) {} } isScanning = false; }
+        async function closeScanner() { 
+            $('scanner-wrap').style.display = 'none'; 
+            document.body.classList.remove('modal-open');
+            if (torchState) toggleFlashlight(); 
+            if (isScanning && html5QrCode) { try { await html5QrCode.stop(); html5QrCode.clear(); } catch(e) {} } 
+            isScanning = false; 
+            if (isWakeLockRequested && wakeLock === null) requestWakeLock(); 
+        }
 
         async function initApp() { try { const t = new Date(); $('current-date-location').innerText = `Boyolali, ${t.getDate()} ${NamaBln[t.getMonth()]} ${t.getFullYear()}`; await initDB(); db = await loadAllFromIDB(); worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); updateMaps(); applyFiltersAndRender(); } catch (e) { showAlert("DB Error", "Error"); } }
         initApp();
