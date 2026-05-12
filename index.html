@@ -12,7 +12,6 @@
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     
     <style>
-        /* === 1. VARIABEL TEMA (MONOKROM MURNI) === */
         :root {
             --wa-bg: #000000; 
             --wa-card: #151515; 
@@ -28,7 +27,6 @@
             --cart-h: 40vh;
         }
 
-        /* === 2. RESET & BASE (PERBAIKAN SCROLL) === */
         html { overscroll-behavior: none; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         body { margin: 0; background: var(--wa-bg); color: var(--text-light); font-family: 'Montserrat', sans-serif; font-weight: 500; overflow-x: hidden; width: 100%; position: relative; }
@@ -36,7 +34,6 @@
         .audiowide-regular { font-family: "Audiowide", sans-serif !important; font-weight: 400 !important; }
         body.modal-open { overflow: hidden !important; touch-action: none; }
 
-        /* === 3. HEADER === */
         .header { padding: calc(15px + env(safe-area-inset-top, 0px)) 20px 15px 20px; display: flex; justify-content: space-between; align-items: center; position: relative; background: var(--wa-header); z-index: 1000; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); margin-bottom: 15px; }
         .header-left { display: flex; flex-direction: column; justify-content: center; }
         .header h1 { font-size: 18px; margin: 0; color: var(--text-light); }
@@ -58,11 +55,9 @@
         .laser-beam-header { animation: laser-updown-header 1.5s infinite ease-in-out; filter: drop-shadow(0 0 2px red); will-change: transform; transform: translate3d(0,0,0); }
         .glow-cloud { filter: drop-shadow(0 0 6px rgba(135, 206, 250, 0.8)); }
 
-        /* === 4. THE UNIFIED STICKY WRAPPER === */
         .sticky-roof-group { position: sticky; top: 0; z-index: 900; display: flex; flex-direction: column; background: var(--wa-bg); }
         .sticky-roof-group::after { content: ''; position: absolute; bottom: -15px; left: 0; right: 0; height: 15px; background: linear-gradient(to bottom, var(--wa-bg) 0%, transparent 100%); pointer-events: none; z-index: 901; }
 
-        /* --- PANEL KASIR --- */
         #cart-panel-container { display: none; max-height: var(--cart-h); height: auto; flex-direction: column; transition: max-height 0.3s ease; }
         .cp-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px 8px 16px; background: transparent; border-bottom: none; flex-shrink: 0; }
         .cp-title-box { display: flex; flex-direction: column; }
@@ -75,7 +70,6 @@
         
         .cp-item-wrap { position: relative; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.05); }
         
-        /* Ikon Hapus Keranjang Murni Merah Transparan */
         .cp-trash-bg { position: absolute; right: 0; top: 0; bottom: 0; width: 80px; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--danger); cursor: pointer; }
         
         .cp-item-front { position: relative; background: var(--wa-bg); transition: transform 0.2s ease; z-index: 2; padding: 14px 0; display: flex; justify-content: space-between; align-items: center; width: 100%; }
@@ -90,7 +84,6 @@
         .qty-input-manual::-webkit-outer-spin-button, .qty-input-manual::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .qty-input-manual:focus { border-color: var(--mono-main); }
 
-        /* --- SEARCH AREA --- */
         .search-area { display: flex; flex-direction: column; gap: 6px; padding: 8px 16px 12px 16px; position: relative; }
         .search-row-1 { display: flex; width: 100%; gap: 10px; align-items: center; }
         .search-box { flex: 1; display: flex; align-items: center; height: 46px; background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 0 12px; position: relative; }
@@ -108,8 +101,6 @@
         .sd-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; min-height: 44px; color: var(--text-light); font-size: 13px; font-weight: 600; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .sd-item:active { background-color: rgba(255,255,255,0.15); }
 
-        /* --- TABS & SORT (PERBAIKAN TATA LETAK MENU TAB) --- */
-        /* Padding dan gap diperkecil sedikit agar muat di layar HP tanpa meluber ke kanan */
         .tabs-row { display: flex; align-items: center; padding: 5px 12px 15px 12px; gap: 6px; position: relative; width: 100%; overflow: hidden; }
         .tab { padding: 8px 12px; border-radius: 8px; background: var(--wa-card); border: 1px solid var(--border-color); font-size: 10.5px; color: var(--text-muted); cursor: pointer; font-weight: 700; font-family: 'Montserrat', sans-serif; text-transform: uppercase; transition: 0.2s; outline: none; min-height: 40px; display: flex; align-items: center; justify-content: center; white-space: nowrap; }
         .tab.active { background: rgba(255, 255, 255, 0.15); color: var(--mono-main); border-color: var(--mono-main); box-shadow: 0 0 8px rgba(255, 255, 255, 0.1); }
@@ -125,16 +116,13 @@
         .sort-btn span:nth-child(3) { width: 6px; }
         .sort-btn.active span { background: var(--mono-main); color: var(--mono-main); }
         
-        /* Ikon Sort Berhasil Digeser Berkat Penyesuaian Ruang di Atas */
         #s-btn-tabs { width: 44px; height: 44px; margin-left: auto; margin-right: 12px !important; flex-shrink: 0; align-items: flex-end; }
         #s-btn-search { display: none; width: 46px; height: 46px; background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; margin-right: 0; }
 
-        /* === 5. VIRTUAL SCROLL (DAFTAR HARGA) === */
         .list { position: relative; padding-bottom: 50px; padding-top: 12px; width: 100%; overflow-x: hidden; } 
         body.is-scrolling .render-container { pointer-events: none; }
         .render-container { position: absolute; top: 12px; left: 0; width: 100%; padding-left: 16px; padding-right: 16px; will-change: transform; transform: translateZ(0); }
         
-        /* Penambahan touch-action: pan-y untuk menjaga scroll alami browser */
         .card { position: relative; display: flex; align-items: flex-start; padding: 15px 18px 15px 18px; padding-right: 90px; background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; height: auto; min-height: 90px; overflow: hidden; box-sizing: border-box; contain: content; touch-action: pan-y; }
         .card-exp-mode { height: auto !important; min-height: 70px !important; padding-bottom: 15px !important; align-items: center !important; padding-right: 18px !important; }
         
@@ -167,11 +155,9 @@
         .scroll-letter { position: fixed; right: 20px; top: 50%; color: rgba(255, 255, 255, 0.7); font-size: 30px; font-weight: 800; z-index: 500; opacity: 0; pointer-events: none; text-shadow: 0px 4px 15px rgba(0, 0, 0, 1), 0px 0px 5px rgba(0, 0, 0, 0.8); transform: translateY(-50%) scale(0.7); transition: opacity 0.2s ease, transform 0.2s ease-out; }
         .scroll-letter.show { opacity: 1; transform: translateY(-50%) scale(1); }
 
-        /* === 6. FAB BUTTON === */
         .fab { position: fixed; bottom: calc(30px + env(safe-area-inset-bottom, 0px)); right: 20px; background: #000000; width: 60px; height: 60px; border-radius: 18px; display: flex; justify-content: center; align-items: center; border: 2px solid var(--border-color); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8); z-index: 800; cursor: pointer; transition: transform 0.2s, border-color 0.2s; outline: none; }
         .fab:active { transform: scale(0.9); border-color: var(--mono-sec); }
 
-        /* === 7. SEMUA POP-UP MODAL & INLINE ACCORDION === */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 4000; align-items: center; justify-content: center; padding: 20px; }
         .modal-box { background: var(--wa-card); padding: 24px 22px; border-radius: 16px; width: 100%; max-width: 320px; border: 2px solid var(--border-color); box-shadow: 0 15px 40px rgba(0,0,0,0.9); text-align: left; animation: popInBouncy 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); max-height: 85vh; overflow-y: auto; overscroll-behavior: contain; margin: auto; transition: border-color 0.3s ease; }
         @keyframes popInBouncy { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -187,7 +173,6 @@
         .form-grid .col-unit { flex: 4; }
         .form-grid .col-unit label { margin-top: 0; }
         
-        /* UI Baru: Custom Select Button & Inline Accordion */
         .custom-select-btn { width: 100%; padding: 0 12px; height: 45px; background: var(--wa-bg); border: 1px solid var(--border-color); color: var(--text-light); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 600; cursor: pointer; transition: border-color 0.2s; }
         .custom-select-btn:active { border-color: var(--mono-main); }
         .acc-content { padding: 12px; background: #111; border: 1px solid var(--border-color); border-radius: 8px; margin-top: 8px; animation: slideDown 0.2s ease-out; }
@@ -224,8 +209,7 @@
         .spinner { width: 45px; height: 45px; border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--mono-main); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; transition: border-top-color 0.3s ease; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* === 8. SCANNER UI BARU === */
-        #scanner-wrap { display: none; background: #000; position: fixed; inset: 0; z-index: 3500; }
+        #scanner-wrap { display: none; background: #000; position: fixed; inset: 0; z-index: 4500; }
         #reader { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
         #reader video { object-fit: cover; width: 100%; height: 100%; }
         #qr-shaded-region { display: none !important; } 
@@ -239,11 +223,9 @@
         .btn-torch { position: absolute; top: 40px; right: 20px; width: 46px; height: 46px; border-radius: 23px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.3); color: #ffffff; display: flex; justify-content: center; align-items: center; z-index: 3520; cursor: pointer; pointer-events: auto; backdrop-filter: blur(5px); transition: all 0.2s ease; outline: none; }
         .btn-torch:active { transform: scale(0.9); }
 
-        /* === 9. TOAST NOTIF === */
         #toast-notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-30px); background: rgba(21, 21, 21, 0.95); border: 1px solid var(--border-color); border-bottom: 2px solid var(--mono-main); color: var(--text-light); padding: 14px 24px; border-radius: 30px; font-size: 13px; font-weight: 700; z-index: 99999; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.9); opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; white-space: nowrap; }
         #toast-notification.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-        /* KASIR MODE */
         body.mode-kasir .header, body.mode-kasir #tabs-bar, body.mode-kasir .fab { display: none !important; }
         body.mode-kasir #cart-panel-container { display: flex; }
         body.mode-kasir #s-btn-search { display: flex; }
@@ -272,7 +254,7 @@
             <div class="dropdown-wrapper">
                 <button class="icon-btn" id="kebab-btn" onclick="toggleMenu(event)"><svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></button>
                 <div id="dropdown-menu" class="dropdown-content hidden">
-                    <div class="dropdown-item" onclick="loadFromCloud()" style="color: #87CEFA;">Load Cloud</div>
+                    <div class="dropdown-item" onclick="openSyncModal()" style="color: #87CEFA;">Sinkronisasi Cloud</div>
                     <div class="dropdown-item" onclick="exportData()" style="color: #3CB371;">Save Excel</div>
                     <label class="dropdown-item" style="color: #3CB371;">Load Excel<input type="file" accept=".xlsx, .xls" onchange="importData(event)"></label>
                     <div class="dropdown-item" onclick="optimizeData()" style="color: #FFA500;">Bersihkan Cache</div>
@@ -337,14 +319,12 @@
         <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
     </button>
 
-    <!-- MODAL TAMBAH/EDIT -->
     <div id="mod" class="modal" onclick="if(event.target===this && !isSaving) hideMod()">
         <div class="modal-box" id="mod-box">
             <h3 id="m-tit" class="audiowide-regular" style="color:var(--mono-main); margin-top:0; margin-bottom:12px; font-size:16px;">Tambah Barang</h3>
             <label>Nama Barang</label><input type="text" id="i-n" autocomplete="off" style="text-transform: capitalize;">
             <label>Barcode</label>
             <div class="barcode-row">
-                <!-- PERBAIKAN: type="tel" dan pattern="[0-9]*" -->
                 <input type="tel" id="i-b" pattern="[0-9]*" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                 <button type="button" onclick="openScanner('input')">
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke="white" stroke-width="1.5"></rect><line x1="5" y1="12" x2="19" y2="12" stroke="red" stroke-width="2"></line></svg>
@@ -356,7 +336,6 @@
             <div class="form-grid">
                 <div class="col-price">
                     <label>Harga Satuan</label>
-                    <!-- PERBAIKAN: type="tel" dan pattern="[0-9]*" -->
                     <input type="tel" id="i-p1" pattern="[0-9]*" placeholder="0" oninput="formatRp(this)">
                 </div>
                 <div class="col-unit">
@@ -380,7 +359,6 @@
             <div class="form-grid">
                 <div class="col-price">
                     <label>Harga Grosir</label>
-                    <!-- PERBAIKAN: type="tel" dan pattern="[0-9]*" -->
                     <input type="tel" id="i-p2" pattern="[0-9]*" placeholder="0" oninput="formatRp(this)">
                 </div>
                 <div class="col-unit">
@@ -403,7 +381,6 @@
 
             <div id="wrap-iq">
                 <label id="label-iq">Isi per ...</label>
-                <!-- PERBAIKAN: type="tel" dan pattern="[0-9]*" -->
                 <input type="tel" id="i-iq" pattern="[0-9]*" placeholder="Contoh: 10">
             </div>
 
@@ -414,7 +391,46 @@
         </div>
     </div>
 
-    <!-- MODAL SCANNER BARU -->
+    <!-- MODAL SINKRONISASI CLOUD (CUSTOM DROPDOWN MURNI) -->
+    <div id="sync-modal" class="modal" onclick="if(event.target===this) closeSyncModal()">
+        <div class="modal-box" id="sync-modal-box" style="text-align: center; max-width: 310px; padding: 25px 20px; border: 2px solid var(--border-color); transition: border-color 0.3s ease;">
+            
+            <h3 id="sync-modal-title" style="margin-top:0; color: #87CEFA; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Montserrat', sans-serif; transition: color 0.3s ease;">
+                Load Data Cloud
+            </h3>
+            
+            <p style="font-size: 11.5px; color: #ccc; margin-bottom: 20px; line-height: 1.5; font-weight: 500;">
+                Pilih metode data yang ingin ditarik ke HP.
+            </p>
+            
+            <!-- Custom Dropdown Murni (Tanpa Tag Select) -->
+            <div style="position: relative; text-align: left;">
+                <div class="custom-select-btn" onclick="toggleSyncDropdown(event)" style="background: #111; padding: 0;">
+                    <span id="sync-selected-text" style="color: #888; padding-left: 15px; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 600;">-- Pilih Mode --</span>
+                    <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-muted);">▼</span>
+                </div>
+                
+                <!-- Kotak Daftar yang menjulur (Awalnya Hidden) -->
+                <div id="sync-custom-options" class="acc-content hidden" style="position: absolute; top: 40px; left: 0; right: 0; padding: 0; display: flex; flex-direction: column; background: #151515; border: 1px solid var(--border-color); z-index: 4100; box-shadow: 0 10px 25px rgba(0,0,0,0.8);">
+                    <div class="dropdown-item" onclick="selectSyncOption('delta', event)" style="border-bottom: 1px solid rgba(255,255,255,0.05); color: white; padding: 12px 15px;">Load Pembaruan (Cepat)</div>
+                    <div class="dropdown-item" onclick="selectSyncOption('force', event)" style="color: var(--danger); padding: 12px 15px;">Load Semua Data (Darurat)</div>
+                </div>
+                
+                <!-- Penyimpan nilai rahasia -->
+                <input type="hidden" id="sync-type" value="">
+            </div>
+
+            <!-- Area Peringatan Dinamis -->
+            <div id="sync-warning-area" style="min-height: 45px; margin-top: 15px; font-size: 11px; line-height: 1.5; font-weight: 600; display: flex; align-items: center; justify-content: center;">
+            </div>
+
+            <div class="modal-btns" style="margin-top: 15px;">
+                <button class="btn-main btn-cancel" onclick="closeSyncModal()">BATAL</button>
+                <button class="btn-main" id="btn-sync-download" style="border: 1px solid var(--border-color) !important; color: var(--text-muted) !important; background:transparent!important; transition: all 0.3s ease;" onclick="executeSyncBtn()">DOWNLOAD</button>
+            </div>
+        </div>
+    </div>
+
     <div id="scanner-wrap">
         <div id="reader"></div>
         <div class="scanner-overlay"><div class="scanner-box"><div class="scanner-laser"></div></div></div>
@@ -422,7 +438,7 @@
         <button class="scan-stop" onclick="closeScanner()">BATAL SCAN</button>
     </div>
 
-    <div id="pin-modal" class="modal">
+    <div id="pin-modal" class="modal" onclick="if(event.target===this) closePinModal()">
         <div class="modal-box" id="pin-box" style="text-align: center; border-color: var(--danger);">
             <h3 style="margin-top:0; font-size:15px; color: var(--danger);">Otorisasi Dibutuhkan</h3>
             <p style="font-size:11px; color:#888; margin-bottom:20px;">Masukkan PIN hapus massal.</p>
@@ -475,9 +491,8 @@
     <div id="toast-notification" class="hidden"><span id="toast-message"></span></div>
 
     <script>
-        // === 1. GLOBAL UTILS & STATE MGT ===
         const $ = (id) => document.getElementById(id);
-        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbyzjVZ_aUbn4yznjxh-8pdzAAFA0X43L3atxuchVW5cz2FrEc2hjG8Zbxnz3SHJPipLow/exec";
+        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbwZ2E3OaIS13lrkGAGuBFSFEiFqqGW_24css8L2bsJnCaLOKmxu3lHJqv1nCEqmh6_VvA/exec";
         const NamaBln = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         const NamaBlnPendek = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 
@@ -492,13 +507,11 @@
 
         const TemaNotifikasi = { "Error": "var(--danger)", "Gagal": "var(--danger)", "Hapus": "var(--danger)", "Peringatan": "var(--warning)", "Optimasi Sistem": "#FFA500", "Sistem Bersih": "#FFA500", "Backup": "#87CEFA", "Sinkronisasi": "#87CEFA", "Sukses": "var(--mono-main)", "Info": "var(--mono-main)" };
 
-        // === STATE KALKULATOR ===
         let isCartMode = false;
         let cartState = JSON.parse(localStorage.getItem('DB_WA_CART')) || {}; 
         for(let k in cartState) { if(typeof cartState[k] === 'object' && cartState[k].t !== undefined) { cartState[k] = { q: cartState[k].q }; } }
         function saveCartMem() { localStorage.setItem('DB_WA_CART', JSON.stringify(cartState)); }
 
-        // === 2. WAKE LOCK ===
         let wakeLock = null, isWakeLockRequested = false;
         async function requestWakeLock() { try { if ('wakeLock' in navigator && wakeLock === null) wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {} }
         document.addEventListener('click', () => { const v = $('wakelock-video'); if (v && v.paused) v.play().catch(()=>{}); if (!isWakeLockRequested) { isWakeLockRequested = true; requestWakeLock(); } }, { once: true });
@@ -524,25 +537,29 @@
         function prop(s) { return !s ? "" : String(s).replace(/<\/?[^>]+(>|$)/g, "").trim().split(/([\s/-])/).map(w => w && !/[\s/-]/.test(w) ? w.charAt(0).toUpperCase() + w.slice(1) : w).join('').replace(/\s+/g, ' '); }
         function highlightMatch(text, term) { const safeText = escapeHTML(text || ""); if (!term || term.trim() === '') return safeText; const regex = new RegExp(`(${escapeHTML(term.trim()).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'); return safeText.replace(regex, '<span class="highlight">$1</span>'); }
         
-        // === PERBAIKAN: Fungsi formatRp dengan Pelacakan Kursor ===
         function formatRp(input) { 
             let cursorPosition = input.selectionStart;
             let originalLength = input.value.length;
-
             let val = input.value.replace(/\D/g, ""); 
             input.value = val ? fmt(parseInt(val, 10) || 0) : ""; 
-
             let newLength = input.value.length;
             cursorPosition = cursorPosition + (newLength - originalLength);
-            
-            try {
-                input.setSelectionRange(cursorPosition, cursorPosition);
-            } catch(e) {} 
+            try { input.setSelectionRange(cursorPosition, cursorPosition); } catch(e) {} 
         }
 
         function debounce(func, wait) { let timeout; return function(...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), wait); }; }
 
-        // === LOGIKA KASIR (GROSIR PUKUL RATA) ===
+        function checkModalOpen() {
+            const modals = document.querySelectorAll('.modal');
+            let isOpen = false;
+            for(let i=0; i<modals.length; i++) {
+                if(modals[i].style.display === 'flex' || modals[i].style.display === 'block') {
+                    isOpen = true; break;
+                }
+            }
+            if(!isOpen) document.body.classList.remove('modal-open');
+        }
+
         function toggleCartMode() {
             window.scrollTo({ top: 0, behavior: 'instant' }); 
             isCartMode = !isCartMode;
@@ -568,17 +585,12 @@
 
         function updateCartQtyManual(id, val) {
             let n = parseInt(val, 10);
-            if (isNaN(n) || n <= 0) {
-                delete cartState[id];
-            } else {
-                if (!cartState[id]) cartState[id] = { q: n }; else cartState[id].q = n;
-            }
+            if (isNaN(n) || n <= 0) { delete cartState[id]; } else { if (!cartState[id]) cartState[id] = { q: n }; else cartState[id].q = n; }
             saveCartMem(); renderCartUI();
         }
 
         function deleteCartItem(id) { delete cartState[id]; saveCartMem(); renderCartUI(); applyFiltersAndRender(); }
 
-        // === GESTUR SWIPE-TO-DELETE (KERANJANG: LANGSUNG HAPUS) ===
         let startX, startY;
         function handleTouchStart(e) { startX = e.touches[0].clientX; startY = e.touches[0].clientY; e.currentTarget.style.transition = 'none'; }
         function handleTouchMove(e, elem) {
@@ -594,69 +606,32 @@
             startX = null; startY = null;
         }
 
-        // === GESTUR SWIPE-TO-DELETE (DAFTAR UTAMA / HARGA: TAHAN BUKA) ===
         let mainStartX, mainStartY, swipedCardElem;
-        let isMainSwiping = false; 
-        let isMainScrolling = false;
+        let isMainSwiping = false, isMainScrolling = false;
 
         function handleMainTouchStart(e) {
             if (e.target.closest('button') || e.target.closest('.action-btns-absolute') || e.target.closest('.trash-trigger')) return; 
-            
             const card = e.currentTarget;
-            
-            if (swipedCardElem && swipedCardElem !== card) {
-                swipedCardElem.style.transform = 'translateX(0px)';
-                swipedCardElem = null;
-            }
-
-            if(e.touches && e.touches.length > 0) {
-                mainStartX = e.touches[0].clientX;
-                mainStartY = e.touches[0].clientY;
-                isMainSwiping = false; 
-                isMainScrolling = false; 
-                card.style.transition = 'none';
-            }
+            if (swipedCardElem && swipedCardElem !== card) { swipedCardElem.style.transform = 'translateX(0px)'; swipedCardElem = null; }
+            if(e.touches && e.touches.length > 0) { mainStartX = e.touches[0].clientX; mainStartY = e.touches[0].clientY; isMainSwiping = false; isMainScrolling = false; card.style.transition = 'none'; }
         }
         
         function handleMainTouchMove(e, elem) {
             if (!mainStartX || !mainStartY) return;
-            let diffX = mainStartX - e.touches[0].clientX;
-            let diffY = mainStartY - e.touches[0].clientY;
-            
-            if (!isMainSwiping && !isMainScrolling) {
-                if (Math.abs(diffY) > Math.abs(diffX)) {
-                    isMainScrolling = true; 
-                } else {
-                    isMainSwiping = true;   
-                }
-            }
-
+            let diffX = mainStartX - e.touches[0].clientX; let diffY = mainStartY - e.touches[0].clientY;
+            if (!isMainSwiping && !isMainScrolling) { if (Math.abs(diffY) > Math.abs(diffX)) { isMainScrolling = true; } else { isMainSwiping = true; } }
             if (isMainScrolling) return; 
-
-            if (isMainSwiping && diffX > 0) { 
-                if (e.cancelable) e.preventDefault(); 
-                elem.style.transform = `translateX(-${Math.min(diffX, 80)}px)`; 
-            } else if (isMainSwiping && diffX <= 0) {
-                elem.style.transform = `translateX(0px)`;
-            }
+            if (isMainSwiping && diffX > 0) { if (e.cancelable) e.preventDefault(); elem.style.transform = `translateX(-${Math.min(diffX, 80)}px)`; } else if (isMainSwiping && diffX <= 0) { elem.style.transform = `translateX(0px)`; }
         }
         
         function handleMainTouchEnd(e, elem, id) {
             if (!mainStartX || !mainStartY) return;
             let diffX = mainStartX - e.changedTouches[0].clientX;
             elem.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
-            
-            if (isMainSwiping && diffX > 45) { 
-                elem.style.transform = `translateX(-80px)`; 
-                swipedCardElem = elem; 
-            } else { 
-                elem.style.transform = `translateX(0px)`; 
-                if (swipedCardElem === elem) swipedCardElem = null;
-            }
+            if (isMainSwiping && diffX > 45) { elem.style.transform = `translateX(-80px)`; swipedCardElem = elem; } else { elem.style.transform = `translateX(0px)`; if (swipedCardElem === elem) swipedCardElem = null; }
             mainStartX = null; mainStartY = null;
         }
 
-        // --- RENDER KERANJANG ---
         function renderCartUI() {
             let html = ''; let grandTotal = 0;
             const keys = Object.keys(cartState);
@@ -677,31 +652,17 @@
                     const p1 = item.p1 || 0; const p2 = item.p2 || 0; const iq = item.iq || 0; const unitName = item.u1 || 'Satuan'; 
                     let subTotal = 0;
                     
-                    if (p2 > 0 && iq > 0 && q >= iq) {
-                        subTotal = Math.round((q * p2) / iq); 
-                    } else {
-                        subTotal = Math.round(q * p1);
-                    }
+                    if (p2 > 0 && iq > 0 && q >= iq) { subTotal = Math.round((q * p2) / iq); } else { subTotal = Math.round(q * p1); }
                     grandTotal += subTotal;
                     
-                    // PERBAIKAN: Input Kuantitas Keranjang dengan tipe 'tel'
                     html += `
                         <div class="cp-item-wrap">
-                            <div class="cp-trash-bg" onclick="deleteCartItem('${id}')">
-                                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                            </div>
+                            <div class="cp-trash-bg" onclick="deleteCartItem('${id}')"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></div>
                             <div class="cp-item-front" ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event, this)" ontouchend="handleTouchEnd(event, this, '${id}')">
-                                <div class="cpi-info">
-                                    <div class="cpi-name">${escapeHTML(item.n)}</div>
-                                    <div class="cpi-calc">${q} ${escapeHTML(unitName)}</div>
-                                </div>
+                                <div class="cpi-info"><div class="cpi-name">${escapeHTML(item.n)}</div><div class="cpi-calc">${q} ${escapeHTML(unitName)}</div></div>
                                 <div style="display:flex; align-items:center; gap: 12px; pointer-events: auto;">
                                     <div class="cpi-total">Rp ${fmt(subTotal)}</div>
-                                    <input class="qty-input-manual" type="tel" pattern="[0-9]*" value="${q}" 
-                                        onfocus="this.value=''" 
-                                        oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length > 5) this.value = this.value.slice(0,5);" 
-                                        onchange="updateCartQtyManual('${id}', this.value)" 
-                                        onblur="if(this.value===''||this.value==='0') updateCartQtyManual('${id}', 1)">
+                                    <input class="qty-input-manual" type="tel" pattern="[0-9]*" value="${q}" onfocus="this.value=''" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length > 5) this.value = this.value.slice(0,5);" onchange="updateCartQtyManual('${id}', this.value)" onblur="if(this.value===''||this.value==='0') updateCartQtyManual('${id}', 1)">
                                 </div>
                             </div>
                         </div>
@@ -714,17 +675,14 @@
 
         function resetCart() {
             if (Object.keys(cartState).length === 0) return;
-            showConfirm("Kosongkan semua keranjang?", "Reset", "var(--danger)", () => {
-                cartState = {}; saveCartMem(); renderCartUI(); applyFiltersAndRender(); tampilkanToast("Keranjang dibersihkan");
-            });
+            showConfirm("Kosongkan semua keranjang?", "Reset", "var(--danger)", () => { cartState = {}; saveCartMem(); renderCartUI(); applyFiltersAndRender(); tampilkanToast("Keranjang dibersihkan"); });
         }
 
-        // === 3. KEYBOARD SCANNER & SEARCH ===
         $('q').addEventListener('focus', () => { if (isCartMode) document.body.classList.add('search-focus'); });
         $('q').addEventListener('blur', () => { setTimeout(() => document.body.classList.remove('search-focus'), 100); });
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') { hideMod(); hidePicker(); closeCustomAlert(); closePinModal(); closePricePopup(e, true); if (isScanning) closeScanner(); return; }
+            if (e.key === 'Escape') { hideMod(); hidePicker(); closeCustomAlert(); closePinModal(); closePricePopup(e, true); closeSyncModal(); if (isScanning) closeScanner(); return; }
             if (document.body.classList.contains('modal-open') || isScanning || document.activeElement.tagName.toLowerCase() === 'input') return;
             const t = Date.now(); if (t - lastKeyTime > 150) physicalInputBuffer = ""; lastKeyTime = t;
             if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
@@ -744,7 +702,7 @@
                 else { $('pp-name').innerText = item.n; $('pp-price').innerText = "Rp " + fmt(item.p1); $('pp-price-grosir').innerText = item.p2 ? "Grosir: Rp " + fmt(item.p2) : ""; $('pp-barcode').innerText = item.b || ""; $('price-popup').style.display = 'flex'; document.body.classList.add('modal-open'); }
             } else { tampilkanToast("Barcode tidak ditemukan!", "var(--danger)"); } 
         }
-        function closePricePopup(e, force = false) { if (force || e.target === $('price-popup')) { $('price-popup').style.display = 'none'; document.body.classList.remove('modal-open'); $('q').value = ''; clearSearch(); } }
+        function closePricePopup(e, force = false) { if (force || e.target === $('price-popup')) { $('price-popup').style.display = 'none'; checkModalOpen(); $('q').value = ''; clearSearch(); } }
         
         function handleSearchLogic(query) { const q = query.trim(), qL = q.toLowerCase(), exact = barcodeMap.get(q) || acronymMap.get(qL); if (exact && q.length > 0) { currentSearchReqId++; workerResult = [exact]; applyFiltersAndRender(); } else { worker.postMessage({ type: 'search', query: q, reqId: ++currentSearchReqId }); } }
 
@@ -764,10 +722,22 @@
         
         function clearSearch() { searchInput.value = ''; $('q-x').style.display = 'none'; workerResult = null; currentSearchReqId++; window.scrollTo({ top: 0, behavior: 'instant' }); showSearchSuggestions(); applyFiltersAndRender(); searchInput.blur(); }
 
-        // === 4. UI CONTROLS, INLINE ACCORDION & MODALS ===
-        document.addEventListener('click', (e) => { if (!$('dropdown-menu').classList.contains('hidden') && !e.target.closest('.dropdown-wrapper')) $('dropdown-menu').classList.add('hidden'); if (!$('search-dropdown').classList.contains('hidden') && !e.target.closest('.search-box')) $('search-dropdown').classList.add('hidden'); });
+        document.addEventListener('click', (e) => { 
+            if (!$('dropdown-menu').classList.contains('hidden')) {
+                if (!e.target.closest('#kebab-btn')) { $('dropdown-menu').classList.add('hidden'); }
+            }
+            if (!$('search-dropdown').classList.contains('hidden') && !e.target.closest('.search-box')) {
+                $('search-dropdown').classList.add('hidden'); 
+            }
+            // SUNTIKAN PELINDUNG KLIK DROPDOWN CUSTOM
+            const customOptions = $('sync-custom-options');
+            if (customOptions && !customOptions.classList.contains('hidden') && !e.target.closest('.custom-select-btn')) {
+                customOptions.classList.add('hidden');
+            }
+        });
+
         function toggleMenu(e) { e.stopPropagation(); $('dropdown-menu').classList.toggle('hidden'); }
-        function closeCustomAlert() { $('custom-alert').style.display = 'none'; document.body.classList.remove('modal-open'); $('alert-box').style.borderColor = "var(--border-color)"; $('alert-title').style.color = "var(--text-light)"; }
+        function closeCustomAlert() { $('custom-alert').style.display = 'none'; checkModalOpen(); $('alert-box').style.borderColor = "var(--border-color)"; $('alert-title').style.color = "var(--text-light)"; }
         
         function applyModalColor(title, customColor) { const c = customColor || TemaNotifikasi[title] || "var(--mono-main)"; $('alert-title').innerText = title; $('alert-title').style.color = c; $('alert-box').style.borderColor = c; return c; }
         function showAlert(msg, title = "Info", color = null) { const c = applyModalColor(title, color); $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); $('alert-btns').innerHTML = `<button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" onclick="closeCustomAlert()">OKE</button>`; $('custom-alert').style.display = 'flex'; document.body.classList.add('modal-open'); }
@@ -776,45 +746,25 @@
             const c = applyModalColor(title, color); 
             $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); 
             $('alert-btns').innerHTML = `<button class="btn-main btn-cancel" id="confirm-cancel-btn">BATAL</button><button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" id="confirm-ok-btn">${confirmText}</button>`; 
-            
             $('confirm-ok-btn').onclick = () => { closeCustomAlert(); callbackOk(); }; 
             $('confirm-cancel-btn').onclick = () => { closeCustomAlert(); if(callbackCancel) callbackCancel(); };
-            
             $('custom-alert').style.display = 'flex'; document.body.classList.add('modal-open'); 
         }
         
-        function toggleAcc(id) { 
-            const el = $(id); 
-            if(el.classList.contains('hidden')) {
-                $('acc-u1').classList.add('hidden'); 
-                $('acc-u2').classList.add('hidden');
-                el.classList.remove('hidden');
-            } else {
-                el.classList.add('hidden');
-            }
-        }
-        function setUnit(type, val) {
-            $(`i-u${type}`).value = val;
-            $(`lbl-u${type}`).innerText = val || "- Kosong -";
-            $(`acc-u${type}`).classList.add('hidden');
-            if (type === 2) toggleIsiGrosir();
-        }
-
+        function toggleAcc(id) { const el = $(id); if(el.classList.contains('hidden')) { $('acc-u1').classList.add('hidden'); $('acc-u2').classList.add('hidden'); el.classList.remove('hidden'); } else { el.classList.add('hidden'); } }
+        function setUnit(type, val) { $(`i-u${type}`).value = val; $(`lbl-u${type}`).innerText = val || "- Kosong -"; $(`acc-u${type}`).classList.add('hidden'); if (type === 2) toggleIsiGrosir(); }
         function toggleIsiGrosir() { const val = $('i-u2').value; if (val) { $('label-iq').innerText = `Isi per ${val}`; $('wrap-iq').style.display = 'block'; } else { $('wrap-iq').style.display = 'none'; $('i-iq').value = ''; } }
 
         function showMod(id = null) { 
             activeId = id; const b = $('i-b'), n = $('i-n'), p1 = $('i-p1'), p2 = $('i-p2'), exp = $('i-exp'), t = $('i-t'), u1 = $('i-u1'), u2 = $('i-u2'), iq = $('i-iq'); 
             $('mod-box').style.borderColor = "var(--border-color)"; 
-            
             $('acc-u1').classList.add('hidden'); $('acc-u2').classList.add('hidden');
 
             if (id) { 
                 const it = db.find(x => String(x.id) === String(id)); if(!it) return; 
                 $('m-tit').innerText = "Edit Barang"; b.value = it.b || ''; n.value = it.n || ''; p1.value = fmt(it.p1); p2.value = it.p2 ? fmt(it.p2) : ''; 
                 exp.dataset.rawDate = it.exp || ''; exp.value = it.exp ? formatBulanTahun(it.exp) : ''; t.value = it.t || ''; 
-                u1.value = it.u1 || ''; $('lbl-u1').innerText = it.u1 || '- Kosong -';
-                u2.value = it.u2 || ''; $('lbl-u2').innerText = it.u2 || '- Kosong -';
-                iq.value = it.iq || ''; 
+                u1.value = it.u1 || ''; $('lbl-u1').innerText = it.u1 || '- Kosong -'; u2.value = it.u2 || ''; $('lbl-u2').innerText = it.u2 || '- Kosong -'; iq.value = it.iq || ''; 
             } else { 
                 $('m-tit').innerText = "Tambah Barang"; 
                 b.value = n.value = p1.value = p2.value = exp.dataset.rawDate = exp.value = t.value = u1.value = u2.value = iq.value = ''; 
@@ -822,30 +772,26 @@
             } 
             toggleIsiGrosir(); $('mod').style.display = 'flex'; document.body.classList.add('modal-open'); setTimeout(() => $('i-n').focus(), 100); 
         }
-        function hideMod() { activeId = null; $('mod').style.display = 'none'; document.body.classList.remove('modal-open'); }
+        function hideMod() { activeId = null; $('mod').style.display = 'none'; checkModalOpen(); }
         
         function deleteAllDataPrompt() { if (db.filter(i => !i.deleted).length === 0) return showAlert("Data sudah kosong!", "Info"); $('dropdown-menu').classList.add('hidden'); $('pin-input').value = ''; $('pin-modal').style.display = 'flex'; document.body.classList.add('modal-open'); setTimeout(() => $('pin-input').focus(), 100); }
-        function closePinModal() { $('pin-modal').style.display = 'none'; document.body.classList.remove('modal-open'); }
+        function closePinModal() { $('pin-modal').style.display = 'none'; checkModalOpen(); }
         function verifyPinAndExecute() { if ($('pin-input').value === '170823') { closePinModal(); executeDeleteAll(); } else { tampilkanToast("PIN Salah!", "var(--danger)"); } }
 
         function openPicker(id, m) { Picker.targetId = id; const el = $(id); if (!el) return; let val = el.dataset.rawDate || el.value; if (!val) { Picker.sel = new Date(); Picker.tempYear = Picker.sel.getFullYear(); Picker.tempMonth = Picker.sel.getMonth(); } else { const p = val.split('-'); Picker.tempYear = parseInt(p[0], 10); Picker.tempMonth = parseInt(p[1], 10) - 1; } renderKalenderGrid(); $('custom-picker').style.display = 'flex'; document.body.classList.add('modal-open');}
-        function hidePicker() { $('custom-picker').style.display = 'none'; document.body.classList.remove('modal-open');}
+        function hidePicker() { $('custom-picker').style.display = 'none'; checkModalOpen(); }
         function clearPickerDate() { const el = $(Picker.targetId); if(el) { el.dataset.rawDate = el.value = ''; } hidePicker(); }
         function renderKalenderGrid() { $('cp-year').innerText = Picker.tempYear; $('cp-grid').innerHTML = NamaBlnPendek.map((bln, i) => `<div class="month-item ${i === Picker.tempMonth ? 'active' : ''}" onclick="cpSelectMonth(${i})">${bln}</div>`).join(''); }
         function cpChangeYear(arah) { Picker.tempYear += arah; renderKalenderGrid(); }
         function cpSelectMonth(m) { Picker.tempMonth = m; renderKalenderGrid(); }
         function setPickerDate() { const el = $(Picker.targetId); if(el) { el.dataset.rawDate = `${Picker.tempYear}-${String(Picker.tempMonth + 1).padStart(2, '0')}-01`; el.value = `${NamaBln[Picker.tempMonth]} ${Picker.tempYear}`; } hidePicker(); }
 
-        // === 5. VIRTUAL SCROLL & KARTU BARANG ===
         function setTab(t) { tab = t; ['all', 'fav', 'exp'].forEach(x => $(`t-${x}`).className = t === x ? 'tab active' : 'tab'); window.scrollTo({ top: 0, behavior: 'instant' }); applyFiltersAndRender(); }
         function computeDVS() { listOffsets = [0]; let cur = 0; for (let i = 0; i < filteredData.length; i++) { cur += filteredData[i]._cHeight || (tab === 'exp' ? 85 : 90); listOffsets.push(cur); } $('list').style.height = (cur + 150) + 'px'; }
         function getDVSStartIndex(st) { let l = 0, h = listOffsets.length - 1; while (l <= h) { let m = Math.floor((l + h) / 2); if (listOffsets[m] === st) return m; if (listOffsets[m] < st) l = m + 1; else h = m - 1; } return h > 0 ? h : 0; }
         
         function applyFiltersAndRender(silentB = null) {
-            if (swipedCardElem) {
-                swipedCardElem = null;
-            }
-
+            if (swipedCardElem) { swipedCardElem = null; }
             const q = $('q').value.trim(), qL = q.toLowerCase(); let active = db.filter(i => !i.deleted);
             const exact = active.find(i => i.b && String(i.b).toLowerCase() === qL);
             let base = silentB ? active.filter(i => i.b === silentB) : (exact ? [exact] : (workerResult !== null && q !== '' ? workerResult : active));
@@ -870,15 +816,8 @@
 
         $('render-container').addEventListener('click', (e) => {
             const el = e.target;
-            
             const addBtnCart = el.closest('.calc-add'); 
-            if (addBtnCart && isCartMode) { 
-                e.stopPropagation(); 
-                modifyCartItem(addBtnCart.dataset.id, 1); 
-                tampilkanToast("Ditambahkan!", "var(--mono-main)");
-                return; 
-            }
-
+            if (addBtnCart && isCartMode) { e.stopPropagation(); modifyCartItem(addBtnCart.dataset.id, 1); tampilkanToast("Ditambahkan!", "var(--mono-main)"); return; }
             if (!isCartMode) {
                 const f = el.closest('.action-fav'); if (f) { e.stopPropagation(); return toggleFav(f.dataset.id, f); }
                 const ed = el.closest('.action-edit'); if (ed) { e.stopPropagation(); return showMod(ed.dataset.id); }
@@ -887,6 +826,9 @@
 
         function renderVirtualList(isScrolling = false) {
             const rend = $('render-container'), empty = $('empty-message-container'); 
+            
+            if (isScrolling && typeof swipedCardElem !== 'undefined' && swipedCardElem !== null) { swipedCardElem = null; }
+
             if (filteredData.length === 0) { $('list').style.height = '0px'; rend.innerHTML = ''; empty.innerHTML = `<div class="empty-msg">${tab === 'fav' ? "Belum ada favorit" : (tab === 'exp' ? "Tidak ada barang expired" : "Belum ada data")}</div>`; empty.classList.remove('hidden'); return; }
             empty.classList.add('hidden'); 
             
@@ -989,7 +931,6 @@
             window.requestAnimationFrame(() => renderVirtualList(true)); 
         }, { passive: true });
 
-        // === 6. DATABASE OP ===
         async function save() {
             if (isSaving) return; isSaving = true;
             const btnSave = $('btn-save-item'), btnCancel = $('btn-cancel-item');
@@ -1030,43 +971,170 @@
 
         async function del(id) {
             const idx = db.findIndex(x => String(x.id) === String(id)); if(idx === -1) return;
-            
             const cardToReset = swipedCardElem; 
-
             showConfirm(`Hapus "<b>${escapeHTML(db[idx].n)}</b>"?`, "Hapus", "var(--danger)", 
                 async () => {
                     db[idx].deleted = true; db[idx].updatedAt = Date.now(); await saveItemToIDB(db[idx]); worker.postMessage({ type: 'remove', id: String(id) });
                     if (workerResult) workerResult = workerResult.filter(x => String(x.id) !== String(id));
                     if (cartState[id]) { delete cartState[id]; saveCartMem(); renderCartUI(); } 
-                    swipedCardElem = null; 
-                    updateMaps(); applyFiltersAndRender(); tampilkanToast("Dihapus!", "var(--danger)");
-                },
-                "HAPUS",
-                () => {
-                    if (cardToReset) {
-                        cardToReset.style.transform = `translateX(0px)`;
-                    }
-                    swipedCardElem = null; 
-                }
+                    swipedCardElem = null; updateMaps(); applyFiltersAndRender(); tampilkanToast("Dihapus!", "var(--danger)");
+                }, "HAPUS",
+                () => { if (cardToReset) { cardToReset.style.transform = `translateX(0px)`; } swipedCardElem = null; }
             );
         }
 
-        async function executeDeleteAll() { $('pin-modal').style.display = 'none'; document.body.classList.remove('modal-open'); tampilkanToast("Menghapus...", "var(--danger)"); $('list').style.pointerEvents = 'none'; try { const tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'), ts = Date.now(); db.forEach(i => { if (!i.deleted) { i.deleted = true; i.updatedAt = ts; s.put(i); } }); tx.oncomplete = () => { worker.postMessage({ type: 'init', db: [] }); updateMaps(); cartState = {}; saveCartMem(); renderCartUI(); applyFiltersAndRender(); $('list').style.pointerEvents = 'auto'; tampilkanToast("Bersih!", "var(--danger)"); }; } catch(e) { $('list').style.pointerEvents = 'auto'; showAlert("Gagal.", "Error"); } }
+        async function executeDeleteAll() { $('pin-modal').style.display = 'none'; checkModalOpen(); tampilkanToast("Menghapus...", "var(--danger)"); $('list').style.pointerEvents = 'none'; try { const tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'), ts = Date.now(); db.forEach(i => { if (!i.deleted) { i.deleted = true; i.updatedAt = ts; s.put(i); } }); tx.oncomplete = () => { worker.postMessage({ type: 'init', db: [] }); updateMaps(); cartState = {}; saveCartMem(); renderCartUI(); applyFiltersAndRender(); $('list').style.pointerEvents = 'auto'; tampilkanToast("Bersih!", "var(--danger)"); }; } catch(e) { $('list').style.pointerEvents = 'auto'; showAlert("Gagal.", "Error"); } }
         async function toggleFav(id, btn) { const idx = db.findIndex(x => String(x.id) === String(id)); if(idx !== -1) { db[idx].f = !db[idx].f; db[idx].updatedAt = Date.now(); await saveItemToIDB(db[idx]); if (btn) { btn.style.color = db[idx].f ? 'var(--mono-main)' : 'var(--text-muted)'; btn.innerHTML = `<svg pointer-events="none" viewBox="0 0 24 24" width="18" height="18" fill="${db[idx].f?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`; } if (tab === 'fav') applyFiltersAndRender(); } }
 
         function optimizeData() { $('dropdown-menu').classList.add('hidden'); showConfirm("Bersihkan memori sampah?", "Optimasi Sistem", "#FFA500", () => { tampilkanToast("Mengoptimalkan...", "#FFA500"); recentSearches = []; trendingSearches = {}; localStorage.removeItem('DB_WA_RECENT'); localStorage.removeItem('DB_WA_TRENDING'); const tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'); let c = 0; const aDb = []; db.forEach(i => { if (i.deleted) { s.delete(i.id); c++; } else { aDb.push(i); } }); tx.oncomplete = () => { db = aDb; worker.postMessage({ type: 'init', db: db }); updateMaps(); clearSearch(); setTimeout(() => showAlert(`BERHASIL!!!<br>Sampah: ${c} Data dibersihkan.`, "Sistem Bersih", "#FFA500"), 500); }; }); }
 
-        // === 7. CLOUD & EXCEL ===
         function showLoading(msg, color="#87CEFA") { $('loading-text').innerHTML = msg; $('loading-spinner').style.borderTopColor = color; $('loading-title').style.color = color; $('loading-box').style.borderColor = color; $('loading-modal').style.display = 'flex'; document.body.classList.add('modal-open'); }
-        function hideLoading() { $('loading-modal').style.display = 'none'; document.body.classList.remove('modal-open'); }
+        function hideLoading() { $('loading-modal').style.display = 'none'; checkModalOpen(); }
 
-        function backupToCloud() { if (db.length === 0) return; showConfirm("<b>Peringatan Keamanan! ☁️</b>\n\nTindakan ini akan mengunggah dan MENIMPA seluruh data yang ada di Cloud dengan data dari HP Anda saat ini.\n\nLanjutkan?", "Informasi", "#87CEFA", () => { showLoading("Mengunggah data ke Cloud...<br>Mohon tunggu sebentar.", "#87CEFA"); fetchWithTimeout(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backup', data: db }) }, 15000).then(() => { hideLoading(); tampilkanToast("Berhasil Upload!", "var(--mono-main)"); }).catch(() => { hideLoading(); showAlert("Koneksi Gagal / Timeout. Silakan coba lagi.", "Error"); }); }, "LANJUTKAN"); }
-        function loadFromCloud() { showConfirm("Load data dari Cloud?", "Sinkronisasi", "#87CEFA", () => { showLoading("Memuat data dari Cloud...<br>Mohon tunggu sebentar.", "#87CEFA"); fetchWithTimeout(CLOUD_URL + "?action=load&t=" + Date.now(), {}, 15000).then(r => r.json()).then(async dC => { if (Array.isArray(dC)) { const tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'); dC.forEach(iC => { const lIdx = db.findIndex(l => l.id === iC.id); if (lIdx > -1) { if ((iC.updatedAt || 0) > (db[lIdx].updatedAt || 0)) { db[lIdx] = iC; if (iC.deleted) s.delete(iC.id); else s.put(iC); } } else { db.push(iC); if (!iC.deleted) s.put(iC); } }); tx.oncomplete = () => { worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); updateMaps(); clearSearch(); renderCartUI(); hideLoading(); tampilkanToast("Sinkronisasi Selesai!", "var(--mono-main)"); }; } }).catch(() => { hideLoading(); showAlert("Koneksi Gagal / Timeout. Silakan coba lagi.", "Error"); }); }); }
+        function backupToCloud() { if (db.length === 0) return; showConfirm("<b>Peringatan Keamanan!</b>\n\nTindakan ini akan mengunggah dan MENIMPA seluruh data yang ada di Cloud dengan data dari HP Anda saat ini.\n\nLanjutkan?", "Informasi", "#87CEFA", () => { showLoading("Mengunggah data ke Cloud...<br>Mohon tunggu sebentar.", "#87CEFA"); fetchWithTimeout(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backup', data: db }) }, 15000).then(() => { hideLoading(); tampilkanToast("Berhasil Upload!", "var(--mono-main)"); }).catch(() => { hideLoading(); showAlert("Koneksi Gagal / Timeout. Silakan coba lagi.", "Error"); }); }, "LANJUTKAN"); }
+        
+        // FUNGSI PENGENDALI CUSTOM DROPDOWN SINKRONISASI
+        function openSyncModal() {
+            $('dropdown-menu').classList.add('hidden');
+            $('sync-type').value = '';
+            $('sync-selected-text').innerText = '-- Pilih Mode --';
+            $('sync-selected-text').style.color = '#888';
+            $('sync-custom-options').classList.add('hidden');
+            handleSyncChange();
+            $('sync-modal').style.display = 'flex';
+            document.body.classList.add('modal-open');
+        }
+
+        function closeSyncModal() {
+            $('sync-modal').style.display = 'none';
+            checkModalOpen();
+        }
+
+        function toggleSyncDropdown(e) {
+            if (e) e.stopPropagation();
+            $('sync-custom-options').classList.toggle('hidden');
+        }
+
+        function selectSyncOption(mode, e) {
+            if (e) e.stopPropagation();
+            $('sync-type').value = mode;
+            $('sync-selected-text').innerText = mode === 'delta' ? 'Load Pembaruan (Cepat)' : 'Load Semua Data (Darurat)';
+            $('sync-selected-text').style.color = mode === 'delta' ? 'white' : 'var(--danger)';
+            $('sync-custom-options').classList.add('hidden');
+            handleSyncChange(); 
+        }
+
+        function handleSyncChange() {
+            const val = $('sync-type').value;
+            const warningArea = $('sync-warning-area');
+            const modalBox = $('sync-modal-box');
+            const title = $('sync-modal-title');
+            const btnDownload = $('btn-sync-download');
+            
+            if (val === 'force') {
+                warningArea.innerHTML = "<span style='color: var(--danger); font-weight: 800;'>⚠️ PERINGATAN</span><br><span style='color: #ccc;'>Data yang belum di-Upload akan HILANG!</span>";
+                modalBox.style.borderColor = "var(--danger)";
+                title.style.color = "var(--danger)";
+                btnDownload.style.borderColor = "var(--danger)";
+                btnDownload.style.color = "var(--danger)";
+            } else if (val === 'delta') {
+                warningArea.innerHTML = "<span style='color: #87CEFA;'>💯 Aman</span><br><span style='color: #ccc;'>Load data baru tanpa menghapus data.</span>";
+                modalBox.style.borderColor = "#87CEFA";
+                title.style.color = "#87CEFA";
+                btnDownload.style.borderColor = "#87CEFA";
+                btnDownload.style.color = "#87CEFA";
+            } else {
+                warningArea.innerHTML = "";
+                modalBox.style.borderColor = "var(--border-color)";
+                title.style.color = "#87CEFA";
+                btnDownload.style.borderColor = "var(--border-color)";
+                btnDownload.style.color = "var(--text-muted)";
+            }
+        }
+
+        function executeSyncBtn() {
+            const val = $('sync-type').value;
+            if (!val) {
+                tampilkanToast("Silakan pilih mode sinkronisasi dulu!", "var(--warning)");
+                return;
+            }
+            const isForce = (val === 'force');
+            closeSyncModal();
+            loadFromCloud(isForce);
+        }
+
+        function loadFromCloud(forceSync = false) { 
+            showLoading("Memuat data dari Cloud...<br>Mohon tunggu sebentar.", "#87CEFA"); 
+            
+            const lastSyncTime = forceSync ? 0 : (parseInt(localStorage.getItem('DB_LAST_SYNC')) || 0);
+            const requestUrl = CLOUD_URL + "?action=load&lastSync=" + lastSyncTime + "&t=" + Date.now();
+
+            fetchWithTimeout(requestUrl, {}, 15000)
+            .then(r => r.json())
+            .then(dataResponse => { 
+                const dataCloud = dataResponse.data || [];
+                const serverTime = dataResponse.serverTime || Date.now();
+
+                if (dataCloud.length === 0 && !forceSync) {
+                    hideLoading();
+                    tampilkanToast("Data di HP sudah yang paling baru!", "var(--mono-main)");
+                    localStorage.setItem('DB_LAST_SYNC', serverTime.toString());
+                    return;
+                }
+
+                const tx = idb.transaction('items', 'readwrite');
+                const store = tx.objectStore('items'); 
+                
+                if (forceSync) {
+                    store.clear(); 
+                    db = [];       
+                }
+
+                dataCloud.forEach(itemCloud => { 
+                    const localIndex = db.findIndex(l => String(l.id) === String(itemCloud.id)); 
+                    if (localIndex > -1) { 
+                        if ((itemCloud.updatedAt || 0) >= (db[localIndex].updatedAt || 0)) { 
+                            if (itemCloud.deleted) {
+                                store.delete(itemCloud.id); 
+                                db.splice(localIndex, 1); 
+                            } else {
+                                db[localIndex] = itemCloud; 
+                                store.put(itemCloud); 
+                            }
+                        } 
+                    } else { 
+                        if (!itemCloud.deleted) {
+                            db.push(itemCloud); 
+                            store.put(itemCloud); 
+                        }
+                    } 
+                }); 
+                
+                tx.oncomplete = () => { 
+                    localStorage.setItem('DB_LAST_SYNC', serverTime.toString());
+                    worker.postMessage({ type: 'init', db: db }); 
+                    updateMaps(); 
+                    clearSearch(); 
+                    renderCartUI(); 
+                    applyFiltersAndRender();
+                    hideLoading(); 
+                    tampilkanToast(forceSync ? "Berhasil memuat ulang semua data!" : `Berhasil update ${dataCloud.length} data!`, "var(--mono-main)"); 
+                }; 
+                
+                tx.onerror = () => {
+                    hideLoading(); 
+                    showAlert("Gagal menyimpan ke memori HP. Silakan coba lagi.", "Error");
+                }
+            })
+            .catch(() => { 
+                hideLoading(); 
+                showAlert("Koneksi Gagal / Server Sibuk. Pastikan internet menyala.", "Error"); 
+            }); 
+        }
         
         function exportData() { const data = db.filter(i => !i.deleted).map(i => ({ "ID": i.id, "Barcode": i.b, "Nama Barang": i.n, "Harga Eceran": i.p1, "Satuan Ecer": i.u1 || "", "Harga Grosir": i.p2, "Satuan Grosir": i.u2 || "", "Isi Grosir": i.iq || "", "Singkatan": i.t, "Favorit": i.f ? "Ya" : "Tidak", "Expired": i.exp || "" })); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Data"); XLSX.writeFile(wb, "Data_Harga.xlsx"); }
         function importData(e) { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = (ev) => { const w = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'}), jD = XLSX.utils.sheet_to_json(w.Sheets[w.SheetNames[0]], { raw: false, defval: "" }), tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'), tA = new Set(), ts = Date.now(); jD.forEach(ro => { const n = prop(ro["Nama Barang"] || ro["Nama"]); if(!n) return; let cT = ro["Singkatan"]; if (!cT) cT = generateSmartAcronym(n, null, tA); if (cT) tA.add(cT); const eI = ro["ID"] ? String(ro["ID"]).trim() : null, sB = ro["Barcode"] ? String(ro["Barcode"]).trim() : '', iF = ro["Favorit"] === "Ya" || ro["Favorit"] === "TRUE", eD = parseBulanTahunExcel(ro["Expired"]); let u1 = ro["Satuan Ecer"] || ro["Satuan"] || ""; let u2 = ro["Satuan Grosir"] || ro["Grosir"] || ""; let iq = parseInt(ro["Isi Grosir"]) || 0; let eIdx = db.findIndex(x => (eI && String(x.id) === String(eI)) || (x.n.toLowerCase() === n.toLowerCase())); if (eIdx > -1) { db[eIdx] = { ...db[eIdx], b: sB, p1: parseExcelPrice(ro["Eceran"]||ro["Harga Eceran"]), p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; s.put(db[eIdx]); } else { const nI = { id: eI || generateUniqueId(), b: sB, n: n, p1: parseExcelPrice(ro["Eceran"]||ro["Harga Eceran"]), p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; db.push(nI); s.put(nI); } }); tx.oncomplete = () => { worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); updateMaps(); clearSearch(); renderCartUI(); tampilkanToast("Import Selesai!"); }; }; r.readAsArrayBuffer(f); }
         
-        // === 8. SCANNER UI ===
         let torchState = false; 
         function toggleFlashlight() { const vid = document.querySelector('#reader video'); if (vid && vid.srcObject) { try { const track = vid.srcObject.getVideoTracks()[0]; const cap = track.getCapabilities(); if (cap.torch) { torchState = !torchState; track.applyConstraints({ advanced: [{ torch: torchState }] }).catch(e => console.log(e)); $('torch-btn').style.color = torchState ? "var(--warning)" : "white"; } else { tampilkanToast("Kamera tidak dukung senter", "var(--warning)"); } } catch(e) { console.log(e); } } }
         async function openScanner(mode) { 
@@ -1088,9 +1156,8 @@
                 }); isScanning = true; 
             } catch (e) { await closeScanner(); showAlert("Kamera Error / Izin Ditolak.", "Error"); } finally { isStartingScan = false; } 
         }
-        async function closeScanner() { $('scanner-wrap').style.display = 'none'; document.body.classList.remove('modal-open'); if (torchState) toggleFlashlight(); if (isScanning && html5QrCode) { try { await html5QrCode.stop(); html5QrCode.clear(); } catch(e) {} } isScanning = false; if (isWakeLockRequested && wakeLock === null) requestWakeLock(); }
+        async function closeScanner() { $('scanner-wrap').style.display = 'none'; checkModalOpen(); if (torchState) toggleFlashlight(); if (isScanning && html5QrCode) { try { await html5QrCode.stop(); html5QrCode.clear(); } catch(e) {} } isScanning = false; if (isWakeLockRequested && wakeLock === null) requestWakeLock(); }
 
-        // === PERBAIKAN: Event Listener Global untuk Anti-Freeze ===
         document.addEventListener('touchstart', function(e) {
             if (typeof swipedCardElem !== 'undefined' && swipedCardElem !== null) {
                 if (!swipedCardElem.contains(e.target) && !e.target.closest('.trash-trigger')) {
@@ -1101,7 +1168,6 @@
             }
         }, { passive: true });
 
-        // === INISIALISASI ===
         async function initApp() { 
             try { 
                 const t = new Date(); $('current-date-location').innerText = `Boyolali, ${t.getDate()} ${NamaBln[t.getMonth()]} ${t.getFullYear()}`; 
