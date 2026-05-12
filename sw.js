@@ -4,7 +4,7 @@
  * Fokus: Keamanan Memori, Anti-Lag, dan Instalasi Toleran Kesalahan
  */
 
-const APP_VERSION = '4.0'; // Naikkan angka ini setiap kali kamu merilis fitur/HTML baru
+const APP_VERSION = '4.1'; // Naikkan angka ini setiap kali kamu merilis fitur/HTML baru
 const CACHE_CORE = 'core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
 const CACHE_CDN = 'cdn-v1'; // Tidak berubah agar aset stabil tidak perlu di-download ulang
