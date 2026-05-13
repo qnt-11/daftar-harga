@@ -1,7 +1,7 @@
 {
   "id": "/daftar-harga/",
   "name": "Daftar Harga Barang",
-  "short_name": "HARGA",
+  "short_name": "Harga",
   "description": "Aplikasi pencatatan daftar harga eceran dan grosir",
   "start_url": "./index.html",
   "scope": "./",
