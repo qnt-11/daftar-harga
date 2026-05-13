@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <title>Offline - DAFTAR HARGA</title>
+    
+    <style>
+        /* Desain disesuaikan dengan tema utama index.html agar serasi */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000000; 
+            color: #ffffff;
+            /* Tambahan: Fallback font sans-serif agar tetap rapi saat offline */
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .card {
+            background-color: #151515;
+            border: 1px solid #333333;
+            border-radius: 16px;
+            padding: 40px 24px;
+            max-width: 320px;
+            width: 85%;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9);
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Ikon WiFi Tercoret dengan warna --danger */
+        .icon-offline {
+            color: #ff3b30; 
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin: 0 0 12px 0;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        p {
+            font-size: 13px;
+            color: #a0a0a0;
+            line-height: 1.6;
+            margin: 0 0 30px 0;
+            font-weight: 500;
+        }
+
+        button {
+            background-color: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: 100%;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        button:active {
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+
+        /* Tambahan: Animasi loading kecil saat tombol ditekan */
+        button.loading {
+            opacity: 0.5;
+            cursor: wait;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <!-- Ikon SVG tetap internal (Benar!) -->
+        <svg class="icon-offline" viewBox="0 0 24 24" width="60" height="60" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="2" y1="2" x2="22" y2="22"></line>
+            <path d="M8.5 16.5a5 5 0 0 1 7 0"></path>
+            <path d="M5 13a10 10 0 0 1 14 0"></path>
+            <path d="M2 8.8a15 15 0 0 1 20 0"></path>
+        </svg>
+
+        <h1>Koneksi Terputus</h1>
+        <p>Aplikasi tidak dapat dimuat karena Anda sedang offline. Pastikan internet menyala untuk kembali berjualan.</p>
+        
+        <!-- Perbaikan: Fungsi diarahkan ke halaman utama dan memberikan feedback visual -->
+        <button id="retry-btn" onclick="tryAgain()">Coba Lagi</button>
+    </div>
+
+    <script>
+        function tryAgain() {
+            const btn = document.getElementById('retry-btn');
+            btn.innerText = "Mencoba Menghubungkan...";
+            btn.classList.add('loading');
+            
+            // Mengarahkan paksa kembali ke halaman utama kasir
+            // Jika internet sudah ada, index.html akan terbuka.
+            // Jika masih offline, Service Worker akan kembali menampilkan halaman ini.
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
