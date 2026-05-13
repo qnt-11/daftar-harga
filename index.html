@@ -381,15 +381,13 @@
     <!-- AREA STICKY (CART & SEARCH) -->
     <div id="sticky-roof-group" class="sticky-roof-group">
         <div id="cart-panel-container">
+            <!-- Ikon keranjang sudah dipindah dari area header keranjang ini -->
             <div class="cp-header">
                 <div class="cp-title-box">
                     <span style="font-size:10px; color:#888; font-weight:800; letter-spacing:1px;">TOTAL BELANJA</span>
                     <span id="cp-grand-total" style="font-size:18px; color:var(--danger); font-weight:800; font-family:'Montserrat', sans-serif;">Rp 0</span>
                 </div>
                 <div style="display: flex; gap: 12px; align-items: center;">
-                    <button class="icon-btn" onclick="toggleCartMode()" style="color:var(--text-muted);">
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-                    </button>
                     <button class="icon-btn" onclick="openScanner('cart')">
                         <svg viewBox="0 0 24 24" width="24" height="24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke="var(--mono-main)" stroke-width="1.5"></rect><line class="laser-beam-header" x1="5" y1="12" x2="19" y2="12" stroke="red" stroke-width="2" stroke-linecap="round"></line></svg>
                     </button>
@@ -407,7 +405,10 @@
                     <div id="q-x" class="q-clear" onclick="clearSearch()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6M9 9l6 6"></path></svg></div>
                     <div id="search-dropdown" class="search-dropdown-box hidden"><div id="sd-content"></div></div>
                 </div>
-                <button class="sort-btn" id="s-btn-search" onclick="toggleSort()"><span></span><span></span><span></span></button>
+                <!-- Ikon Keranjang dipindah ke samping kolom search khusus menu keranjang -->
+                <button class="icon-btn" id="s-btn-search" onclick="toggleCartMode()" style="color:var(--mono-main);">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                </button>
             </div>
             <div class="search-summary-wrap"><div id="search-summary" class="search-summary hidden"></div></div>
         </div>
@@ -654,31 +655,35 @@
             localStorage.setItem('DB_WA_CART', JSON.stringify(cartState)); 
         }
 
-        /* --- WAKELOCK --- */
-        let wakeLock = null, isWakeLockRequested = false;
-        async function requestWakeLock() { 
-            try { 
-                if ('wakeLock' in navigator && wakeLock === null) wakeLock = await navigator.wakeLock.request('screen'); 
+        /* --- WAKELOCK (ANTI-SLEEP PRO) --- */
+        let wakeLock = null;
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    if (wakeLock !== null) return;
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLock.addEventListener('release', () => {
+                        wakeLock = null;
+                        if (document.visibilityState === 'visible') requestWakeLock();
+                    });
+                }
             } catch (err) {} 
         }
+
+        const enableWakeLock = () => {
+            const v = $('wakelock-video');
+            if (v && v.paused) v.play().catch(()=>{});
+            requestWakeLock();
+        };
+
+        document.addEventListener('click', enableWakeLock, { passive: true });
+        document.addEventListener('touchstart', enableWakeLock, { passive: true });
         
-        document.addEventListener('click', () => { 
-            const v = $('wakelock-video'); 
-            if (v && v.paused) v.play().catch(()=>{}); 
-            if (!isWakeLockRequested) { isWakeLockRequested = true; requestWakeLock(); } 
-        }, { once: true });
-        
-        document.addEventListener('visibilitychange', async () => { 
-            if (isWakeLockRequested && document.visibilityState === 'visible') { 
-                wakeLock = null; await requestWakeLock(); 
-            } 
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                requestWakeLock();
+            }
         });
-        
-        setInterval(async () => { 
-            if (isWakeLockRequested && document.visibilityState === 'visible' && wakeLock === null) { 
-                await requestWakeLock(); 
-            } 
-        }, 60000);
 
         /* --- UI HELPERS --- */
         function tampilkanToast(msg, color="var(--mono-main)") { 
@@ -868,7 +873,6 @@
         function toggleSort() { 
             sortAZ = !sortAZ; 
             $('s-btn-tabs').classList.toggle('active', sortAZ); 
-            $('s-btn-search').classList.toggle('active', sortAZ); 
             window.scrollTo({ top: 0, behavior: 'instant' }); 
             applyFiltersAndRender(); 
         }
@@ -1001,7 +1005,6 @@
                 saveCartMem(); 
                 renderCartUI(); 
                 applyFiltersAndRender(); 
-                // tampilkanToast("Keranjang dibersihkan"); // UX: Dimatikan sesuai permintaan
             });
         }
 
@@ -1051,7 +1054,6 @@
                 playBeep(); 
                 if (isCartMode) { 
                     modifyCartItem(item.id, 1); 
-                    // tampilkanToast(`${item.n} ditambah!`, "var(--mono-main)"); // UX: Dimatikan sesuai permintaan
                 } else { 
                     $('pp-name').innerText = item.n; 
                     $('pp-price').innerText = "Rp " + fmt(item.p1); 
@@ -1079,25 +1081,33 @@
             } 
         }
 
-        /* --- FUSE.JS WORKER --- */
+        /* --- NATIVE SEARCH WORKER (OFFLINE SAFE) --- */
         const searchInput = $('q'), searchDropdown = $('search-dropdown'), sdContent = $('sd-content');
         const workerScript = `
-            importScripts('https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js'); 
-            let fuse, workerList = []; 
-            function rebuildIndex() { 
-                fuse = new Fuse(workerList, { keys: [{name: 'n', weight: 0.6}, {name: 't', weight: 0.4}, {name: 'b', weight: 0.8}], threshold: 0.2, ignoreLocation: true }); 
-            } 
+            let workerList = []; 
             self.onmessage = function(e) { 
                 if (e.data.type === 'init') { 
-                    workerList = e.data.db; rebuildIndex(); 
+                    workerList = e.data.db; 
                 } else if (e.data.type === 'add') { 
-                    if(!fuse) return; workerList.push(e.data.item); fuse.add(e.data.item); 
+                    workerList.push(e.data.item); 
                 } else if (e.data.type === 'update') { 
-                    if(!fuse) return; workerList = workerList.filter(x => String(x.id) !== String(e.data.item.id)); workerList.push(e.data.item); rebuildIndex(); 
+                    workerList = workerList.filter(x => String(x.id) !== String(e.data.item.id)); 
+                    workerList.push(e.data.item); 
                 } else if (e.data.type === 'remove') { 
-                    if(!fuse) return; workerList = workerList.filter(x => String(x.id) !== String(e.data.id)); rebuildIndex(); 
+                    workerList = workerList.filter(x => String(x.id) !== String(e.data.id)); 
                 } else if (e.data.type === 'search') { 
-                    if(!fuse) return; const hasil = fuse.search(e.data.query); self.postMessage({ type: 'result', data: hasil.map(r => r.item), query: e.data.query, reqId: e.data.reqId }); 
+                    const query = (e.data.query || '').toLowerCase();
+                    const terms = query.split(' ').filter(Boolean);
+                    
+                    const hasil = workerList.filter(item => {
+                        const n = (item.n || '').toLowerCase();
+                        const t = (item.t || '').toLowerCase();
+                        const b = (item.b || '').toLowerCase();
+                        
+                        return terms.every(term => n.includes(term) || t.includes(term) || b.includes(term));
+                    });
+                    
+                    self.postMessage({ type: 'result', data: hasil, query: e.data.query, reqId: e.data.reqId }); 
                 } 
             };`;
             
@@ -1354,7 +1364,6 @@
             if (addBtnCart && isCartMode) { 
                 e.stopPropagation(); 
                 modifyCartItem(addBtnCart.dataset.id, 1); 
-                // tampilkanToast("Ditambahkan!", "var(--mono-main)"); // UX: Dimatikan sesuai permintaan
                 return; 
             }
             
@@ -1808,7 +1817,6 @@
                         const ex = db.find(i => !i.deleted && String(i.b) === text.trim());
                         if (ex) { 
                             modifyCartItem(ex.id, 1); 
-                            // tampilkanToast(`${ex.n} ditambahkan!`, "var(--mono-main)"); // UX: Dimatikan sesuai permintaan
                         } else { 
                             tampilkanToast("Barcode tidak terdaftar!", "var(--danger)"); 
                         }
@@ -1839,7 +1847,8 @@
                 try { await html5QrCode.stop(); html5QrCode.clear(); } catch(e) {} 
             } 
             isScanning = false; 
-            if (isWakeLockRequested && wakeLock === null) requestWakeLock(); 
+            // Trigger wakelock ulang setelah menutup kamera
+            requestWakeLock();
         }
 
         document.addEventListener('touchstart', function(e) {
