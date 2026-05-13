@@ -2,7 +2,7 @@
  * SERVICE WORKER DAFTAR HARGA - BULLETPROOF ENTERPRISE GRADE
  */
 
-const APP_VERSION = '6.1'; 
+const APP_VERSION = '7.0'; 
 const CACHE_CORE = 'core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
 const CACHE_CDN = 'cdn-v1'; 
