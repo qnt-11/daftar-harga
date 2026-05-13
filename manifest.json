@@ -1,7 +1,7 @@
 {
-  "id": "/daftar-harga/",
+  "id": "daftar-harga-app",
   "name": "Daftar Harga Barang",
-  "short_name": "Harga",
+  "short_name": "DAFTAR HARGA",
   "description": "Aplikasi pencatatan daftar harga eceran dan grosir",
   "start_url": "./index.html",
   "scope": "./",
@@ -14,6 +14,7 @@
   "background_color": "#000000",
   "theme_color": "#000000",
   "orientation": "portrait",
+  "dir": "ltr",
   "lang": "id-ID",
   "categories": [
     "business",
@@ -42,8 +43,9 @@
       "url": "./index.html?action=scan",
       "icons": [
         {
-          "src": "icon-192.png",
-          "sizes": "192x192"
+          "src": "icon-scan.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
@@ -54,8 +56,9 @@
       "url": "./index.html?action=cart",
       "icons": [
         {
-          "src": "icon-192.png",
-          "sizes": "192x192"
+          "src": "icon-cart.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     }
