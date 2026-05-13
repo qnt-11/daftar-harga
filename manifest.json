@@ -1,15 +1,25 @@
 {
   "id": "/daftar-harga/",
   "name": "Daftar Harga Barang",
-  "short_name": "Harga",
+  "short_name": "HARGA",
   "description": "Aplikasi pencatatan daftar harga eceran dan grosir",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
   "background_color": "#000000",
   "theme_color": "#000000",
   "orientation": "portrait",
   "lang": "id-ID",
+  "categories": [
+    "business",
+    "productivity",
+    "finance"
+  ],
   "icons": [
     {
       "src": "icon-192.png",
@@ -22,6 +32,66 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Scan Barcode",
+      "short_name": "Scan",
+      "description": "Buka kamera untuk scan barang",
+      "url": "./index.html?action=scan",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Buka Keranjang",
+      "short_name": "Keranjang",
+      "description": "Lihat total belanjaan",
+      "url": "./index.html?action=cart",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-1.png",
+      "sizes": "1080x2340",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Daftar Harga Cepat dan Mudah"
+    },
+    {
+      "src": "screenshot-desktop.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Tampilan di Layar Besar"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "./index.html",
+      "accept": {
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+        "application/vnd.ms-excel": [".xls"]
+      }
+    }
+  ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+harga",
+      "url": "./index.html?link=%s"
     }
   ]
 }
