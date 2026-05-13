@@ -3,9 +3,9 @@
   "name": "Daftar Harga Barang",
   "short_name": "Harga",
   "description": "Aplikasi pencatatan daftar harga eceran dan grosir",
-  "start_url": "/index.html",
-  "scope": "/",
-  "display": "fullscreen",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
   "display_override": [
     "window-controls-overlay",
     "fullscreen",
@@ -23,13 +23,13 @@
   ],
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -40,10 +40,10 @@
       "name": "Scan Barcode",
       "short_name": "Scan",
       "description": "Buka kamera untuk scan barang",
-      "url": "/index.html?action=scan",
+      "url": "./index.html?action=scan",
       "icons": [
         {
-          "src": "/icon-scan.png",
+          "src": "icon-scan.png",
           "sizes": "192x192",
           "type": "image/png"
         }
@@ -53,10 +53,10 @@
       "name": "Buka Keranjang",
       "short_name": "Keranjang",
       "description": "Lihat total belanjaan",
-      "url": "/index.html?action=cart",
+      "url": "./index.html?action=cart",
       "icons": [
         {
-          "src": "/icon-cart.png",
+          "src": "icon-cart.png",
           "sizes": "192x192",
           "type": "image/png"
         }
@@ -65,14 +65,14 @@
   ],
   "screenshots": [
     {
-      "src": "/screenshot-1.png",
+      "src": "screenshot-1.png",
       "sizes": "1080x2340",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Daftar Harga Cepat dan Mudah"
     },
     {
-      "src": "/screenshot-desktop.png",
+      "src": "screenshot-desktop.png",
       "sizes": "1920x1080",
       "type": "image/png",
       "form_factor": "wide",
@@ -81,7 +81,7 @@
   ],
   "file_handlers": [
     {
-      "action": "/index.html",
+      "action": "./index.html",
       "accept": {
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
         "application/vnd.ms-excel": [".xls"]
@@ -94,7 +94,7 @@
   "protocol_handlers": [
     {
       "protocol": "web+harga",
-      "url": "/index.html?link=%s"
+      "url": "./index.html?link=%s"
     }
   ]
 }
