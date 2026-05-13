@@ -5,7 +5,7 @@
  */
 
 // 1. PENGATURAN VARIABEL (Bisa kamu sesuaikan)
-const APP_VERSION = '5.1'; // Naikkan angka ini jika kamu mengubah tampilan index.html secara besar-besaran
+const APP_VERSION = '5.2'; // Naikkan angka ini jika kamu mengubah tampilan index.html secara besar-besaran
 const CACHE_CORE = 'core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
 const CACHE_CDN = 'cdn-v1'; // Biarkan v1 agar font/library tidak di-download ulang terus-menerus
