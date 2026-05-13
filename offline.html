@@ -4,119 +4,211 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#000000">
-    <title>Offline - DAFTAR HARGA</title>
+    <title>Mode Darurat - DAFTAR HARGA</title>
     
     <style>
-        /* Desain disesuaikan dengan tema utama index.html agar serasi */
+        * { box-sizing: border-box; touch-action: manipulation; }
         body {
-            margin: 0;
-            padding: 0;
-            background-color: #000000; 
-            color: #ffffff;
-            /* Tambahan: Fallback font sans-serif agar tetap rapi saat offline */
-            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            text-align: center;
+            margin: 0; padding: 15px; background-color: #000000; color: #ffffff;
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
         }
 
-        .card {
-            background-color: #151515;
-            border: 1px solid #333333;
-            border-radius: 16px;
-            padding: 40px 24px;
-            max-width: 320px;
-            width: 85%;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.9);
-            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        /* UI STATUS */
+        .status-card {
+            background-color: #151515; border: 1px solid #333333; border-radius: 12px;
+            padding: 15px; width: 100%; max-width: 400px; text-align: center; margin-bottom: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
         }
+        .status-card h2 { margin: 0 0 5px 0; font-size: 16px; color: #ff3b30; }
+        .status-card p { margin: 0; font-size: 11px; color: #a0a0a0; line-height: 1.4; }
 
-        @keyframes popIn {
-            0% { transform: scale(0.9); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
+        /* UI LEDGER */
+        .ledger-container {
+            width: 100%; max-width: 400px; margin-bottom: 15px;
         }
+        .ledger-container label {
+            display: block; font-size: 11px; color: #87CEFA; font-weight: 700; margin-bottom: 6px; text-transform: uppercase;
+        }
+        textarea {
+            width: 100%; height: 120px; background-color: #111; border: 1px solid #333;
+            border-radius: 12px; padding: 12px; color: #fff; font-size: 13px; font-family: inherit;
+            resize: none; outline: none; transition: border-color 0.2s;
+        }
+        textarea:focus { border-color: #87CEFA; }
 
-        /* Ikon WiFi Tercoret dengan warna --danger */
-        .icon-offline {
-            color: #ff3b30; 
-            margin-bottom: 20px;
+        /* UI KALKULATOR */
+        .calc-container {
+            width: 100%; max-width: 400px; background-color: #151515; border: 1px solid #333;
+            border-radius: 16px; padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.8);
         }
-
-        h1 {
-            font-size: 18px;
-            margin: 0 0 12px 0;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .calc-display {
+            width: 100%; background: #000; border: 1px solid #333; border-radius: 8px;
+            padding: 15px; font-size: 24px; text-align: right; color: #fff; margin-bottom: 15px;
+            font-weight: 700; overflow-x: auto; white-space: nowrap;
         }
-
-        p {
-            font-size: 13px;
-            color: #a0a0a0;
-            line-height: 1.6;
-            margin: 0 0 30px 0;
-            font-weight: 500;
+        .calc-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
         }
-
-        button {
-            background-color: #ffffff;
-            color: #000000;
-            border: none;
-            padding: 14px 24px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 800;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            width: 100%;
-            transition: all 0.2s;
-            outline: none;
+        .calc-btn {
+            background-color: #222; color: #fff; border: 1px solid #444; border-radius: 8px;
+            padding: 15px 0; font-size: 18px; font-weight: 700; cursor: pointer; outline: none;
+            transition: all 0.1s;
         }
-
-        button:active {
-            transform: scale(0.95);
-            opacity: 0.8;
+        .calc-btn:active { transform: scale(0.95); background-color: #444; }
+        .calc-btn.op { background-color: #ff9500; color: #fff; border-color: #cc7700; }
+        .calc-btn.op:active { background-color: #cc7700; }
+        .calc-btn.clear { background-color: #ff3b30; color: #fff; border-color: #cc2f26; }
+        
+        button.reload-btn {
+            background-color: #fff; color: #000; border: none; padding: 12px; border-radius: 8px;
+            font-size: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; width: 100%;
+            margin-top: 10px; transition: all 0.2s;
         }
-
-        /* Tambahan: Animasi loading kecil saat tombol ditekan */
-        button.loading {
-            opacity: 0.5;
-            cursor: wait;
-        }
+        button.reload-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <!-- Ikon SVG tetap internal (Benar!) -->
-        <svg class="icon-offline" viewBox="0 0 24 24" width="60" height="60" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="2" y1="2" x2="22" y2="22"></line>
-            <path d="M8.5 16.5a5 5 0 0 1 7 0"></path>
-            <path d="M5 13a10 10 0 0 1 14 0"></path>
-            <path d="M2 8.8a15 15 0 0 1 20 0"></path>
-        </svg>
+    <div class="status-card">
+        <h2 id="status-title">⚠️ Sedang Offline</h2>
+        <p id="status-desc">Koneksi terputus. Gunakan kalkulator & buku catatan darurat di bawah. Sistem akan otomatis memuat ulang saat sinyal kembali.</p>
+        <button id="retry-btn" class="reload-btn" onclick="triggerReload('Mencoba...')">Coba Muat Ulang</button>
+    </div>
 
-        <h1>Koneksi Terputus</h1>
-        <p>Aplikasi tidak dapat dimuat karena Anda sedang offline. Pastikan internet menyala untuk kembali berjualan.</p>
-        
-        <!-- Perbaikan: Fungsi diarahkan ke halaman utama dan memberikan feedback visual -->
-        <button id="retry-btn" onclick="tryAgain()">Coba Lagi</button>
+    <div class="ledger-container">
+        <label>Buku Catatan Darurat (Otomatis Tersimpan)</label>
+        <textarea id="offline-ledger" placeholder="Catat pesanan pelanggan di sini jika kasir utama belum bisa diakses..." oninput="saveLedger()"></textarea>
+    </div>
+
+    <div class="calc-container">
+        <div class="calc-display" id="calc-display">0</div>
+        <div class="calc-grid">
+            <button class="calc-btn clear" onclick="calcClear()">C</button>
+            <button class="calc-btn op" onclick="calcOp('/')">÷</button>
+            <button class="calc-btn op" onclick="calcOp('*')">×</button>
+            <button class="calc-btn clear" onclick="calcBack()"><small>DEL</small></button>
+            
+            <button class="calc-btn" onclick="calcNum('7')">7</button>
+            <button class="calc-btn" onclick="calcNum('8')">8</button>
+            <button class="calc-btn" onclick="calcNum('9')">9</button>
+            <button class="calc-btn op" onclick="calcOp('-')">-</button>
+            
+            <button class="calc-btn" onclick="calcNum('4')">4</button>
+            <button class="calc-btn" onclick="calcNum('5')">5</button>
+            <button class="calc-btn" onclick="calcNum('6')">6</button>
+            <button class="calc-btn op" onclick="calcOp('+')">+</button>
+            
+            <button class="calc-btn" onclick="calcNum('1')">1</button>
+            <button class="calc-btn" onclick="calcNum('2')">2</button>
+            <button class="calc-btn" onclick="calcNum('3')">3</button>
+            <button class="calc-btn op" onclick="calcCalculate()" style="grid-row: span 2; background-color: #3CB371; border-color: #2e8b57;">=</button>
+            
+            <button class="calc-btn" onclick="calcNum('0')" style="grid-column: span 2;">0</button>
+            <button class="calc-btn" onclick="calcNum('.')">.</button>
+        </div>
     </div>
 
     <script>
-        function tryAgain() {
-            const btn = document.getElementById('retry-btn');
-            btn.innerText = "Mencoba Menghubungkan...";
-            btn.classList.add('loading');
-            
-            // Mengarahkan paksa kembali ke halaman utama kasir
-            // Jika internet sudah ada, index.html akan terbuka.
-            // Jika masih offline, Service Worker akan kembali menampilkan halaman ini.
-            window.location.href = 'index.html';
+        /* --- STATUS & AUTO-RELOAD --- */
+        const btn = document.getElementById('retry-btn');
+        const title = document.getElementById('status-title');
+        const desc = document.getElementById('status-desc');
+
+        function triggerReload(buttonText) {
+            btn.innerText = buttonText;
+            btn.disabled = true; 
+            window.location.reload();
+            setTimeout(() => { btn.innerText = "Coba Muat Ulang"; btn.disabled = false; }, 3000);
+        }
+
+        window.addEventListener('online', () => {
+            title.innerText = "✅ Sinyal Ditemukan!";
+            title.style.color = "#3CB371"; 
+            desc.innerText = "Internet sudah kembali. Memuat ulang aplikasi kasir...";
+            triggerReload("Memuat Ulang...");
+        });
+
+        /* --- BUKU CATATAN (LEDGER) --- */
+        const ledger = document.getElementById('offline-ledger');
+        window.onload = () => {
+            const savedText = localStorage.getItem('DB_WA_OFFLINE_LEDGER');
+            if (savedText) ledger.value = savedText;
+        };
+        function saveLedger() {
+            localStorage.setItem('DB_WA_OFFLINE_LEDGER', ledger.value);
+        }
+
+        /* --- KALKULATOR DARURAT (100% BULLETPROOF) --- */
+        const display = document.getElementById('calc-display');
+        let calcVal = '0';
+
+        function updateDisplay() {
+            // Tampilkan titik ribuan hanya untuk mempermudah bacaan manusia
+            let parts = calcVal.split(/([\+\-\*\/])/);
+            let displayStr = parts.map(p => {
+                if (p.match(/[\+\-\*\/]/)) return p;
+                let numParts = p.split('.');
+                numParts[0] = numParts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                return numParts.join('.');
+            }).join('');
+            display.innerText = displayStr.replace(/\*/g, '×').replace(/\//g, '÷');
+        }
+
+        function calcNum(n) {
+            // ANTI BUG 3: Pencegahan mengetik ganda desimal (contoh: 5.5.5)
+            if (n === '.') {
+                const parts = calcVal.split(/[\+\-\*\/]/);
+                const currentSegment = parts[parts.length - 1];
+                if (currentSegment.includes('.')) return; // Blokir jika sudah ada titik
+            }
+            if (calcVal === '0' && n !== '.') calcVal = n;
+            else calcVal += n;
+            updateDisplay();
+        }
+
+        function calcOp(op) {
+            // Cek jika karakter terakhir sudah operator, maka timpa dengan operator baru
+            if (calcVal.match(/[\+\-\*\/]$/)) {
+                calcVal = calcVal.slice(0, -1) + op;
+            } else {
+                calcVal += op;
+            }
+            updateDisplay();
+        }
+
+        function calcClear() {
+            calcVal = '0'; updateDisplay();
+        }
+
+        function calcBack() {
+            if (calcVal.length > 1) {
+                calcVal = calcVal.slice(0, -1);
+            } else {
+                calcVal = '0';
+            }
+            updateDisplay();
+        }
+
+        function calcCalculate() {
+            try {
+                let safeVal = calcVal;
+                // ANTI BUG 3: Jika ada operator nggantung di akhir (misal: "5+"), buang sebelum dihitung
+                if (safeVal.match(/[\+\-\*\/]$/)) {
+                    safeVal = safeVal.slice(0, -1);
+                }
+                
+                let result = new Function('return ' + safeVal)();
+                
+                // Cegah hasil Infinity (misal dibagi 0) atau NaN
+                if (!isFinite(result) || isNaN(result)) result = 0; 
+                
+                calcVal = String(result);
+                updateDisplay();
+            } catch (e) {
+                display.innerText = "Error";
+                setTimeout(calcClear, 1000);
+            }
         }
     </script>
 </body>
