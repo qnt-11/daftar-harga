@@ -1,28 +1,23 @@
 /**
- * SERVICE WORKER DAFTAR HARGA - ENTERPRISE GRADE FINAL
- * Strategi: Network-First (HTML), Cache-First (CDN), Stale-While-Revalidate (Dynamic)
- * Fitur Tambahan: Dedicated Offline Page (Halaman Offline Khusus)
+ * SERVICE WORKER DAFTAR HARGA - BULLETPROOF ENTERPRISE GRADE
  */
 
-// 1. PENGATURAN VARIABEL (Bisa kamu sesuaikan)
-const APP_VERSION = '5.2'; // Naikkan angka ini jika kamu mengubah tampilan index.html secara besar-besaran
+const APP_VERSION = '6.1'; 
 const CACHE_CORE = 'core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
-const CACHE_CDN = 'cdn-v1'; // Biarkan v1 agar font/library tidak di-download ulang terus-menerus
+const CACHE_CDN = 'cdn-v1'; 
 
-const MAX_DYNAMIC_ITEMS = 50; // Batas maksimal file dinamis agar memori HP tidak penuh
+const MAX_DYNAMIC_ITEMS = 50; 
 const MAX_CDN_ITEMS = 20;
 
-// Daftar file pondasi yang WAJIB disimpan ke memori HP saat pertama kali buka
-// Kita menambahkan '/offline.html' ke dalam daftar ini
 const coreUrls = [
   '/', 
   '/index.html', 
   '/manifest.json',
-  '/offline.html'
+  '/offline.html',
+  '/beep.mp3' 
 ];
 
-// Daftar domain eksternal yang akan diprioritaskan dari memori (Cache-First)
 const cdnDomains = [
   'unpkg.com', 
   'fonts.googleapis.com', 
@@ -30,10 +25,6 @@ const cdnDomains = [
   'cdn.jsdelivr.net'
 ];
 
-/**
- * HELPER 1: Pembersih Memori Otomatis
- * Menjaga agar memori HP pengguna tidak bengkak dengan menghapus cache terlama.
- */
 async function trimCache(cacheName, maxItems) {
   try {
     const cache = await caches.open(cacheName);
@@ -47,11 +38,7 @@ async function trimCache(cacheName, maxItems) {
   } 
 }
 
-/**
- * HELPER 2: Pengecek Sinyal (Timeout)
- * Mencegah layar "loading" putih terus-menerus jika internet sangat lemot.
- */
-function fetchWithTimeout(request, timeout = 3500) {
+function fetchWithTimeout(request, timeout = 5000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -66,30 +53,21 @@ function fetchWithTimeout(request, timeout = 3500) {
     });
 }
 
-/**
- * TAHAP 1: INSTALASI
- * Mengunduh file pondasi (coreUrls) secara terpisah agar aman dari gagal download.
- */
 self.addEventListener('install', event => {
-  self.skipWaiting(); // Langsung aktifkan SW baru tanpa menunggu
-  
+  self.skipWaiting(); 
   event.waitUntil(
     caches.open(CACHE_CORE).then(cache => {
       return Promise.all(
         coreUrls.map(url => {
           return fetch(url).then(res => {
             if (res.ok) return cache.put(url, res);
-          }).catch(err => console.warn('[SW] File pondasi gagal dimuat (Aman, diabaikan):', url));
+          }).catch(err => console.warn('[SW] Peringatan: File pondasi belum siap:', url));
         })
       );
     })
   );
 });
 
-/**
- * TAHAP 2: AKTIVASI
- * Menyapu bersih memori (cache) dari versi aplikasi yang lama.
- */
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
@@ -102,55 +80,52 @@ self.addEventListener('activate', event => {
   );
 });
 
-/**
- * TAHAP 3: PENCEGAT INTERNET (Fetch Interceptor)
- * Mengatur lalu lintas data antara HP pengguna dan Server.
- */
 self.addEventListener('fetch', event => {
   const req = event.request;
   const url = new URL(req.url);
 
-  // MENGABAIKAN GOOGLE SHEETS & POST:
-  // SW tidak boleh mencampuri urusan sinkronisasi database agar data selalu valid.
   if (req.method !== 'GET' || url.hostname.includes('script.google') || !url.protocol.startsWith('http')) return;
 
-  // STRATEGI 1: NETWORK-FIRST (Khusus Navigasi & HTML Utama)
+  // STRATEGI 1: NETWORK FIRST (Proteksi Anti-Racun Cache)
   if (req.mode === 'navigate' || url.pathname === '/' || url.pathname.includes('index.html')) {
     event.respondWith(
-      fetchWithTimeout(req, 3500)
+      fetchWithTimeout(req, 5000)
         .then(res => {
-          if (res.ok) {
-            const resClone = res.clone();
-            event.waitUntil(caches.open(CACHE_CORE).then(cache => cache.put(req, resClone))); 
-          }
+          // ANTI BUG 1: Jika server down (500 Error), jangan simpan ke cache! Buang!
+          if (!res.ok) throw new Error('Server Error - Tidak Valid');
+          
+          const resClone = res.clone();
+          event.waitUntil(caches.open(CACHE_CORE).then(cache => cache.put(req, resClone))); 
           return res;
         })
         .catch(async () => {
-          // INTERNET MATI: Buka brankas memori
+          // MODE OFFLINE / SERVER DOWN
           const cache = await caches.open(CACHE_CORE);
           const cachedRes = await cache.match(req, { ignoreSearch: true }) || 
                             await cache.match('/index.html', { ignoreSearch: true }) || 
                             await cache.match('/', { ignoreSearch: true });
           
-          // JIKA INDEX.HTML HILANG: Tampilkan Halaman Offline Khusus
-          if (cachedRes) {
-            return cachedRes;
-          } else {
-            return await cache.match('/offline.html', { ignoreSearch: true });
-          }
+          if (cachedRes) return cachedRes;
+          
+          const offlineFile = await cache.match('/offline.html', { ignoreSearch: true });
+          if (offlineFile) return offlineFile;
+          
+          return new Response(
+            `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><title>Offline</title><style>body{background:#000;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;}h2{color:#ff3b30;}</style></head><body><h2>⚠️ Sedang Offline</h2></body></html>`,
+            { headers: { 'Content-Type': 'text/html' } }
+          );
         })
     );
     return;
   }
 
-  // STRATEGI 2: CACHE-FIRST (Khusus CDN Eksternal - Fokus Kecepatan)
+  // STRATEGI 2: CACHE FIRST (CDN)
   if (cdnDomains.some(domain => url.hostname.includes(domain))) {
     event.respondWith(
-      caches.match(req, { ignoreSearch: true }).then(cachedRes => {
-        if (cachedRes) return cachedRes; // Langsung tampilkan dari memori
-        
+      caches.match(req).then(cachedRes => {
+        if (cachedRes) return cachedRes; 
         return fetch(req).then(res => {
-          if (res.ok) {
+          if (res.ok || res.type === 'opaque') {
             const resClone = res.clone();
             event.waitUntil(
               caches.open(CACHE_CDN).then(async cache => {
@@ -160,22 +135,21 @@ self.addEventListener('fetch', event => {
             );
           }
           return res;
-        }).catch(err => {
-          return new Response('', { status: 503 }); 
-        });
+        }).catch(err => new Response('', { status: 503 }));
       })
     );
     return;
   }
 
-  // STRATEGI 3: STALE-WHILE-REVALIDATE (Aset dinamis lainnya)
+  // STRATEGI 3: STALE-WHILE-REVALIDATE (Aset Dinamis)
   event.respondWith(
-    caches.match(req, { ignoreSearch: true }).then(cachedRes => {
+    caches.match(req).then(cachedRes => {
       const fetchPromise = fetch(req).then(res => {
         if (res.ok) {
           const resClone = res.clone();
           event.waitUntil(
             caches.open(CACHE_DYNAMIC).then(async cache => {
+              // ANTI BUG 2: Membersihkan parameter URL agar cache tidak bengkak
               const cleanUrl = req.url.split('?')[0]; 
               await cache.put(cleanUrl, resClone); 
               await trimCache(CACHE_DYNAMIC, MAX_DYNAMIC_ITEMS); 
@@ -189,15 +163,23 @@ self.addEventListener('fetch', event => {
         event.waitUntil(fetchPromise); 
         return cachedRes;
       }
-      
       return fetchPromise.then(res => res || new Response('', { status: 503 }));
     })
   );
 });
 
-/**
- * TAHAP 4: LISTENER UPDATE MANDIRI
- */
+// BACKGROUND SYNC FOUNDATION
+self.addEventListener('sync', event => {
+  if (event.tag === 'sync-data-antrean') {
+    event.waitUntil(
+      new Promise((resolve) => {
+        console.log('[SW] Background Sync Aktif: Sinyal ditemukan...');
+        resolve();
+      })
+    );
+  }
+});
+
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
