@@ -15,7 +15,8 @@
         :root {
             --wa-bg: #000000; 
             --wa-card: #151515; 
-            --wa-header: rgba(17, 17, 17, 0.95);
+            /* FIXED: Warna Header diubah menjadi Pure Black untuk hilangkan garis batas sistem */
+            --wa-header: #000000; 
             --text-light: #ffffff;
             --text-muted: #a0a0a0; 
             --border-color: #333333;
@@ -29,9 +30,9 @@
 
         /* --- PENGATURAN DASAR --- */
         html { 
-        overscroll-behavior: none; 
-        background-color: #000000; /* Menutup kebocoran garis warna di bawah status bar */
-       }
+            overscroll-behavior: none; 
+            background-color: #000000; /* Menutup kebocoran garis warna di bawah status bar */
+        }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         body { margin: 0; background: var(--wa-bg); color: var(--text-light); font-family: 'Montserrat', sans-serif; font-weight: 500; overflow-x: hidden; width: 100%; position: relative; }
         .hidden { display: none !important; }
@@ -53,18 +54,8 @@
         #toast-notification   { z-index: 6000; }
 
         /* --- HEADER & TOMBOL --- */
-        .header { padding: calc(15px + env(safe-area-inset-top, 0px)) 20px 15px 20px; display: flex; justify-content: space-between; align-items: center; position: relative; background: var(--wa-header); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); margin-bottom: 15px; } /* <-- Perubahan penting: position: relative */
-        /* KODE BARU UNTUK MENUTUP GARIS BATAS SISTEM WEBVIEW */
-        .header::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px; /* Ketebalan garis penutup */
-            background-color: #000000; /* Warna hitam pekat untuk menimpa garis sistem */
-            z-index: 1001; /* Pastikan di atas konten header, di bawah status bar sistem */
-        }
+        /* CLEANED: Menghapus position: relative dan pseudoelement ::after karena header sudah pure black */
+        .header { padding: calc(15px + env(safe-area-inset-top, 0px)) 20px 15px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--wa-header); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); margin-bottom: 15px; }
 
         .header-left { display: flex; flex-direction: column; justify-content: center; }
         .header h1 { font-size: 18px; margin: 0; color: var(--text-light); }
@@ -371,7 +362,7 @@
                 </div>
                 <div class="col-unit">
                     <label>Pilih Satuan</label>
-                    <div class="custom-select-btn" onclick="toggleAcc('acc-u1')"><span id="lbl-u1" style="color: #a0a0a0;">kosong</span> ▾</div>
+                    <div class="custom-select-btn" onclick="toggleAcc('acc-u1')"><span id="lbl-u1">kosong</span> ▾</div>
                 </div>
             </div>
             
@@ -408,7 +399,7 @@
                 </div>
                 <div class="col-unit">
                     <label>Pilih Grosir</label>
-                    <div class="custom-select-btn" onclick="toggleAcc('acc-u2')"><span id="lbl-u2" style="color: #a0a0a0;">kosong</span> ▾</div>
+                    <div class="custom-select-btn" onclick="toggleAcc('acc-u2')"><span id="lbl-u2">kosong</span> ▾</div>
                 </div>
             </div>
             
@@ -802,39 +793,19 @@
             if (isCartMode) renderCartUI();
         }
 
-        // FUNGSI UPDATE QTY REAL-TIME (LOGIKA GROSIR PROPORSIONAL)
         function updateCartQtyManual(id, val) {
             let n = parseInt(val, 10);
             if (isNaN(n)) n = 0;
-
-            if (!cartState[id]) cartState[id] = { q: n }; 
-            else cartState[id].q = n; 
-            
+            if (!cartState[id]) cartState[id] = { q: n }; else cartState[id].q = n; 
             saveCartMem(); 
-            
             let grandTotal = 0;
-            const keys = Object.keys(cartState);
-            keys.forEach(k => {
+            Object.keys(cartState).forEach(k => {
                 const item = db.find(x => String(x.id) === k);
                 if (item && !item.deleted) {
-                    const q = cartState[k].q !== undefined ? cartState[k].q : 1; 
-                    const p1 = item.p1 || 0; 
-                    const p2 = item.p2 || 0; 
-                    const iq = item.iq || 0;
-                    
-                    let subTotal = 0;
-                    if (p2 > 0 && iq > 1 && q >= iq) { 
-                        subTotal = Math.round((q * p2) / iq); 
-                    } else { 
-                        subTotal = Math.round(q * p1); 
-                    }
-                    
+                    const q = cartState[k].q, p1 = item.p1, p2 = item.p2, iq = item.iq;
+                    let subTotal = (p2 > 0 && iq > 1 && q >= iq) ? Math.round((q * p2) / iq) : Math.round(q * p1);
                     grandTotal += subTotal;
-                    
-                    const elemSub = $('sub-' + k);
-                    if (elemSub) elemSub.innerText = `Rp ${fmt(subTotal)}`;
-                    
-                    // --- UPDATE TEKS LABEL QTY SECARA REAL-TIME ---
+                    const elemSub = $('sub-' + k); if (elemSub) elemSub.innerText = `Rp ${fmt(subTotal)}`;
                     const elemLabel = $('qty-label-' + k);
                     if (elemLabel) {
                         const unitName = item.u1 || 'Satuan'; 
@@ -842,23 +813,16 @@
                     }
                 }
             });
-            
             $('cp-grand-total').innerText = `Rp ${fmt(grandTotal)}`;
         }
 
-        // FUNGSI PENGHAPUSAN BARANG ONBLUR (UX ZOMBIE FIX)
         function checkEmptyQtyOnBlur(id, inputElem, val) {
             let n = parseInt(val, 10);
-            
             if (isNaN(n) || val === '') { 
                 let oldVal = parseInt(inputElem.dataset.oldVal, 10) || 1;
-                inputElem.value = oldVal; 
-                updateCartQtyManual(id, oldVal); 
+                inputElem.value = oldVal; updateCartQtyManual(id, oldVal); 
             } else if (n <= 0) {
-                delete cartState[id]; 
-                saveCartMem(); 
-                renderCartUI(); 
-                applyFiltersAndRender(); 
+                delete cartState[id]; saveCartMem(); renderCartUI(); applyFiltersAndRender(); 
             } else {
                 updateCartQtyManual(id, val);
             }
@@ -871,115 +835,58 @@
         /* --- SWIPE LOGIC --- */
         let startX, startY;
         function handleTouchStart(e) { startX = e.touches[0].clientX; startY = e.touches[0].clientY; e.currentTarget.style.transition = 'none'; }
-        
         function handleTouchMove(e, elem) {
             if(!startX || !startY) return;
-            let diffX = startX - e.touches[0].clientX; let diffY = startY - e.touches[0].clientY;
+            let diffX = startX - e.touches[0].clientX, diffY = startY - e.touches[0].clientY;
             if (Math.abs(diffY) > Math.abs(diffX)) return;
-            if (diffX > 0) { elem.style.transform = `translateX(-${Math.min(diffX, 80)}px)`; } else { elem.style.transform = `translateX(0px)`; }
+            if (diffX > 0) elem.style.transform = `translateX(-${Math.min(diffX, 80)}px)`; else elem.style.transform = `translateX(0px)`;
         }
-        
         function handleTouchEnd(e, elem, id) {
             if(!startX || !startY) return;
             let diffX = startX - e.changedTouches[0].clientX; elem.style.transition = 'transform 0.2s ease';
-            if (diffX > 40) { elem.style.transform = `translateX(-80px)`; } else { elem.style.transform = `translateX(0px)`; }
-            startX = null; startY = null;
+            if (diffX > 40) elem.style.transform = `translateX(-80px)`; else elem.style.transform = `translateX(0px)`;
+            startX = startY = null;
         }
 
-        let mainStartX, mainStartY, swipedCardElem;
-        let isMainSwiping = false, isMainScrolling = false;
-
+        let mainStartX, mainStartY, swipedCardElem, isMainSwiping = false, isMainScrolling = false;
         function handleMainTouchStart(e) {
             if (e.target.closest('button') || e.target.closest('.action-btns-absolute') || e.target.closest('.trash-trigger')) return; 
             const card = e.currentTarget;
             if (swipedCardElem && swipedCardElem !== card) { swipedCardElem.style.transform = 'translateX(0px)'; swipedCardElem = null; }
-            if(e.touches && e.touches.length > 0) { 
-                mainStartX = e.touches[0].clientX; mainStartY = e.touches[0].clientY; 
-                isMainSwiping = false; isMainScrolling = false; card.style.transition = 'none'; 
-            }
+            if(e.touches && e.touches.length > 0) { mainStartX = e.touches[0].clientX; mainStartY = e.touches[0].clientY; isMainSwiping = isMainScrolling = false; card.style.transition = 'none'; }
         }
-        
         function handleMainTouchMove(e, elem) {
             if (!mainStartX || !mainStartY) return;
-            let diffX = mainStartX - e.touches[0].clientX; let diffY = mainStartY - e.touches[0].clientY;
-            if (!isMainSwiping && !isMainScrolling) { 
-                if (Math.abs(diffY) > Math.abs(diffX)) { isMainScrolling = true; } 
-                else { isMainSwiping = true; } 
-            }
+            let diffX = mainStartX - e.touches[0].clientX, diffY = mainStartY - e.touches[0].clientY;
+            if (!isMainSwiping && !isMainScrolling) { if (Math.abs(diffY) > Math.abs(diffX)) isMainScrolling = true; else isMainSwiping = true; }
             if (isMainScrolling) return; 
-            if (isMainSwiping && diffX > 0) { 
-                if (e.cancelable) e.preventDefault(); 
-                elem.style.transform = `translateX(-${Math.min(diffX, 80)}px)`; 
-            } else if (isMainSwiping && diffX <= 0) { 
-                elem.style.transform = `translateX(0px)`; 
-            }
+            if (isMainSwiping && diffX > 0) { if (e.cancelable) e.preventDefault(); elem.style.transform = `translateX(-${Math.min(diffX, 80)}px)`; } else if (isMainSwiping && diffX <= 0) elem.style.transform = `translateX(0px)`;
         }
-        
         function handleMainTouchEnd(e, elem, id) {
             if (!mainStartX || !mainStartY) return;
             let diffX = mainStartX - e.changedTouches[0].clientX;
             elem.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
-            if (isMainSwiping && diffX > 45) { elem.style.transform = `translateX(-80px)`; swipedCardElem = elem; } 
-            else { elem.style.transform = `translateX(0px)`; if (swipedCardElem === elem) swipedCardElem = null; }
-            mainStartX = null; mainStartY = null;
+            if (isMainSwiping && diffX > 45) { elem.style.transform = `translateX(-80px)`; swipedCardElem = elem; } else { elem.style.transform = `translateX(0px)`; if (swipedCardElem === elem) swipedCardElem = null; }
+            mainStartX = mainStartY = null;
         }
 
         function renderCartUI() {
-            let html = ''; let grandTotal = 0;
-            const keys = Object.keys(cartState);
-            const cpList = $('cp-list');
-            
+            let html = '', grandTotal = 0;
+            const keys = Object.keys(cartState), cpList = $('cp-list');
             if (keys.length === 0) {
                 html = '<div class="cpi-empty">Keranjang Kosong.<br>Pilih atau Scan barang.</div>';
-                cpList.style.maskImage = 'none'; cpList.style.webkitMaskImage = 'none';
+                cpList.style.maskImage = cpList.style.webkitMaskImage = 'none';
             } else {
-                cpList.style.maskImage = 'linear-gradient(to bottom, black 85%, transparent 100%)';
-                cpList.style.webkitMaskImage = 'linear-gradient(to bottom, black 85%, transparent 100%)';
-                
+                cpList.style.maskImage = cpList.style.webkitMaskImage = 'linear-gradient(to bottom, black 85%, transparent 100%)';
                 let hasDeletedItems = false;
-                
                 keys.forEach(id => {
                     const item = db.find(x => String(x.id) === id);
-                    if (!item || item.deleted) { 
-                        delete cartState[id]; 
-                        hasDeletedItems = true; 
-                        return; 
-                    } 
-                    
-                    const q = cartState[id].q !== undefined ? cartState[id].q : 1;
-                    const p1 = item.p1 || 0; 
-                    const p2 = item.p2 || 0; 
-                    const iq = item.iq || 0; 
-                    const unitName = item.u1 || 'Satuan'; 
-                    let subTotal = 0;
-                    
-                    if (p2 > 0 && iq > 1 && q >= iq) { 
-                        subTotal = Math.round((q * p2) / iq); 
-                    } else { 
-                        subTotal = Math.round(q * p1); 
-                    }
+                    if (!item || item.deleted) { delete cartState[id]; hasDeletedItems = true; return; } 
+                    const q = cartState[id].q, p1 = item.p1, p2 = item.p2, iq = item.iq, unitName = item.u1 || 'Satuan'; 
+                    let subTotal = (p2 > 0 && iq > 1 && q >= iq) ? Math.round((q * p2) / iq) : Math.round(q * p1);
                     grandTotal += subTotal;
-                    
-                    html += `
-                        <div class="cp-item-wrap">
-                            <div class="cp-trash-bg" onclick="deleteCartItem('${id}')"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></div>
-                            <div class="cp-item-front" ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event, this)" ontouchend="handleTouchEnd(event, this, '${id}')">
-                                <div class="cpi-info">
-                                    <div class="cpi-name">${escapeHTML(item.n)}</div>
-                                    <div class="cpi-calc" id="qty-label-${id}">${q} ${escapeHTML(unitName)}</div>
-                                </div>
-                                <div style="display:flex; align-items:center; gap: 12px; pointer-events: auto;">
-                                    <div class="cpi-total" id="sub-${id}">Rp ${fmt(subTotal)}</div>
-                                    <input class="qty-input-manual" type="tel" pattern="[0-9]*" value="${q}" 
-                                        onfocus="this.dataset.oldVal = this.value; this.value=''" 
-                                        oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length > 5) this.value = this.value.slice(0,5); updateCartQtyManual('${id}', this.value);" 
-                                        onblur="checkEmptyQtyOnBlur('${id}', this, this.value)">
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                    html += `<div class="cp-item-wrap"><div class="cp-trash-bg" onclick="deleteCartItem('${id}')"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></div><div class="cp-item-front" ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event, this)" ontouchend="handleTouchEnd(event, this, '${id}')"><div class="cpi-info"><div class="cpi-name">${escapeHTML(item.n)}</div><div class="cpi-calc" id="qty-label-${id}">${q} ${escapeHTML(unitName)}</div></div><div style="display:flex; align-items:center; gap: 12px; pointer-events: auto;"><div class="cpi-total" id="sub-${id}">Rp ${fmt(subTotal)}</div><input class="qty-input-manual" type="tel" pattern="[0-9]*" value="${q}" onfocus="this.dataset.oldVal = this.value; this.value=''" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length > 5) this.value = this.value.slice(0,5); updateCartQtyManual('${id}', this.value);" onblur="checkEmptyQtyOnBlur('${id}', this, this.value)"></div></div></div>`;
                 });
-                
                 if (hasDeletedItems) saveCartMem();
             }
             cpList.innerHTML = html;
@@ -988,71 +895,40 @@
 
         function resetCart() {
             if (Object.keys(cartState).length === 0) return;
-            showConfirm("Kosongkan semua keranjang?", "Reset", "var(--danger)", () => { 
-                cartState = {}; 
-                saveCartMem(); 
-                renderCartUI(); 
-                applyFiltersAndRender(); 
-            });
+            showConfirm("Kosongkan semua keranjang?", "Reset", "var(--danger)", () => { cartState = {}; saveCartMem(); renderCartUI(); applyFiltersAndRender(); });
         }
 
         /* --- EVENTS & LISTENER --- */
         $('q').addEventListener('focus', () => { if (isCartMode) document.body.classList.add('search-focus'); });
         $('q').addEventListener('blur', () => { setTimeout(() => document.body.classList.remove('search-focus'), 100); });
 
-        // SISTEM PENDENGAR KEYBOARD GLOBAL (SCANNER HIJACK FIX)
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') { 
-                hideMod(); hidePicker(); closeCustomAlert(); closePinModal(); 
-                closePricePopup(e, true); closeSyncModal(); 
-                if (isScanning) closeScanner(); 
-                return; 
+                hideMod(); hidePicker(); closeCustomAlert(); closePinModal(); closePricePopup(e, true); closeSyncModal(); 
+                if (isScanning) closeScanner(); return; 
             }
             if (document.body.classList.contains('modal-open') || isScanning) return;
-            
-            const t = Date.now(); 
-            const timeDiff = t - lastKeyTime;
-            lastKeyTime = t;
-            
-            if (timeDiff > 50) { 
-                physicalInputBuffer = ""; 
-            } 
-            
+            const t = Date.now(), timeDiff = t - lastKeyTime; lastKeyTime = t;
+            if (timeDiff > 50) physicalInputBuffer = ""; 
             const isInputFocused = (document.activeElement && document.activeElement.tagName.toLowerCase() === 'input');
-
             if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey && e.key.match(/[a-zA-Z0-9\-\s]/)) {
                 physicalInputBuffer += e.key; 
-                
-                if (physicalInputBuffer.length >= 2 && timeDiff <= 50 && isInputFocused) {
-                    document.activeElement.blur(); 
-                }
-
+                if (physicalInputBuffer.length >= 2 && timeDiff <= 50 && isInputFocused) document.activeElement.blur(); 
                 if (!isInputFocused) {
                     inputBuffer += e.key; clearTimeout(bufferTimer);
                     bufferTimer = setTimeout(() => { 
-                        if (inputBuffer.length > 0) { 
-                            $('q').value = inputBuffer; $('q-x').style.display = 'flex'; 
-                            window.scrollTo({ top: 0, behavior: 'instant' }); handleSearchLogic(inputBuffer); 
-                        } 
+                        if (inputBuffer.length > 0) { $('q').value = inputBuffer; $('q-x').style.display = 'flex'; window.scrollTo({ top: 0, behavior: 'instant' }); handleSearchLogic(inputBuffer); } 
                         inputBuffer = ''; 
                     }, 150); 
                 }
             } else if (e.key === 'Enter') {
                 if (physicalInputBuffer.length >= 4) { 
-                    let b = physicalInputBuffer.toUpperCase().trim(); 
-                    physicalInputBuffer = inputBuffer = ""; 
-                    clearTimeout(bufferTimer); 
-                    e.preventDefault(); 
-                    if (isInputFocused) document.activeElement.blur();
-                    handlePhysicalScanner(b); 
-                    return; 
+                    let b = physicalInputBuffer.toUpperCase().trim(); physicalInputBuffer = inputBuffer = ""; clearTimeout(bufferTimer); 
+                    e.preventDefault(); if (isInputFocused) document.activeElement.blur(); handlePhysicalScanner(b); return; 
                 }
-                
                 if (!isInputFocused && inputBuffer.length > 0) { 
-                    physicalInputBuffer = ""; clearTimeout(bufferTimer); 
-                    $('q').value = inputBuffer; $('q-x').style.display = 'flex'; 
-                    window.scrollTo({ top: 0, behavior: 'instant' }); handleSearchLogic(inputBuffer); 
-                    inputBuffer = ''; $('q').blur(); 
+                    physicalInputBuffer = ""; clearTimeout(bufferTimer); $('q').value = inputBuffer; $('q-x').style.display = 'flex'; 
+                    window.scrollTo({ top: 0, behavior: 'instant' }); handleSearchLogic(inputBuffer); inputBuffer = ''; $('q').blur(); 
                 }
             }
         }, true); 
@@ -1061,183 +937,67 @@
             const item = barcodeMap.get(barcode); 
             if (item) { 
                 playBeep(); 
-                if (isCartMode) { 
-                    modifyCartItem(item.id, 1); 
-                } else { 
-                    $('pp-name').innerText = item.n; 
-                    $('pp-price').innerText = "Rp " + fmt(item.p1); 
-                    
-                    let textGrosir = "";
-                    if (item.p2) {
-                        textGrosir = `Grosir: Rp ${fmt(item.p2)}`;
-                        if (item.iq > 1) {
-                            textGrosir += ` (Isi minimal ${item.iq} ${item.u2 || 'pcs'})`;
-                        }
-                    }
-                    $('pp-price-grosir').innerText = textGrosir; 
-                    
-                    $('pp-barcode').innerText = item.b || ""; 
+                if (isCartMode) modifyCartItem(item.id, 1); else { 
+                    $('pp-name').innerText = item.n; $('pp-price').innerText = "Rp " + fmt(item.p1); 
+                    let textGrosir = ""; if (item.p2) { textGrosir = `Grosir: Rp ${fmt(item.p2)}`; if (item.iq > 1) textGrosir += ` (Isi minimal ${item.iq} ${item.u2 || 'pcs'})`; }
+                    $('pp-price-grosir').innerText = textGrosir; $('pp-barcode').innerText = item.b || ""; 
                     $('price-popup').style.display = 'flex'; document.body.classList.add('modal-open'); 
                 }
-            } else { 
-                tampilkanToast("Barcode tidak ditemukan!", "var(--danger)"); 
-            } 
+            } else tampilkanToast("Barcode tidak ditemukan!", "var(--danger)"); 
         }
         
-        function closePricePopup(e, force = false) { 
-            if (force || e.target === $('price-popup')) { 
-                $('price-popup').style.display = 'none'; checkModalOpen(); $('q').value = ''; clearSearch(); 
-            } 
-        }
-        
+        function closePricePopup(e, force = false) { if (force || e.target === $('price-popup')) { $('price-popup').style.display = 'none'; checkModalOpen(); $('q').value = ''; clearSearch(); } }
         function handleSearchLogic(query) { 
             const q = query.trim(), qL = q.toLowerCase(), exact = barcodeMap.get(q.toUpperCase()) || acronymMap.get(qL); 
-            if (exact && q.length > 0) { 
-                currentSearchReqId++; workerResult = [exact]; applyFiltersAndRender(); 
-            } else { 
-                worker.postMessage({ type: 'search', query: q, reqId: ++currentSearchReqId }); 
-            } 
+            if (exact && q.length > 0) { currentSearchReqId++; workerResult = [exact]; applyFiltersAndRender(); } else worker.postMessage({ type: 'search', query: q, reqId: ++currentSearchReqId }); 
         }
 
         /* --- NATIVE SEARCH WORKER (OFFLINE SAFE) --- */
         const searchInput = $('q'), searchDropdown = $('search-dropdown'), sdContent = $('sd-content');
-        const workerScript = `
-            let workerList = []; 
-            self.onmessage = function(e) { 
-                if (e.data.type === 'init') { 
-                    workerList = e.data.db; 
-                } else if (e.data.type === 'add') { 
-                    workerList.push(e.data.item); 
-                } else if (e.data.type === 'update') { 
-                    workerList = workerList.filter(x => String(x.id) !== String(e.data.item.id)); 
-                    workerList.push(e.data.item); 
-                } else if (e.data.type === 'remove') { 
-                    workerList = workerList.filter(x => String(x.id) !== String(e.data.id)); 
-                } else if (e.data.type === 'search') { 
-                    const query = (e.data.query || '').toLowerCase();
-                    const terms = query.split(' ').filter(Boolean);
-                    
-                    const hasil = workerList.filter(item => {
-                        const n = (item.n || '').toLowerCase();
-                        const t = (item.t || '').toLowerCase();
-                        const b = (item.b || '').toLowerCase();
-                        
-                        return terms.every(term => n.includes(term) || t.includes(term) || b.includes(term));
-                    });
-                    
-                    self.postMessage({ type: 'result', data: hasil, query: e.data.query, reqId: e.data.reqId }); 
-                } 
-            };`;
-            
+        const workerScript = `let workerList = []; self.onmessage = function(e) { if (e.data.type === 'init') workerList = e.data.db; else if (e.data.type === 'add') workerList.push(e.data.item); else if (e.data.type === 'update') { workerList = workerList.filter(x => String(x.id) !== String(e.data.item.id)); workerList.push(e.data.item); } else if (e.data.type === 'remove') workerList = workerList.filter(x => String(x.id) !== String(e.data.id)); else if (e.data.type === 'search') { const query = (e.data.query || '').toLowerCase(), terms = query.split(' ').filter(Boolean); const hasil = workerList.filter(item => { const n = (item.n || '').toLowerCase(), t = (item.t || '').toLowerCase(), b = (item.b || '').toLowerCase(); return terms.every(term => n.includes(term) || t.includes(term) || b.includes(term)); }); self.postMessage({ type: 'result', data: hasil, query: e.data.query, reqId: e.data.reqId }); } };`;
         worker = new Worker(URL.createObjectURL(new Blob([workerScript], { type: 'application/javascript' })));
-        worker.onmessage = function(e) { 
-            if (e.data.type === 'result' && e.data.reqId === currentSearchReqId) { 
-                workerResult = e.data.data; applyFiltersAndRender(); 
-            } 
-        };
+        worker.onmessage = function(e) { if (e.data.type === 'result' && e.data.reqId === currentSearchReqId) { workerResult = e.data.data; applyFiltersAndRender(); } };
 
         function recordSearchLog(term) { 
             const c = term.trim(); if(!c) return; 
-            recentSearches = [c, ...recentSearches.filter(t => t.toLowerCase() !== c.toLowerCase())].slice(0, 5); 
-            localStorage.setItem('DB_WA_RECENT', JSON.stringify(recentSearches)); 
-            trendingSearches[c.toLowerCase()] = (trendingSearches[c.toLowerCase()] || 0) + 1; 
-            const keys = Object.keys(trendingSearches); 
-            if (keys.length > 50) { 
-                let min = keys.reduce((a, b) => trendingSearches[a] < trendingSearches[b] ? a : b); 
-                delete trendingSearches[min]; 
-            } 
-            localStorage.setItem('DB_WA_TRENDING', JSON.stringify(trendingSearches)); 
+            recentSearches = [c, ...recentSearches.filter(t => t.toLowerCase() !== c.toLowerCase())].slice(0, 5); localStorage.setItem('DB_WA_RECENT', JSON.stringify(recentSearches)); 
+            trendingSearches[c.toLowerCase()] = (trendingSearches[c.toLowerCase()] || 0) + 1; const keys = Object.keys(trendingSearches); 
+            if (keys.length > 50) { let min = keys.reduce((a, b) => trendingSearches[a] < trendingSearches[b] ? a : b); delete trendingSearches[min]; } localStorage.setItem('DB_WA_TRENDING', JSON.stringify(trendingSearches)); 
         }
-
-        function clearRecentLogs() { 
-            recentSearches = []; localStorage.setItem('DB_WA_RECENT', JSON.stringify([])); showSearchSuggestions(); 
-        }
-
+        function clearRecentLogs() { recentSearches = []; localStorage.setItem('DB_WA_RECENT', JSON.stringify([])); showSearchSuggestions(); }
         function showSearchSuggestions() { 
             const val = searchInput.value.trim(); sdContent.innerHTML = ''; 
             if (val === '') { 
-                let html = ''; 
-                const top = Object.keys(trendingSearches).sort((a,b) => trendingSearches[b] - trendingSearches[a]).slice(0, 3); 
+                let html = ''; const top = Object.keys(trendingSearches).sort((a,b) => trendingSearches[b] - trendingSearches[a]).slice(0, 3); 
                 if(top.length > 0) html += `<div class="sd-title">Sering Dicari</div>` + top.map(t => `<div class="sd-item" onmousedown="executeQuickSearch(this.getAttribute('data-term'))" data-term="${escapeHTML(t)}">📌 ${escapeHTML(prop(t))}</div>`).join(''); 
                 if(recentSearches.length > 0) html += `<div class="sd-title">Terakhir Dicari <span class="clear-btn" onmousedown="clearRecentLogs()">HAPUS</span></div>` + recentSearches.map(t => `<div class="sd-item" onmousedown="executeQuickSearch(this.getAttribute('data-term'))" data-term="${escapeHTML(t)}">${escapeHTML(t)}</div>`).join(''); 
-                html ? (sdContent.innerHTML = html, searchDropdown.classList.remove('hidden')) : searchDropdown.classList.add('hidden'); 
-            } else { 
-                searchDropdown.classList.add('hidden'); 
-            } 
+                if(html) { sdContent.innerHTML = html; searchDropdown.classList.remove('hidden'); } else searchDropdown.classList.add('hidden'); 
+            } else searchDropdown.classList.add('hidden'); 
         }
-
-        function executeQuickSearch(term) { 
-            searchInput.value = term; recordSearchLog(term); 
-            searchDropdown.classList.add('hidden'); $('q-x').style.display = 'flex'; 
-            window.scrollTo({ top: 0, behavior: 'instant' }); handleSearchLogic(term); 
-        }
-
+        function executeQuickSearch(term) { searchInput.value = term; recordSearchLog(term); searchDropdown.classList.add('hidden'); $('q-x').style.display = 'flex'; window.scrollTo({ top: 0, behavior: 'instant' }); handleSearchLogic(term); }
         const handleSearchInput = debounce(() => { 
             const val = searchInput.value.trim(); window.scrollTo({ top: 0, behavior: 'instant' }); 
-            if (val) handleSearchLogic(val); 
-            else { workerResult = null; applyFiltersAndRender(); } 
+            if (val) handleSearchLogic(val); else { workerResult = null; applyFiltersAndRender(); } 
             showSearchSuggestions(); 
         }, 150);
-        
         searchInput.addEventListener('input', (e) => { $('q-x').style.display = e.target.value.trim() ? 'flex' : 'none'; handleSearchInput(); });
         searchInput.addEventListener('focus', showSearchSuggestions);
         searchInput.addEventListener('keypress', function(e) { if(e.key === 'Enter') { searchDropdown.classList.add('hidden'); recordSearchLog(this.value); this.blur(); } });
-        
-        function clearSearch() { 
-            searchInput.value = ''; $('q-x').style.display = 'none'; 
-            workerResult = null; currentSearchReqId++; 
-            window.scrollTo({ top: 0, behavior: 'instant' }); 
-            showSearchSuggestions(); applyFiltersAndRender(); searchInput.blur(); 
-        }
+        function clearSearch() { searchInput.value = ''; $('q-x').style.display = 'none'; workerResult = null; currentSearchReqId++; window.scrollTo({ top: 0, behavior: 'instant' }); showSearchSuggestions(); applyFiltersAndRender(); searchInput.blur(); }
 
         document.addEventListener('click', (e) => { 
-            if (!$('dropdown-menu').classList.contains('hidden')) {
-                if (!e.target.closest('#kebab-btn')) { $('dropdown-menu').classList.add('hidden'); }
-            }
-            if (!$('search-dropdown').classList.contains('hidden') && !e.target.closest('.search-box')) {
-                $('search-dropdown').classList.add('hidden'); 
-            }
-            const customOptions = $('sync-custom-options');
-            if (customOptions && !customOptions.classList.contains('hidden') && !e.target.closest('.custom-select-btn')) {
-                customOptions.classList.add('hidden');
-            }
+            if (!$('dropdown-menu').classList.contains('hidden') && !e.target.closest('#kebab-btn')) $('dropdown-menu').classList.add('hidden'); 
+            if (!$('search-dropdown').classList.contains('hidden') && !e.target.closest('.search-box')) $('search-dropdown').classList.add('hidden'); 
+            const customOptions = $('sync-custom-options'); if (customOptions && !customOptions.classList.contains('hidden') && !e.target.closest('.custom-select-btn')) customOptions.classList.add('hidden');
         });
 
         function toggleMenu(e) { e.stopPropagation(); $('dropdown-menu').classList.toggle('hidden'); }
         function closeCustomAlert() { $('custom-alert').style.display = 'none'; checkModalOpen(); $('alert-box').style.borderColor = "var(--border-color)"; $('alert-title').style.color = "var(--text-light)"; }
+        function applyModalColor(title, customColor) { const c = customColor || TemaNotifikasi[title] || "var(--mono-main)"; $('alert-title').innerText = title; $('alert-title').style.color = c; $('alert-box').style.borderColor = c; return c; }
+        function showAlert(msg, title = "Info", color = null) { const c = applyModalColor(title, color); $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); $('alert-btns').innerHTML = `<button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" onclick="closeCustomAlert()">OKE</button>`; $('custom-alert').style.display = 'flex'; document.body.classList.add('modal-open'); }
+        function showConfirm(msg, title, color, callbackOk, confirmText = "OKE", callbackCancel = null) { const c = applyModalColor(title, color); $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); $('alert-btns').innerHTML = `<button class="btn-main btn-cancel" id="confirm-cancel-btn">BATAL</button><button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" id="confirm-ok-btn">${confirmText}</button>`; $('confirm-ok-btn').onclick = () => { closeCustomAlert(); callbackOk(); }; $('confirm-cancel-btn').onclick = () => { closeCustomAlert(); if(callbackCancel) callbackCancel(); }; $('custom-alert').style.display = 'flex'; document.body.classList.add('modal-open'); }
+        function toggleAcc(id) { const el = $(id); if(el.classList.contains('hidden')) { $('acc-u1').classList.add('hidden'); $('acc-u2').classList.add('hidden'); el.classList.remove('hidden'); } else el.classList.add('hidden'); }
         
-        function applyModalColor(title, customColor) { 
-            const c = customColor || TemaNotifikasi[title] || "var(--mono-main)"; 
-            $('alert-title').innerText = title; $('alert-title').style.color = c; 
-            $('alert-box').style.borderColor = c; return c; 
-        }
-
-        function showAlert(msg, title = "Info", color = null) { 
-            const c = applyModalColor(title, color); 
-            $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); 
-            $('alert-btns').innerHTML = `<button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" onclick="closeCustomAlert()">OKE</button>`; 
-            $('custom-alert').style.display = 'flex'; document.body.classList.add('modal-open'); 
-        }
-        
-        function showConfirm(msg, title, color, callbackOk, confirmText = "OKE", callbackCancel = null) { 
-            const c = applyModalColor(title, color); 
-            $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); 
-            $('alert-btns').innerHTML = `<button class="btn-main btn-cancel" id="confirm-cancel-btn">BATAL</button><button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" id="confirm-ok-btn">${confirmText}</button>`; 
-            $('confirm-ok-btn').onclick = () => { closeCustomAlert(); callbackOk(); }; 
-            $('confirm-cancel-btn').onclick = () => { closeCustomAlert(); if(callbackCancel) callbackCancel(); };
-            $('custom-alert').style.display = 'flex'; document.body.classList.add('modal-open'); 
-        }
-        
-        function toggleAcc(id) { 
-            const el = $(id); 
-            if(el.classList.contains('hidden')) { 
-                $('acc-u1').classList.add('hidden'); $('acc-u2').classList.add('hidden'); el.classList.remove('hidden'); 
-            } else { 
-                el.classList.add('hidden'); 
-            } 
-        }
-        
-        // FUNGSI UPDATE UI SATUAN DENGAN WARNA
         function setUnit(type, val) { 
             $(`i-u${type}`).value = val; 
             const lbl = $(`lbl-u${type}`);
@@ -1248,262 +1008,83 @@
                 lbl.innerText = val;
                 lbl.style.color = "#ffffff";
             }
-            $(`acc-u${type}`).classList.add('hidden'); 
-            if (type === 2) toggleIsiGrosir(); 
+            $(`acc-u${type}`).classList.add('hidden'); if (type === 2) toggleIsiGrosir(); 
         }
-
-        function toggleIsiGrosir() { 
-            const val = $('i-u2').value; 
-            if (val) { 
-                $('label-iq').innerText = `Isi per ${val}`; $('wrap-iq').style.display = 'block'; 
-            } else { 
-                $('wrap-iq').style.display = 'none'; $('i-iq').value = ''; 
-            } 
-        }
+        function toggleIsiGrosir() { const val = $('i-u2').value; if (val) { $('label-iq').innerText = `Isi per ${val}`; $('wrap-iq').style.display = 'block'; } else { $('wrap-iq').style.display = 'none'; $('i-iq').value = ''; } }
 
         function showMod(id = null) { 
-            activeId = id; 
-            const b = $('i-b'), n = $('i-n'), p1 = $('i-p1'), p2 = $('i-p2'), exp = $('i-exp'), t = $('i-t'), u1 = $('i-u1'), u2 = $('i-u2'), iq = $('i-iq'); 
-            $('mod-box').style.borderColor = "var(--border-color)"; 
-            $('acc-u1').classList.add('hidden'); $('acc-u2').classList.add('hidden');
-
+            activeId = id; const b = $('i-b'), n = $('i-n'), p1 = $('i-p1'), p2 = $('i-p2'), exp = $('i-exp'), t = $('i-t'), u1 = $('i-u1'), u2 = $('i-u2'), iq = $('i-iq'); $('mod-box').style.borderColor = "var(--border-color)"; $('acc-u1').classList.add('hidden'); $('acc-u2').classList.add('hidden');
             if (id) { 
                 const it = db.find(x => String(x.id) === String(id)); if(!it) return; 
                 $('m-tit').innerText = "Edit Barang"; b.value = it.b || ''; n.value = it.n || ''; p1.value = fmt(it.p1); p2.value = it.p2 ? fmt(it.p2) : ''; 
                 exp.dataset.rawDate = it.exp || ''; exp.value = it.exp ? formatBulanTahun(it.exp) : ''; t.value = it.t || ''; 
-                
                 u1.value = it.u1 || ''; 
-                $('lbl-u1').innerText = it.u1 ? it.u1 : 'kosong'; 
-                $('lbl-u1').style.color = it.u1 ? '#ffffff' : '#a0a0a0';
-                
-                u2.value = it.u2 || ''; 
-                $('lbl-u2').innerText = it.u2 ? it.u2 : 'kosong'; 
-                $('lbl-u2').style.color = it.u2 ? '#ffffff' : '#a0a0a0';
-                
+                const lbl1 = $('lbl-u1'); if (u1.value === "") { lbl1.innerText = "kosong"; lbl1.style.color = "#a0a0a0"; } else { lbl1.innerText = u1.value; lbl1.style.color = "#ffffff"; }
+                u2.value = it.u2 || '';
+                const lbl2 = $('lbl-u2'); if (u2.value === "") { lbl2.innerText = "kosong"; lbl2.style.color = "#a0a0a0"; } else { lbl2.innerText = u2.value; lbl2.style.color = "#ffffff"; }
                 iq.value = it.iq || ''; 
             } else { 
-                $('m-tit').innerText = "Tambah Barang"; 
-                b.value = n.value = p1.value = p2.value = exp.dataset.rawDate = exp.value = t.value = u1.value = u2.value = iq.value = ''; 
-                $('lbl-u1').innerText = 'kosong'; $('lbl-u1').style.color = '#a0a0a0';
-                $('lbl-u2').innerText = 'kosong'; $('lbl-u2').style.color = '#a0a0a0';
+                $('m-tit').innerText = "Tambah Barang"; b.value = n.value = p1.value = p2.value = exp.dataset.rawDate = exp.value = t.value = u1.value = u2.value = iq.value = ''; 
+                const lbl1 = $('lbl-u1'); lbl1.innerText = "kosong"; lbl1.style.color = "#a0a0a0";
+                const lbl2 = $('lbl-u2'); lbl2.innerText = "kosong"; lbl2.style.color = "#a0a0a0";
             } 
             toggleIsiGrosir(); $('mod').style.display = 'flex'; document.body.classList.add('modal-open'); setTimeout(() => $('i-n').focus(), 100); 
         }
-
         function hideMod() { activeId = null; $('mod').style.display = 'none'; checkModalOpen(); }
-        
-        function deleteAllDataPrompt() { 
-            if (db.filter(i => !i.deleted).length === 0) return showAlert("Data sudah kosong!", "Info"); 
-            $('dropdown-menu').classList.add('hidden'); $('pin-input').value = ''; $('pin-modal').style.display = 'flex'; 
-            document.body.classList.add('modal-open'); setTimeout(() => $('pin-input').focus(), 100); 
-        }
-
+        function deleteAllDataPrompt() { if (db.filter(i => !i.deleted).length === 0) return showAlert("Data sudah kosong!", "Info"); $('dropdown-menu').classList.add('hidden'); $('pin-input').value = ''; $('pin-modal').style.display = 'flex'; document.body.classList.add('modal-open'); setTimeout(() => $('pin-input').focus(), 100); }
         function closePinModal() { $('pin-modal').style.display = 'none'; checkModalOpen(); }
-        function verifyPinAndExecute() { 
-            if ($('pin-input').value === '170823') { 
-                closePinModal(); executeDeleteAll(); 
-            } else { 
-                tampilkanToast("PIN Salah!", "var(--danger)"); 
-            } 
-        }
-
-        function openPicker(id, m) { 
-            Picker.targetId = id; const el = $(id); if (!el) return; 
-            let val = el.dataset.rawDate || el.value; 
-            if (!val) { 
-                Picker.sel = new Date(); Picker.tempYear = Picker.sel.getFullYear(); Picker.tempMonth = Picker.sel.getMonth(); 
-            } else { 
-                const p = val.split('-'); Picker.tempYear = parseInt(p[0], 10); Picker.tempMonth = parseInt(p[1], 10) - 1; 
-            } 
-            renderKalenderGrid(); $('custom-picker').style.display = 'flex'; document.body.classList.add('modal-open');
-        }
-
+        function verifyPinAndExecute() { if ($('pin-input').value === '170823') { closePinModal(); executeDeleteAll(); } else tampilkanToast("PIN Salah!", "var(--danger)"); }
+        function openPicker(id, m) { Picker.targetId = id; const el = $(id); if (!el) return; let val = el.dataset.rawDate || el.value; if (!val) { Picker.sel = new Date(); Picker.tempYear = Picker.sel.getFullYear(); Picker.tempMonth = Picker.sel.getMonth(); } else { const p = val.split('-'); Picker.tempYear = parseInt(p[0], 10); Picker.tempMonth = parseInt(p[1], 10) - 1; } renderKalenderGrid(); $('custom-picker').style.display = 'flex'; document.body.classList.add('modal-open'); }
         function hidePicker() { $('custom-picker').style.display = 'none'; checkModalOpen(); }
-        function clearPickerDate() { const el = $(Picker.targetId); if(el) { el.dataset.rawDate = el.value = ''; } hidePicker(); }
+        function clearPickerDate() { const el = $(Picker.targetId); if(el) el.dataset.rawDate = el.value = ''; hidePicker(); }
         function renderKalenderGrid() { $('cp-year').innerText = Picker.tempYear; $('cp-grid').innerHTML = NamaBlnPendek.map((bln, i) => `<div class="month-item ${i === Picker.tempMonth ? 'active' : ''}" onclick="cpSelectMonth(${i})">${bln}</div>`).join(''); }
         function cpChangeYear(arah) { Picker.tempYear += arah; renderKalenderGrid(); }
         function cpSelectMonth(m) { Picker.tempMonth = m; renderKalenderGrid(); }
-        function setPickerDate() { 
-            const el = $(Picker.targetId); 
-            if(el) { 
-                el.dataset.rawDate = `${Picker.tempYear}-${String(Picker.tempMonth + 1).padStart(2, '0')}-01`; 
-                el.value = `${NamaBln[Picker.tempMonth]} ${Picker.tempYear}`; 
-            } 
-            hidePicker(); 
-        }
-
-        function setTab(t) { 
-            tab = t; 
-            ['all', 'fav', 'exp'].forEach(x => $(`t-${x}`).className = t === x ? 'tab active' : 'tab'); 
-            window.scrollTo({ top: 0, behavior: 'instant' }); 
-            applyFiltersAndRender(); 
-        }
-
-        function computeDVS() { 
-            listOffsets = [0]; let cur = 0; 
-            for (let i = 0; i < filteredData.length; i++) { 
-                cur += filteredData[i]._cHeight || (tab === 'exp' ? 85 : 90); listOffsets.push(cur); 
-            } 
-            $('list').style.height = (cur + 150) + 'px'; 
-        }
-
-        function getDVSStartIndex(st) { 
-            let l = 0, h = listOffsets.length - 1; 
-            while (l <= h) { 
-                let m = Math.floor((l + h) / 2); 
-                if (listOffsets[m] === st) return m; 
-                if (listOffsets[m] < st) l = m + 1; else h = m - 1; 
-            } 
-            return h > 0 ? h : 0; 
-        }
+        function setPickerDate() { const el = $(Picker.targetId); if(el) { el.dataset.rawDate = `${Picker.tempYear}-${String(Picker.tempMonth + 1).padStart(2, '0')}-01`; el.value = `${NamaBln[Picker.tempMonth]} ${Picker.tempYear}`; } hidePicker(); }
+        function setTab(t) { tab = t; ['all', 'fav', 'exp'].forEach(x => $(`t-${x}`).className = t === x ? 'tab active' : 'tab'); window.scrollTo({ top: 0, behavior: 'instant' }); applyFiltersAndRender(); }
+        function computeDVS() { listOffsets = [0]; let cur = 0; for (let i = 0; i < filteredData.length; i++) { cur += filteredData[i]._cHeight || (tab === 'exp' ? 85 : 90); listOffsets.push(cur); } $('list').style.height = (cur + 150) + 'px'; }
+        function getDVSStartIndex(st) { let l = 0, h = listOffsets.length - 1; while (l <= h) { let m = Math.floor((l + h) / 2); if (listOffsets[m] === st) return m; if (listOffsets[m] < st) l = m + 1; else h = m - 1; } return h > 0 ? h : 0; }
         
         function applyFiltersAndRender(silentB = null) {
-            if (swipedCardElem) { swipedCardElem = null; }
-            const q = $('q').value.trim(), qL = q.toLowerCase(); 
-            let active = db.filter(i => !i.deleted);
-            const exact = active.find(i => i.b && String(i.b).toLowerCase() === qL);
-            let base = silentB ? active.filter(i => i.b === silentB) : (exact ? [exact] : (workerResult !== null && q !== '' ? workerResult : active));
-            const today = Date.now();
-            
-            filteredData = base.filter(i => {
-                if (tab === 'fav') return i.f;
-                if (tab === 'exp') { 
-                    if (!i.exp) return false; 
-                    let expDate = new Date(i.exp);
-                    expDate = new Date(expDate.getFullYear(), expDate.getMonth() + 1, 0); 
-                    const utcExp = expDate.getTime(); 
-                    return !isNaN(utcExp) && Math.floor((utcExp - today) / 86400000) <= 210; 
-                }
-                return true;
-            });
-
-            if (!q || tab === 'exp') {
-                if (tab === 'exp') { 
-                    filteredData.sort((a, b) => new Date(a.exp||'9999').getTime() - new Date(b.exp||'9999').getTime()); 
-                } else if (sortAZ) { 
-                    filteredData.sort((a,b) => String(a.n||"").localeCompare(String(b.n||"")) || (b.updatedAt||0) - (a.updatedAt||0)); 
-                } else { 
-                    filteredData.sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0)); 
-                }
-            }
-            
-            const sumEl = $('search-summary');
-            if (q && !silentB && !exact) { 
-                sumEl.innerText = `Ditemukan ${filteredData.length} barang`; sumEl.classList.remove('hidden'); 
-            } else sumEl.classList.add('hidden');
-            
+            if (swipedCardElem) swipedCardElem = null; const q = $('q').value.trim(), qL = q.toLowerCase(); let active = db.filter(i => !i.deleted); const exact = active.find(i => i.b && String(i.b).toLowerCase() === qL); let base = silentB ? active.filter(i => i.b === silentB) : (exact ? [exact] : (workerResult !== null && q !== '' ? workerResult : active)); const today = Date.now();
+            filteredData = base.filter(i => { if (tab === 'fav') return i.f; if (tab === 'exp') { if (!i.exp) return false; let expDate = new Date(i.exp); expDate = new Date(expDate.getFullYear(), expDate.getMonth() + 1, 0); const utcExp = expDate.getTime(); return !isNaN(utcExp) && Math.floor((utcExp - today) / 86400000) <= 210; } return true; });
+            if (!q || tab === 'exp') { if (tab === 'exp') filteredData.sort((a, b) => new Date(a.exp||'9999').getTime() - new Date(b.exp||'9999').getTime()); else if (sortAZ) filteredData.sort((a,b) => String(a.n||"").localeCompare(String(b.n||"")) || (b.updatedAt||0) - (a.updatedAt||0)); else filteredData.sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0)); }
+            const sumEl = $('search-summary'); if (q && !silentB && !exact) { sumEl.innerText = `Ditemukan ${filteredData.length} barang`; sumEl.classList.remove('hidden'); } else sumEl.classList.add('hidden');
             lastStartIndex = lastEndIndex = -1; computeDVS(); renderVirtualList(false);
         }
 
         $('render-container').addEventListener('click', (e) => {
-            const el = e.target;
-            const addBtnCart = el.closest('.calc-add'); 
-            
-            if (addBtnCart && isCartMode) { 
-                e.stopPropagation(); 
-                modifyCartItem(addBtnCart.dataset.id, 1); 
-                return; 
-            }
-            
-            if (!isCartMode) {
-                const f = el.closest('.action-fav'); 
-                if (f) { e.stopPropagation(); return toggleFav(f.dataset.id, f); }
-                const ed = el.closest('.action-edit'); 
-                if (ed) { e.stopPropagation(); return showMod(ed.dataset.id); }
-            }
+            const el = e.target, addBtnCart = el.closest('.calc-add'); 
+            if (addBtnCart && isCartMode) { e.stopPropagation(); modifyCartItem(addBtnCart.dataset.id, 1); return; }
+            if (!isCartMode) { const f = el.closest('.action-fav'); if (f) { e.stopPropagation(); return toggleFav(f.dataset.id, f); } const ed = el.closest('.action-edit'); if (ed) { e.stopPropagation(); return showMod(ed.dataset.id); } }
         });
 
         function renderVirtualList(isScrolling = false) {
-            const rend = $('render-container'), empty = $('empty-message-container'); 
-            
-            if (isScrolling && typeof swipedCardElem !== 'undefined' && swipedCardElem !== null) { swipedCardElem = null; }
-
-            if (filteredData.length === 0) { 
-                $('list').style.height = '0px'; rend.innerHTML = ''; 
-                empty.innerHTML = `<div class="empty-msg">${tab === 'fav' ? "Belum ada favorit" : (tab === 'exp' ? "Tidak ada barang expired" : "Belum ada data")}</div>`; 
-                empty.classList.remove('hidden'); return; 
-            }
-            empty.classList.add('hidden'); 
-            
-            let sy = window.scrollY;
-            let listTop = $('list').offsetTop || 188;
-            let offsetBuffer = $('sticky-roof-group').offsetHeight || 135; 
-            let hiddenListY = sy - (listTop - offsetBuffer);
-            let st = Math.max(0, hiddenListY);
-            
-            let start = getDVSStartIndex(st), visH = window.innerHeight, end = start, curVisH = 0;
-            start = Math.max(0, start - 15);
-            while(end < filteredData.length && curVisH < visH + 1200) { 
-                curVisH += (filteredData[end]._cHeight || (tab === 'exp' ? 85 : 90)); end++; 
-            }
-            if (isScrolling && start === lastStartIndex && end === lastEndIndex) return; 
-            lastStartIndex = start; lastEndIndex = end;
-
-            rend.style.transform = `translateY(${listOffsets[start]}px)`; let html = ''; 
-            const today = Date.now(), sq = $('q').value.trim(); 
-            
+            const rend = $('render-container'), empty = $('empty-message-container'); if (isScrolling && swipedCardElem) swipedCardElem = null; 
+            if (filteredData.length === 0) { $('list').style.height = '0px'; rend.innerHTML = ''; empty.innerHTML = `<div class="empty-msg">${tab === 'fav' ? "Belum ada favorit" : (tab === 'exp' ? "Tidak ada barang expired" : "Belum ada data")}</div>`; empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden'); let sy = window.scrollY, listTop = $('list').offsetTop || 188, offsetBuffer = $('sticky-roof-group').offsetHeight || 135, st = Math.max(0, sy - (listTop - offsetBuffer)), start = getDVSStartIndex(st), visH = window.innerHeight, end = start, curVisH = 0; start = Math.max(0, start - 15); while(end < filteredData.length && curVisH < visH + 1200) { curVisH += (filteredData[end]._cHeight || (tab === 'exp' ? 85 : 90)); end++; }
+            if (isScrolling && start === lastStartIndex && end === lastEndIndex) return; lastStartIndex = start; lastEndIndex = end;
+            rend.style.transform = `translateY(${listOffsets[start]}px)`; let html = ''; const today = Date.now(), sq = $('q').value.trim(); 
             for (let i = start; i < end; i++) {
-                const it = filteredData[i]; let diff = 999, expT = '';
-                if (it.exp) { 
-                    let expDate = new Date(it.exp);
-                    expDate = new Date(expDate.getFullYear(), expDate.getMonth() + 1, 0);
-                    const utcExp = expDate.getTime(); 
-                    if (!isNaN(utcExp)) { 
-                        diff = Math.floor((utcExp - today) / 86400000); 
-                        expT = formatBulanTahun(it.exp); 
-                    } 
-                }
-                
-                const safeName = escapeHTML(it.n);
-                const safeAcronym = escapeHTML(it.t || '');
-                const safeBarcode = escapeHTML(it.b || '- Tanpa Barcode -');
-                const dn = highlightMatch(safeName, sq);
-                
+                const it = filteredData[i]; let diff = 999, expT = ''; if (it.exp) { let expDate = new Date(it.exp); expDate = new Date(expDate.getFullYear(), expDate.getMonth() + 1, 0); const utcExp = expDate.getTime(); if (!isNaN(utcExp)) { diff = Math.floor((utcExp - today) / 86400000); expT = formatBulanTahun(it.exp); } }
+                const safeName = escapeHTML(it.n), safeAcronym = escapeHTML(it.t || ''), safeBarcode = escapeHTML(it.b || '- Tanpa Barcode -'), dn = highlightMatch(safeName, sq);
                 if (tab === 'exp') {
-                    const c = diff <= 30 ? 'var(--danger)' : (diff <= 90 ? '#FFA500' : (diff <= 180 ? '#FFD700' : 'var(--mono-main)')); 
-                    html += `<div class="card card-exp-mode" id="c-${it.id}" style="will-change: transform;"><div class="info" style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:10px;"><div class="name" style="margin:0; flex:1; min-width:0;"><span>${dn}</span> <span class="card-badge">${safeAcronym}</span></div><div style="font-size:13px; font-weight:800; color:${c}; flex-shrink: 0;">${expT}</div></div></div>`;
+                    const c = diff <= 30 ? 'var(--danger)' : (diff <= 90 ? '#FFA500' : (diff <= 180 ? '#FFD700' : 'var(--mono-main)')); html += `<div class="card card-exp-mode" id="c-${it.id}" style="will-change: transform;"><div class="info" style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:10px;"><div class="name" style="margin:0; flex:1; min-width:0;"><span>${dn}</span> <span class="card-badge">${safeAcronym}</span></div><div style="font-size:13px; font-weight:800; color:${c}; flex-shrink: 0;">${expT}</div></div></div>`;
                 } else {
-                    let exH = it.exp ? `<div class="card-exp ${diff < 0 ? 'danger' : (diff <= 90 ? 'warning' : '')}"><span>${diff < 0 ? '🚨' : (diff <= 90 ? '⚠️' : '📅')}</span> ${diff < 0 ? 'Kedaluwarsa!' : (diff <= 90 ? `Exp dlm ${diff} hari` : `Exp: ${expT}`)}</div>` : '';
-                    let rightSideUI = '';
-                    let swipeAttributes = '';
-                    let trashBgHtml = '';
-                    
+                    let exH = it.exp ? `<div class="card-exp ${diff < 0 ? 'danger' : (diff <= 90 ? 'warning' : '')}"><span>${diff < 0 ? '🚨' : (diff <= 90 ? '⚠️' : '📅')}</span> ${diff < 0 ? 'Kedaluwarsa!' : (diff <= 90 ? `Exp dlm ${diff} hari` : `Exp: ${expT}`)}</div>` : '', rightSideUI = '', swipeAttributes = '', trashBgHtml = '';
                     if (!isCartMode) {
                         swipeAttributes = `ontouchstart="handleMainTouchStart(event)" ontouchmove="handleMainTouchMove(event, this)" ontouchend="handleMainTouchEnd(event, this, '${it.id}')"`;
-                        
-                        trashBgHtml = `
-                        <div class="trash-trigger" onclick="del('${it.id}')" style="position:absolute; right:0; top:0; bottom:0; width:80px; background:transparent; display:flex; justify-content:center; align-items:center; color:var(--danger); z-index:1; cursor:pointer;">
-                            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        </div>`;
-
+                        trashBgHtml = `<div class="trash-trigger" onclick="del('${it.id}')" style="position:absolute; right:0; top:0; bottom:0; width:80px; background:transparent; display:flex; justify-content:center; align-items:center; color:var(--danger); z-index:1; cursor:pointer;"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></div>`;
                         rightSideUI = `<div class="action-btns-absolute"><button class="card-action-btn action-fav" data-id="${it.id}" style="color:${it.f?'var(--mono-main)':'var(--text-muted)'};"><svg pointer-events="none" viewBox="0 0 24 24" width="18" height="18" fill="${it.f?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button><button class="card-action-btn btn-edit-icon action-edit" data-id="${it.id}"><svg pointer-events="none" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button></div>`;
-                    } else {
-                        rightSideUI = `<div style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: auto;"><button class="btn-add-cart calc-add" data-id="${it.id}">+</button></div>`;
-                    }
-                    
-                    html += `
-                    <div style="position:relative; margin-bottom:12px;">
-                        ${trashBgHtml}
-                        <div class="card" id="c-${it.id}" style="margin-bottom:0; z-index:2; will-change: transform;" ${swipeAttributes}>
-                            <div class="info">
-                                <div class="name"><span>${dn}</span> <span class="card-badge">${safeAcronym}</span></div>
-                                ${it.p1?`<div class="card-price-ecer">Satuan: Rp ${fmt(it.p1)}</div>`:''}
-                                ${it.p2?`<div class="card-price-grosir">Grosir: Rp ${fmt(it.p2)}</div>`:''}
-                                <div class="card-barcode">${safeBarcode}</div>
-                                ${exH}
-                            </div>
-                            ${rightSideUI}
-                        </div>
-                    </div>`;
+                    } else rightSideUI = `<div style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: auto;"><button class="btn-add-cart calc-add" data-id="${it.id}">+</button></div>`;
+                    html += `<div style="position:relative; margin-bottom:12px;">${trashBgHtml}<div class="card" id="c-${it.id}" style="margin-bottom:0; z-index:2; will-change: transform;" ${swipeAttributes}><div class="info"><div class="name"><span>${dn}</span> <span class="card-badge">${safeAcronym}</span></div>${it.p1?`<div class="card-price-ecer">Satuan: Rp ${fmt(it.p1)}</div>`:''}${it.p2?`<div class="card-price-grosir">Grosir: Rp ${fmt(it.p2)}</div>`:''}<div class="card-barcode">${safeBarcode}</div>${exH}</div>${rightSideUI}</div></div>`;
                 }
             }
             rend.innerHTML = html;
-            
             requestAnimationFrame(() => {
                 let hc = false; const dom = rend.children;
                 for (let i = 0; i < dom.length; i++) {
-                    const h = dom[i].offsetHeight + 12; const idx = start + i;
-                    if (filteredData[idx] && filteredData[idx]._cHeight !== h) { filteredData[idx]._cHeight = h; hc = true; }
+                    const h = dom[i].offsetHeight + 12, idx = start + i; if (filteredData[idx] && filteredData[idx]._cHeight !== h) { filteredData[idx]._cHeight = h; hc = true; }
                 }
                 if (hc) computeDVS();
             });
@@ -1511,18 +1092,9 @@
 
         let scrollTimeoutLock;
         window.addEventListener('scroll', () => { 
-            let sy = window.scrollY;
-            document.body.classList.add('is-scrolling'); 
-            clearTimeout(scrollTimeoutLock);
-            scrollTimeoutLock = setTimeout(() => { document.body.classList.remove('is-scrolling'); }, 150);
-
+            let sy = window.scrollY; document.body.classList.add('is-scrolling'); clearTimeout(scrollTimeoutLock); scrollTimeoutLock = setTimeout(() => document.body.classList.remove('is-scrolling'), 150);
             if (!$('dropdown-menu').classList.contains('hidden')) $('dropdown-menu').classList.add('hidden');
-            
-            let listTop = $('list').offsetTop || 188;
-            let offsetBuffer = $('sticky-roof-group').offsetHeight || 135;
-            let hiddenListY = sy - (listTop - offsetBuffer);
-            let st = Math.max(0, hiddenListY);
-
+            let listTop = $('list').offsetTop || 188, offsetBuffer = $('sticky-roof-group').offsetHeight || 135, st = Math.max(0, sy - (listTop - offsetBuffer));
             if (sortAZ && filteredData.length > 0) {
                 const sIdx = getDVSStartIndex(st);
                 if (filteredData[sIdx]) {
@@ -1531,68 +1103,40 @@
                     clearTimeout(scrollLetterTimeout); scrollLetterTimeout = setTimeout(() => sL.classList.remove('show'), 300);
                 }
             }
-            window.requestAnimationFrame(() => renderVirtualList(true)); 
+            requestAnimationFrame(() => renderVirtualList(true)); 
         }, { passive: true });
 
         async function save() {
             if (isSaving) return; isSaving = true;
-            const btnSave = $('btn-save-item'), btnCancel = $('btn-cancel-item');
-            if (btnSave) btnSave.disabled = true; if (btnCancel) btnCancel.disabled = true;
-
+            const btnSave = $('btn-save-item'), btnCancel = $('btn-cancel-item'); if (btnSave) btnSave.disabled = true; if (btnCancel) btnCancel.disabled = true;
             try {
-                const nRaw = $('i-n').value, b = $('i-b').value.trim().toUpperCase(), exp = $('i-exp').dataset.rawDate || '';
-                const p1 = parseInt($('i-p1').value.replace(/[^\d]/g, ''), 10) || 0, p2 = parseInt($('i-p2').value.replace(/[^\d]/g, ''), 10) || null;
-                const u1 = $('i-u1').value, u2 = $('i-u2').value;
-                let iq = parseInt($('i-iq').value) || 0;
-                
+                const nRaw = $('i-n').value, b = $('i-b').value.trim().toUpperCase(), exp = $('i-exp').dataset.rawDate || '', p1 = parseInt($('i-p1').value.replace(/[^\d]/g, ''), 10) || 0, p2 = parseInt($('i-p2').value.replace(/[^\d]/g, ''), 10) || null, u1 = $('i-u1').value, u2 = $('i-u2').value; let iq = parseInt($('i-iq').value) || 0;
                 if (!nRaw.trim() || p1 === 0) { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; return showAlert("Data tidak valid!", "Gagal"); }
-                
-                if (p2 > 0 && iq < 2) { 
-                    isSaving = false; 
-                    if(btnSave) btnSave.disabled = false; 
-                    if(btnCancel) btnCancel.disabled = false; 
-                    return showAlert("Isi Grosir (Isi per...) harus lebih dari 1!", "Gagal"); 
-                } 
-                
-                const clean = prop(nRaw);
-                const ex = db.find(x => !x.deleted && String(x.n || "").toLowerCase() === clean.toLowerCase() && String(x.id) !== String(activeId));
-                if (ex) { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; return showAlert("Nama sudah ada!", "Gagal"); }
-                
-                if (b !== '') { 
-                    const exB = db.find(x => !x.deleted && String(x.b) === b && String(x.id) !== String(activeId)); 
-                    if (exB) { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; return showAlert("Barcode dipakai barang lain!", "Gagal"); } 
-                }
-                
-                let t = $('i-t').value.trim().toLowerCase();
-                if (t && isAcronymUsed(t, activeId)) { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; return showAlert("Singkatan sudah dipakai!", "Gagal"); }
-                if (!t) t = generateSmartAcronym(clean, activeId);
-                
+                if (p2 > 0 && iq < 2) { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; return showAlert("Isi Grosir (Isi per...) harus lebih dari 1!", "Gagal"); } 
+                const clean = prop(nRaw), ex = db.find(x => !x.deleted && String(x.n || "").toLowerCase() === clean.toLowerCase() && String(x.id) !== String(activeId)); if (ex) { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; return showAlert("Nama sudah ada!", "Gagal"); }
+                if (b !== '') { const exB = db.find(x => !x.deleted && String(x.b) === b && String(x.id) !== String(activeId)); if (exB) { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; return showAlert("Barcode dipakai barang lain!", "Gagal"); } }
+                let t = $('i-t').value.trim().toLowerCase(); if (t && isAcronymUsed(t, activeId)) { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; return showAlert("Singkatan sudah dipakai!", "Gagal"); } if (!t) t = generateSmartAcronym(clean, activeId);
                 const ts = Date.now();
                 if (activeId) {
-                    const idx = db.findIndex(x => String(x.id) === String(activeId));
-                    db[idx] = { ...db[idx], b, n: clean, p1, p2, exp, t, u1, u2, iq, updatedAt: ts };
+                    const idx = db.findIndex(x => String(x.id) === String(activeId)); db[idx] = { ...db[idx], b, n: clean, p1, p2, exp, t, u1, u2, iq, updatedAt: ts };
                     await saveItemToIDB(db[idx]); worker.postMessage({ type: 'update', item: db[idx] }); 
                     if (workerResult) { const wIdx = workerResult.findIndex(x => String(x.id) === String(activeId)); if (wIdx > -1) workerResult[wIdx] = db[idx]; }
                 } else {
-                    const nIt = { id: generateUniqueId(), b, n: clean, p1, p2, f: false, exp, t, u1, u2, iq, updatedAt: ts, deleted: false };
-                    db.push(nIt); await saveItemToIDB(nIt); worker.postMessage({ type: 'add', item: nIt }); 
-                    if (workerResult) workerResult.unshift(nIt); 
+                    const nIt = { id: generateUniqueId(), b, n: clean, p1, p2, f: false, exp, t, u1, u2, iq, updatedAt: ts, deleted: false }; db.push(nIt); await saveItemToIDB(nIt); worker.postMessage({ type: 'add', item: nIt }); if (workerResult) workerResult.unshift(nIt); 
                 }
                 updateMaps(); hideMod(); applyFiltersAndRender(); tampilkanToast("Tersimpan!");
             } catch (e) { console.error(e); } finally { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; }
         }
 
         async function del(id) {
-            const idx = db.findIndex(x => String(x.id) === String(id)); if(idx === -1) return;
-            const cardToReset = swipedCardElem; 
+            const idx = db.findIndex(x => String(x.id) === String(id)), cardToReset = swipedCardElem; if(idx === -1) return;
             showConfirm(`Hapus "<b>${escapeHTML(db[idx].n)}</b>"?`, "Hapus", "var(--danger)", 
                 async () => {
                     db[idx].deleted = true; db[idx].updatedAt = Date.now(); await saveItemToIDB(db[idx]); worker.postMessage({ type: 'remove', id: String(id) });
                     if (workerResult) workerResult = workerResult.filter(x => String(x.id) !== String(id));
                     if (cartState[id]) { delete cartState[id]; saveCartMem(); renderCartUI(); } 
                     swipedCardElem = null; updateMaps(); applyFiltersAndRender(); tampilkanToast("Dihapus!", "var(--danger)");
-                }, "HAPUS",
-                () => { if (cardToReset) { cardToReset.style.transform = `translateX(0px)`; } swipedCardElem = null; }
+                }, "HAPUS", () => { if (cardToReset) cardToReset.style.transform = `translateX(0px)`; swipedCardElem = null; }
             );
         }
 
@@ -1601,28 +1145,15 @@
             try { 
                 const tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'), ts = Date.now(); 
                 db.forEach(i => { if (!i.deleted) { i.deleted = true; i.updatedAt = ts; s.put(i); } }); 
-                tx.oncomplete = () => { 
-                    worker.postMessage({ type: 'init', db: [] }); updateMaps(); 
-                    cartState = {}; saveCartMem(); renderCartUI(); applyFiltersAndRender(); 
-                    $('list').style.pointerEvents = 'auto'; tampilkanToast("Bersih!", "var(--danger)"); 
-                }; 
+                tx.oncomplete = () => { worker.postMessage({ type: 'init', db: [] }); updateMaps(); cartState = {}; saveCartMem(); renderCartUI(); applyFiltersAndRender(); $('list').style.pointerEvents = 'auto'; tampilkanToast("Bersih!", "var(--danger)"); }; 
             } catch(e) { $('list').style.pointerEvents = 'auto'; showAlert("Gagal.", "Error"); } 
         }
         
         async function toggleFav(id, btn) { 
-            const idx = db.findIndex(x => String(x.id) === String(id)); 
-            if(idx !== -1) { 
+            const idx = db.findIndex(x => String(x.id) === String(id)); if(idx !== -1) { 
                 db[idx].f = !db[idx].f; db[idx].updatedAt = Date.now(); await saveItemToIDB(db[idx]); 
-                
-                if (workerResult) {
-                    const wIdx = workerResult.findIndex(x => String(x.id) === String(id));
-                    if (wIdx > -1) workerResult[wIdx].f = db[idx].f;
-                }
-
-                if (btn) { 
-                    btn.style.color = db[idx].f ? 'var(--mono-main)' : 'var(--text-muted)'; 
-                    btn.innerHTML = `<svg pointer-events="none" viewBox="0 0 24 24" width="18" height="18" fill="${db[idx].f?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`; 
-                } 
+                if (workerResult) { const wIdx = workerResult.findIndex(x => String(x.id) === String(id)); if (wIdx > -1) workerResult[wIdx].f = db[idx].f; }
+                if (btn) { btn.style.color = db[idx].f ? 'var(--mono-main)' : 'var(--text-muted)'; btn.innerHTML = `<svg pointer-events="none" viewBox="0 0 24 24" width="18" height="18" fill="${db[idx].f?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`; } 
                 if (tab === 'fav') applyFiltersAndRender(); 
             } 
         }
@@ -1631,398 +1162,53 @@
             $('dropdown-menu').classList.add('hidden'); 
             showConfirm("Bersihkan memori sampah?", "Optimasi Sistem", "#FFA500", () => { 
                 tampilkanToast("Mengoptimalkan...", "#FFA500"); 
-                recentSearches = []; trendingSearches = {}; localStorage.removeItem('DB_WA_RECENT'); localStorage.removeItem('DB_WA_TRENDING'); 
-                const tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'); let c = 0; const aDb = []; 
-                db.forEach(i => { if (i.deleted) { s.delete(i.id); c++; } else { aDb.push(i); } }); 
-                tx.oncomplete = () => { 
-                    db = aDb; worker.postMessage({ type: 'init', db: db }); updateMaps(); clearSearch(); 
-                    setTimeout(() => showAlert(`BERHASIL!!!<br>Sampah: ${c} Data dibersihkan.`, "Sistem Bersih", "#FFA500"), 500); 
-                }; 
+                recentSearches = TrendingSearches = {}; localStorage.removeItem('DB_WA_RECENT'); localStorage.removeItem('DB_WA_TRENDING'); 
+                const tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'); let c = 0; const aDb = []; db.forEach(i => { if (i.deleted) { s.delete(i.id); c++; } else aDb.push(i); }); 
+                tx.oncomplete = () => { db = aDb; worker.postMessage({ type: 'init', db: db }); updateMaps(); clearSearch(); setTimeout(() => showAlert(`BERHASIL!!!<br>Sampah: ${c} Data dibersihkan.`, "Sistem Bersih", "#FFA500"), 500); }; 
             }); 
         }
 
-        function showLoading(msg, color="#87CEFA") { 
-            $('loading-text').innerHTML = msg; $('loading-spinner').style.borderTopColor = color; 
-            $('loading-title').style.color = color; $('loading-box').style.borderColor = color; 
-            $('loading-modal').style.display = 'flex'; document.body.classList.add('modal-open'); 
-        }
+        function showLoading(msg, color="#87CEFA") { $('loading-text').innerHTML = msg; $('loading-spinner').style.borderTopColor = color; $('loading-title').style.color = $('loading-box').style.borderColor = color; $('loading-modal').style.display = 'flex'; document.body.classList.add('modal-open'); }
         function hideLoading() { $('loading-modal').style.display = 'none'; checkModalOpen(); }
-
-        function backupToCloud() { 
-            if (db.length === 0) return; 
-            showConfirm("<b>Peringatan Keamanan!</b>\n\nTindakan ini akan mengunggah dan MENIMPA seluruh data yang ada di Cloud dengan data dari HP Anda saat ini.\n\nLanjutkan?", "Informasi", "#87CEFA", () => { 
-                showLoading("Mengunggah data ke Cloud...<br>Mohon tunggu sebentar.", "#87CEFA"); 
-                fetchWithTimeout(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backup', data: db }) }, 15000)
-                .then(() => { hideLoading(); tampilkanToast("Berhasil Upload!", "var(--mono-main)"); })
-                .catch(() => { hideLoading(); showAlert("Koneksi Gagal / Timeout. Silakan coba lagi.", "Error"); }); 
-            }, "LANJUTKAN"); 
-        }
-        
-        function openSyncModal() {
-            $('dropdown-menu').classList.add('hidden');
-            $('sync-type').value = '';
-            $('sync-selected-text').innerText = '-- Pilih Mode --';
-            $('sync-selected-text').style.color = '#888';
-            $('sync-custom-options').classList.add('hidden');
-            handleSyncChange();
-            $('sync-modal').style.display = 'flex';
-            document.body.classList.add('modal-open');
-        }
-
-        function closeSyncModal() {
-            $('sync-modal').style.display = 'none';
-            checkModalOpen();
-        }
-
-        function toggleSyncDropdown(e) {
-            if (e) e.stopPropagation();
-            $('sync-custom-options').classList.toggle('hidden');
-        }
-
-        function selectSyncOption(mode, e) {
-            if (e) e.stopPropagation();
-            $('sync-type').value = mode;
-            $('sync-selected-text').innerText = mode === 'delta' ? 'Load Pembaruan (Cepat)' : 'Load Semua Data (Darurat)';
-            $('sync-selected-text').style.color = mode === 'delta' ? 'white' : 'var(--danger)';
-            $('sync-custom-options').classList.add('hidden');
-            handleSyncChange(); 
-        }
-
-        function handleSyncChange() {
-            const val = $('sync-type').value;
-            const warningArea = $('sync-warning-area');
-            const modalBox = $('sync-modal-box');
-            const title = $('sync-modal-title');
-            const btnDownload = $('btn-sync-download');
-            
-            if (val === 'force') {
-                warningArea.innerHTML = "<span style='color: var(--danger); font-weight: 800;'>⚠️ PERINGATAN</span><br><span style='color: #ccc;'>Data yang belum di-Upload akan HILANG!</span>";
-                modalBox.style.borderColor = "var(--danger)";
-                title.style.color = "var(--danger)";
-                btnDownload.style.borderColor = "var(--danger)";
-                btnDownload.style.color = "var(--danger)";
-            } else if (val === 'delta') {
-                warningArea.innerHTML = "<span style='color: #87CEFA;'>💯 Aman</span><br><span style='color: #ccc;'>Load data baru tanpa menghapus data.</span>";
-                modalBox.style.borderColor = "#87CEFA";
-                title.style.color = "#87CEFA";
-                btnDownload.style.borderColor = "#87CEFA";
-                btnDownload.style.color = "#87CEFA";
-            } else {
-                warningArea.innerHTML = "";
-                modalBox.style.borderColor = "var(--border-color)";
-                title.style.color = "#87CEFA";
-                btnDownload.style.borderColor = "var(--border-color)";
-                btnDownload.style.color = "var(--text-muted)";
-            }
-        }
-
-        function executeSyncBtn() {
-            const val = $('sync-type').value;
-            if (!val) {
-                tampilkanToast("Silakan pilih mode sinkronisasi dulu!", "var(--warning)");
-                return;
-            }
-            const isForce = (val === 'force');
-            closeSyncModal();
-            loadFromCloud(isForce);
-        }
+        function backupToCloud() { if (db.length === 0) return; showConfirm("<b>Peringatan Keamanan!</b>\n\nTindakan ini akan mengunggah dan MENIMPA seluruh data yang ada di Cloud dengan data dari HP Anda saat ini.\n\nLanjutkan?", "Informasi", "#87CEFA", () => { showLoading("Mengunggah data ke Cloud...<br>Mohon tunggu sebentar.", "#87CEFA"); fetchWithTimeout(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backup', data: db }) }, 15000) .then(() => { hideLoading(); tampilkanToast("Berhasil Upload!", "var(--mono-main)"); }) .catch(() => { hideLoading(); showAlert("Koneksi Gagal / Timeout. Silakan coba lagi.", "Error"); }); }, "LANJUTKAN"); }
+        function openSyncModal() { $('dropdown-menu').classList.add('hidden'); $('sync-type').value = ''; $('sync-selected-text').innerText = '-- Pilih Mode --'; $('sync-selected-text').style.color = '#888'; $('sync-custom-options').classList.add('hidden'); handleSyncChange(); $('sync-modal').style.display = 'flex'; document.body.classList.add('modal-open'); }
+        function closeSyncModal() { $('sync-modal').style.display = 'none'; checkModalOpen(); }
+        function toggleSyncDropdown(e) { e.stopPropagation(); $('sync-custom-options').classList.toggle('hidden'); }
+        function selectSyncOption(mode, e) { e.stopPropagation(); $('sync-type').value = mode; $('sync-selected-text').innerText = mode === 'delta' ? 'Load Pembaruan (Cepat)' : 'Load Semua Data (Darurat)'; $('sync-selected-text').style.color = mode === 'delta' ? 'white' : 'var(--danger)'; $('sync-custom-options').classList.add('hidden'); handleSyncChange(); }
+        function handleSyncChange() { const val = $('sync-type').value, warningArea = $('sync-warning-area'), modalBox = $('sync-modal-box'), title = $('sync-modal-title'), btnDownload = $('btn-sync-download'); if (val === 'force') { warningArea.innerHTML = "<span style='color: var(--danger); font-weight: 800;'>⚠️ PERINGATAN</span><br><span style='color: #ccc;'>Data yang belum di-Upload akan HILANG!</span>"; modalBox.style.borderColor = title.style.color = btnDownload.style.borderColor = btnDownload.style.color = "var(--danger)"; } else if (val === 'delta') { warningArea.innerHTML = "<span style='color: #87CEFA;'>💯 Aman</span><br><span style='color: #ccc;'>Load data baru tanpa menghapus data.</span>"; modalBox.style.borderColor = title.style.color = btnDownload.style.borderColor = btnDownload.style.color = "#87CEFA"; } else { warningArea.innerHTML = ""; modalBox.style.borderColor = "var(--border-color)"; title.style.color = "#87CEFA"; btnDownload.style.borderColor = "var(--border-color)"; btnDownload.style.color = "var(--text-muted)"; } }
+        function executeSyncBtn() { const val = $('sync-type').value; if (!val) { tampilkanToast("Silakan pilih mode sinkronisasi dulu!", "var(--warning)"); return; } closeSyncModal(); loadFromCloud(val === 'force'); }
 
         function loadFromCloud(forceSync = false) { 
-            showLoading("Memuat data dari Cloud...<br>Mohon tunggu sebentar.", "#87CEFA"); 
-            
-            const lastSyncTime = forceSync ? 0 : (parseInt(localStorage.getItem('DB_LAST_SYNC')) || 0);
-            const requestUrl = CLOUD_URL + "?action=load&lastSync=" + lastSyncTime + "&t=" + Date.now();
-
-            fetchWithTimeout(requestUrl, {}, 15000)
-            .then(r => r.json())
-            .then(dataResponse => { 
-                const dataCloud = dataResponse.data || [];
-                const serverTime = dataResponse.serverTime || Date.now();
-
-                if (dataCloud.length === 0 && !forceSync) {
-                    hideLoading();
-                    tampilkanToast("Data di HP sudah yang paling baru!", "var(--mono-main)");
-                    localStorage.setItem('DB_LAST_SYNC', serverTime.toString());
-                    return;
-                }
-
-                const tx = idb.transaction('items', 'readwrite');
-                const store = tx.objectStore('items'); 
-                
-                if (forceSync) {
-                    store.clear(); 
-                    db = [];       
-                }
-
-                dataCloud.forEach(itemCloud => { 
-                    const localIndex = db.findIndex(l => String(l.id) === String(itemCloud.id)); 
-                    if (localIndex > -1) { 
-                        if ((itemCloud.updatedAt || 0) >= (db[localIndex].updatedAt || 0)) { 
-                            if (itemCloud.deleted) {
-                                store.delete(itemCloud.id); 
-                                db.splice(localIndex, 1); 
-                            } else {
-                                db[localIndex] = itemCloud; 
-                                store.put(itemCloud); 
-                            }
-                        } 
-                    } else { 
-                        if (!itemCloud.deleted) {
-                            db.push(itemCloud); 
-                            store.put(itemCloud); 
-                        }
-                    } 
-                }); 
-                
-                tx.oncomplete = () => { 
-                    localStorage.setItem('DB_LAST_SYNC', serverTime.toString());
-                    worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
-                    updateMaps(); clearSearch(); renderCartUI(); applyFiltersAndRender();
-                    hideLoading(); 
-                    tampilkanToast(forceSync ? "Berhasil memuat ulang semua data!" : `Berhasil update ${dataCloud.length} data!`, "var(--mono-main)"); 
-                }; 
-                
-                tx.onerror = () => {
-                    hideLoading(); 
-                    showAlert("Gagal menyimpan ke memori HP. Silakan coba lagi.", "Error");
-                }
-            })
-            .catch(() => { 
-                hideLoading(); 
-                showAlert("Koneksi Gagal / Server Sibuk. Pastikan internet menyala.", "Error"); 
-            }); 
+            showLoading("Memuat data dari Cloud...<br>Mohon tunggu sebentar.", "#87CEFA"); const lastSyncTime = forceSync ? 0 : (parseInt(localStorage.getItem('DB_LAST_SYNC')) || 0); fetchWithTimeout(CLOUD_URL + "?action=load&lastSync=" + lastSyncTime + "&t=" + Date.now(), {}, 15000) .then(r => r.json()) .then(dataResponse => { const dataCloud = dataResponse.data || [], serverTime = dataResponse.serverTime || Date.now(); if (dataCloud.length === 0 && !forceSync) { hideLoading(); tampilkanToast("Data di HP sudah yang paling baru!", "var(--mono-main)"); localStorage.setItem('DB_LAST_SYNC', serverTime.toString()); return; } const tx = idb.transaction('items', 'readwrite'), store = tx.objectStore('items'); if (forceSync) { store.clear(); db = []; } dataCloud.forEach(itemCloud => { const localIndex = db.findIndex(l => String(l.id) === String(itemCloud.id)); if (localIndex > -1) { if ((itemCloud.updatedAt || 0) >= (db[localIndex].updatedAt || 0)) { if (itemCloud.deleted) { store.delete(itemCloud.id); db.splice(localIndex, 1); } else { db[localIndex] = itemCloud; store.put(itemCloud); } } } else if (!itemCloud.deleted) { db.push(itemCloud); store.put(itemCloud); } }); tx.oncomplete = () => { localStorage.setItem('DB_LAST_SYNC', serverTime.toString()); worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); updateMaps(); clearSearch(); renderCartUI(); applyFiltersAndRender(); hideLoading(); tampilkanToast(forceSync ? "Berhasil memuat ulang semua data!" : `Berhasil update ${dataCloud.length} data!`, "var(--mono-main)"); }; tx.onerror = () => { hideLoading(); showAlert("Gagal menyimpan ke memori HP. Silakan coba lagi.", "Error"); } }) .catch(() => { hideLoading(); showAlert("Koneksi Gagal / Server Sibuk. Pastikan internet menyala.", "Error"); }); 
         }
         
-        function exportData() { 
-            const data = db.filter(i => !i.deleted).map(i => ({ 
-                "ID": i.id, "Barcode": i.b, "Nama Barang": i.n, "Harga Eceran": i.p1, 
-                "Satuan Ecer": i.u1 || "", "Harga Grosir": i.p2, "Satuan Grosir": i.u2 || "", 
-                "Isi Grosir": i.iq || "", "Singkatan": i.t, "Favorit": i.f ? "Ya" : "Tidak", "Expired": i.exp || "" 
-            })); 
-            const wb = XLSX.utils.book_new(); 
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Data"); 
-            XLSX.writeFile(wb, "Data_Harga.xlsx"); 
-        }
-
+        function exportData() { const data = db.filter(i => !i.deleted).map(i => ({ "ID": i.id, "Barcode": i.b, "Nama Barang": i.n, "Harga Eceran": i.p1, "Satuan Ecer": i.u1 || "", "Harga Grosir": i.p2, "Satuan Grosir": i.u2 || "", "Isi Grosir": i.iq || "", "Singkatan": i.t, "Favorit": i.f ? "Ya" : "Tidak", "Expired": i.exp || "" })); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Data"); XLSX.writeFile(wb, "Data_Harga.xlsx"); }
         function importData(e) { 
-            const f = e.target.files[0]; if(!f) return; 
-            const r = new FileReader(); 
-            r.onload = (ev) => { 
-                const w = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'});
-                const jD = XLSX.utils.sheet_to_json(w.Sheets[w.SheetNames[0]], { raw: false, defval: "" });
-                const tx = idb.transaction('items', 'readwrite');
-                const s = tx.objectStore('items');
-                const tA = new Set();
-                const ts = Date.now(); 
-                
-                jD.forEach(ro => { 
-                    const n = prop(ro["Nama Barang"] || ro["Nama"]); if(!n) return; 
-                    
-                    // VALIDASI 1: Cegah Barang dengan Harga Rp 0 Masuk (Bug Akuntansi)
-                    const p1Val = parseExcelPrice(ro["Eceran"]||ro["Harga Eceran"]);
-                    if (!p1Val || p1Val <= 0) return; 
-                    
-                    let cT = ro["Singkatan"]; if (!cT) cT = generateSmartAcronym(n, null, tA); if (cT) tA.add(cT); 
-                    const eI = ro["ID"] ? String(ro["ID"]).trim() : null;
-                    const sB = ro["Barcode"] ? String(ro["Barcode"]).trim().toUpperCase() : '';
-                    
-                    // VALIDASI 2: Cegah Tabrakan Barcode (Barcode Collision)
-                    if (sB !== '') {
-                        const collision = db.find(x => !x.deleted && String(x.b) === sB && String(x.id) !== String(eI));
-                        if (collision) return; 
-                    }
-                    
-                    const iF = ro["Favorit"] === "Ya" || ro["Favorit"] === "TRUE";
-                    const eD = parseBulanTahunExcel(ro["Expired"]); 
-                    let u1 = ro["Satuan Ecer"] || ro["Satuan"] || ""; 
-                    let u2 = ro["Satuan Grosir"] || ro["Grosir"] || ""; 
-                    let iq = parseInt(ro["Isi Grosir"]) || 0; 
-                    let eIdx = db.findIndex(x => (eI && String(x.id) === String(eI)) || (x.n.toLowerCase() === n.toLowerCase())); 
-                    
-                    if (eIdx > -1) { 
-                        db[eIdx] = { ...db[eIdx], b: sB, p1: p1Val, p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; 
-                        s.put(db[eIdx]); 
-                    } else { 
-                        const nI = { id: eI || generateUniqueId(), b: sB, n: n, p1: p1Val, p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; 
-                        db.push(nI); s.put(nI); 
-                    } 
-                }); 
-                tx.oncomplete = () => { 
-                    worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
-                    updateMaps(); clearSearch(); renderCartUI(); tampilkanToast("Import Selesai!"); 
-                }; 
-            }; 
-            r.readAsArrayBuffer(f); 
+            const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = (ev) => { const w = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'}), jD = XLSX.utils.sheet_to_json(w.Sheets[w.SheetNames[0]], { raw: false, defval: "" }), tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'), tA = new Set(), ts = Date.now(); jD.forEach(ro => { const n = prop(ro["Nama Barang"] || ro["Nama"]); if(!n) return; const p1Val = parseExcelPrice(ro["Eceran"]||ro["Harga Eceran"]); if (!p1Val || p1Val <= 0) return; let cT = ro["Singkatan"]; if (!cT) cT = generateSmartAcronym(n, null, tA); if (cT) tA.add(cT); const eI = ro["ID"] ? String(ro["ID"]).trim() : null, sB = ro["Barcode"] ? String(ro["Barcode"]).trim().toUpperCase() : ''; if (sB !== '') { const collision = db.find(x => !x.deleted && String(x.b) === sB && String(x.id) !== String(eI)); if (collision) return; } const iF = ro["Favorit"] === "Ya" || ro["Favorit"] === "TRUE", eD = parseBulanTahunExcel(ro["Expired"]); let u1 = ro["Satuan Ecer"] || ro["Satuan"] || "", u2 = ro["Satuan Grosir"] || ro["Grosir"] || "", iq = parseInt(ro["Isi Grosir"]) || 0, eIdx = db.findIndex(x => (eI && String(x.id) === String(eI)) || (x.n.toLowerCase() === n.toLowerCase())); if (eIdx > -1) { db[eIdx] = { ...db[eIdx], b: sB, p1: p1Val, p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; s.put(db[eIdx]); } else { const nI = { id: eI || generateUniqueId(), b: sB, n: n, p1: p1Val, p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; db.push(nI); s.put(nI); } }); tx.oncomplete = () => { worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); updateMaps(); clearSearch(); renderCartUI(); tampilkanToast("Import Selesai!"); }; }; r.readAsArrayBuffer(f); 
         }
         
         let torchState = false; 
         function toggleFlashlight() { 
-            const vid = document.querySelector('#reader video'); 
-            if (vid && vid.srcObject) { 
-                try { 
-                    const track = vid.srcObject.getVideoTracks()[0]; 
-                    const cap = track.getCapabilities(); 
-                    if (cap.torch) { 
-                        torchState = !torchState; 
-                        track.applyConstraints({ advanced: [{ torch: torchState }] }).catch(e => console.log(e)); 
-                        $('torch-btn').style.color = torchState ? "var(--warning)" : "white"; 
-                    } else { 
-                        tampilkanToast("Kamera tidak dukung senter", "var(--warning)"); 
-                    } 
-                } catch(e) { console.log(e); } 
-            } 
+            const vid = document.querySelector('#reader video'); if (vid && vid.srcObject) { try { const track = vid.srcObject.getVideoTracks()[0], cap = track.getCapabilities(); if (cap.torch) { torchState = !torchState; track.applyConstraints({ advanced: [{ torch: torchState }] }).catch(e => console.log(e)); $('torch-btn').style.color = torchState ? "var(--warning)" : "white"; } else tampilkanToast("Kamera tidak dukung senter", "var(--warning)"); } catch(e) { console.log(e); } } 
         }
-
         async function openScanner(mode) { 
-            if(isStartingScan || isScanning) return; isStartingScan = true; scanMode = mode; 
-            $('scanner-wrap').style.display = 'block'; document.body.classList.add('modal-open'); 
-            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader"); torchState = false; $('torch-btn').style.color = "white"; 
-            try { 
-                await html5QrCode.start( { facingMode: "environment" }, { fps: 15, disableFlip: false }, async (text) => { 
-                    playBeep(); await closeScanner(); 
-                    let scannedText = text.trim().toUpperCase();
-                    if (scanMode === 'cart') {
-                        const ex = db.find(i => !i.deleted && String(i.b) === scannedText);
-                        if (ex) { 
-                            modifyCartItem(ex.id, 1); 
-                        } else { 
-                            tampilkanToast("Barcode tidak terdaftar!", "var(--danger)"); 
-                        }
-                    } else if (scanMode === 'search') { 
-                        const ex = db.find(i => !i.deleted && String(i.b) === scannedText); 
-                        if (ex) { 
-                            $('q').value = scannedText; $('q-x').style.display = 'flex'; 
-                            window.scrollTo({ top: 0, behavior: 'instant' }); handleSearchLogic(scannedText); 
-                        } else { 
-                            showMod(); $('i-b').value = scannedText; 
-                        } 
-                    } else { 
-                        $('i-b').value = scannedText; 
-                    } 
-                }); 
-                isScanning = true; 
-            } catch (e) { 
-                await closeScanner(); showAlert("Kamera Error / Izin Ditolak.", "Error"); 
-            } finally { 
-                isStartingScan = false; 
-            } 
+            if(isStartingScan || isScanning) return; isStartingScan = true; scanMode = mode; $('scanner-wrap').style.display = 'block'; document.body.classList.add('modal-open'); if (!html5QrCode) html5QrCode = new Html5Qrcode("reader"); torchState = false; $('torch-btn').style.color = "white"; 
+            try { await html5QrCode.start( { facingMode: "environment" }, { fps: 15, disableFlip: false }, async (text) => { playBeep(); await closeScanner(); let scannedText = text.trim().toUpperCase(); if (scanMode === 'cart') { const ex = db.find(i => !i.deleted && String(i.b) === scannedText); if (ex) modifyCartItem(ex.id, 1); else tampilkanToast("Barcode tidak terdaftar!", "var(--danger)"); } else if (scanMode === 'search') { const ex = db.find(i => !i.deleted && String(i.b) === scannedText); if (ex) { $('q').value = scannedText; $('q-x').style.display = 'flex'; window.scrollTo({ top: 0, behavior: 'instant' }); handleSearchLogic(scannedText); } else { showMod(); $('i-b').value = scannedText; } } else $('i-b').value = scannedText; }); isScanning = true; } catch (e) { await closeScanner(); showAlert("Kamera Error / Izin Ditolak.", "Error"); } finally { isStartingScan = false; } 
         }
+        async function closeScanner() { $('scanner-wrap').style.display = 'none'; checkModalOpen(); if (torchState) toggleFlashlight(); if (isScanning && html5QrCode) { try { await html5QrCode.stop(); html5QrCode.clear(); } catch(e) {} } isScanning = false; requestWakeLock(); }
 
-        async function closeScanner() { 
-            $('scanner-wrap').style.display = 'none'; checkModalOpen(); 
-            if (torchState) toggleFlashlight(); 
-            if (isScanning && html5QrCode) { 
-                try { await html5QrCode.stop(); html5QrCode.clear(); } catch(e) {} 
-            } 
-            isScanning = false; 
-            requestWakeLock();
-        }
+        document.addEventListener('touchstart', function(e) { if (swipedCardElem && !swipedCardElem.contains(e.target) && !e.target.closest('.trash-trigger')) { swipedCardElem.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)'; swipedCardElem.style.transform = 'translateX(0px)'; swipedCardElem = null; } }, { passive: true });
+        async function processUrlParameters() { const urlParams = new URLSearchParams(window.location.search), action = urlParams.get('action'); if (action === 'scan') setTimeout(() => openScanner('search'), 500); else if (action === 'cart' && !isCartMode) toggleCartMode(); const linkData = urlParams.get('link'); if (linkData) { let cleanData = decodeURIComponent(linkData); if (cleanData.startsWith('web+harga://')) cleanData = cleanData.replace('web+harga://', ''); $('q').value = cleanData; $('q-x').style.display = 'flex'; handleSearchLogic(cleanData); } if (action || linkData) window.history.replaceState({}, document.title, window.location.pathname); }
 
-        document.addEventListener('touchstart', function(e) {
-            if (typeof swipedCardElem !== 'undefined' && swipedCardElem !== null) {
-                if (!swipedCardElem.contains(e.target) && !e.target.closest('.trash-trigger')) {
-                    swipedCardElem.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
-                    swipedCardElem.style.transform = 'translateX(0px)';
-                    swipedCardElem = null; 
-                }
-            }
-        }, { passive: true });
-
-        // ==========================================
-        // FITUR BARU: TANGKAP MANIFEST.JSON (JS Logic)
-        // ==========================================
-        async function processUrlParameters() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const action = urlParams.get('action');
-            if (action === 'scan') {
-                setTimeout(() => openScanner('search'), 500); 
-            } else if (action === 'cart') {
-                if (!isCartMode) toggleCartMode();
-            }
-
-            const linkData = urlParams.get('link');
-            if (linkData) {
-                let cleanData = decodeURIComponent(linkData);
-                if (cleanData.startsWith('web+harga://')) {
-                    cleanData = cleanData.replace('web+harga://', '');
-                }
-                $('q').value = cleanData;
-                $('q-x').style.display = 'flex';
-                handleSearchLogic(cleanData);
-            }
-            if (action || linkData) window.history.replaceState({}, document.title, window.location.pathname);
-        }
-
-        // ==========================================
-        // INIT APP UTAMA & PENGAMANAN RACE CONDITION
-        // ==========================================
-        let isDbReady = false; 
-        let pendingLaunchFile = null; 
-
+        /* --- INIT APP UTAMA --- */
+        let isDbReady = false, pendingLaunchFile = null; 
         async function initApp() { 
-            try { 
-                const t = new Date(); 
-                $('current-date-location').innerText = `Boyolali, ${t.getDate()} ${NamaBln[t.getMonth()]} ${t.getFullYear()}`; 
-                await initDB(); 
-                db = await loadAllFromIDB(); 
-                worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
-                updateMaps(); 
-                renderCartUI(); 
-                applyFiltersAndRender(); 
-                
-                processUrlParameters(); 
-                isDbReady = true;
-                
-                if (pendingLaunchFile) {
-                    processQueuedFile(pendingLaunchFile);
-                    pendingLaunchFile = null; 
-                }
-
-            } catch (e) { 
-                showAlert("DB Error: " + e.message, "Error"); 
-            } 
+            try { const t = new Date(); $('current-date-location').innerText = `Boyolali, ${t.getDate()} ${NamaBln[t.getMonth()]} ${t.getFullYear()}`; await initDB(); db = await loadAllFromIDB(); worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); updateMaps(); renderCartUI(); applyFiltersAndRender(); processUrlParameters(); isDbReady = true; if (pendingLaunchFile) { processQueuedFile(pendingLaunchFile); pendingLaunchFile = null; } } catch (e) { showAlert("DB Error: " + e.message, "Error"); } 
         }
-        
         initApp();
-        
-        function processQueuedFile(file) {
-            showLoading("Mengimpor data dari file...<br>Mohon tunggu.", "var(--warning)");
-            setTimeout(() => {
-                const mockEvent = { target: { files: [file] } };
-                importData(mockEvent);
-                setTimeout(hideLoading, 1500); 
-            }, 300);
-        }
-
-        if ('launchQueue' in window) {
-            window.launchQueue.setConsumer((launchParams) => {
-                if (launchParams.files && launchParams.files.length > 0) {
-                    launchParams.files[0].getFile().then(file => {
-                        if (isDbReady) processQueuedFile(file);
-                        else pendingLaunchFile = file;
-                    });
-                }
-            });
-        }
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then((registration) => {
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    showConfirm(
-                                        "Versi terbaru aplikasi telah tersedia! Perbarui sekarang untuk performa terbaik.", 
-                                        "Update Sistem", "#87CEFA", () => { window.location.reload(); }, "REFRESH"
-                                    );
-                                }
-                            });
-                        });
-                    }).catch(console.error);
-            });
-        }
+        function processQueuedFile(file) { showLoading("Mengimpor data dari file...<br>Mohon tunggu.", "var(--warning)"); setTimeout(() => { importData({ target: { files: [file] } }); setTimeout(hideLoading, 1500); }, 300); }
+        if ('launchQueue' in window) { window.launchQueue.setConsumer((launchParams) => { if (launchParams.files && launchParams.files.length > 0) launchParams.files[0].getFile().then(file => { if (isDbReady) processQueuedFile(file); else pendingLaunchFile = file; }); }); }
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js') .then((registration) => { registration.addEventListener('updatefound', () => { const newWorker = registration.installing; newWorker.addEventListener('statechange', () => { if (newWorker.state === 'installed' && navigator.serviceWorker.controller) showConfirm("Versi terbaru aplikasi telah tersedia! Perbarui sekarang.", "Update Sistem", "#87CEFA", () => { window.location.reload(); }, "REFRESH"); }); }); }).catch(console.error); }); }
     </script>
 </body>
 </html>
