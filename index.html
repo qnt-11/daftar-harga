@@ -337,7 +337,6 @@
             
             <label>Barcode</label>
             <div class="barcode-row">
-                <!-- FITUR BARCODE ALFANUMERIK -->
                 <input type="text" id="i-b" autocomplete="off" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\-\s]/g, '').toUpperCase()">
                 <button type="button" onclick="openScanner('input')">
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke="white" stroke-width="1.5"></rect><line x1="5" y1="12" x2="19" y2="12" stroke="red" stroke-width="2"></line></svg>
@@ -357,7 +356,7 @@
                 </div>
                 <div class="col-unit">
                     <label>Pilih Satuan</label>
-                    <div class="custom-select-btn" onclick="toggleAcc('acc-u1')"><span id="lbl-u1">- Kosong -</span> ▾</div>
+                    <div class="custom-select-btn" onclick="toggleAcc('acc-u1')"><span id="lbl-u1" style="color: #a0a0a0;">kosong</span> ▾</div>
                 </div>
             </div>
             
@@ -365,19 +364,24 @@
                 <div class="chip-group">
                     <div class="chip" onclick="setUnit(1, 'Pcs')">Pcs</div>
                     <div class="chip" onclick="setUnit(1, 'Bungkus')">Bungkus</div>
-                    <div class="chip" onclick="setUnit(1, 'Sachet')">Sachet</div>
-                    <div class="chip" onclick="setUnit(1, 'Botol')">Botol</div>
                     <div class="chip" onclick="setUnit(1, 'Renceng')">Renceng</div>
+                    <div class="chip" onclick="setUnit(1, 'Botol')">Botol</div>
+                    <div class="chip" onclick="setUnit(1, 'Sachet')">Sachet</div>
+                    <div class="chip" onclick="setUnit(1, 'Kotak')">Kotak</div>
+                    <div class="chip" onclick="setUnit(1, 'Biji')">Biji</div>
                     <div class="chip" onclick="setUnit(1, 'Cup')">Cup</div>
-                    <div class="chip" onclick="setUnit(1, 'Kaleng')">Kaleng</div>
+                    <div class="chip" onclick="setUnit(1, 'Pack')">Pack</div>
                     <div class="chip" onclick="setUnit(1, 'Strip')">Strip</div>
                     <div class="chip" onclick="setUnit(1, 'Tablet')">Tablet</div>
-                    <div class="chip" onclick="setUnit(1, 'Tube')">Tube</div>
+                    <div class="chip" onclick="setUnit(1, 'Kaleng')">Kaleng</div>
+                    <div class="chip" onclick="setUnit(1, 'Pasang')">Pasang</div>
+                    <div class="chip" onclick="setUnit(1, 'Gulung')">Gulung</div>
                     <div class="chip" onclick="setUnit(1, 'Kg')">Kg</div>
                     <div class="chip" onclick="setUnit(1, 'Liter')">Liter</div>
-                    <div class="chip" onclick="setUnit(1, 'Lembar')">Lembar</div>
+                    <div class="chip" onclick="setUnit(1, 'Tube')">Tube</div>
                     <div class="chip" onclick="setUnit(1, 'Roll')">Roll</div>
-                    <div class="chip" onclick="setUnit(1, '')">Kosong</div>
+                    <div class="chip" onclick="setUnit(1, 'Lembar')">Lembar</div>
+                    <div class="chip" style="color: #a0a0a0; border-color: #333;" onclick="setUnit(1, '')">kosong</div>
                 </div>
             </div>
             <input type="hidden" id="i-u1">
@@ -389,24 +393,25 @@
                 </div>
                 <div class="col-unit">
                     <label>Pilih Grosir</label>
-                    <div class="custom-select-btn" onclick="toggleAcc('acc-u2')"><span id="lbl-u2">- Kosong -</span> ▾</div>
+                    <div class="custom-select-btn" onclick="toggleAcc('acc-u2')"><span id="lbl-u2" style="color: #a0a0a0;">kosong</span> ▾</div>
                 </div>
             </div>
             
             <div id="acc-u2" class="acc-content hidden">
                 <div class="chip-group">
-                    <div class="chip" onclick="setUnit(2, 'Karton')">Karton</div>
                     <div class="chip" onclick="setUnit(2, 'Dus')">Dus</div>
-                    <div class="chip" onclick="setUnit(2, 'Box')">Box</div>
-                    <div class="chip" onclick="setUnit(2, 'Bal')">Bal</div>
+                    <div class="chip" onclick="setUnit(2, 'Karton')">Karton</div>
                     <div class="chip" onclick="setUnit(2, 'Slop')">Slop</div>
-                    <div class="chip" onclick="setUnit(2, 'Pres')">Pres</div>
+                    <div class="chip" onclick="setUnit(2, 'Bal')">Bal</div>
                     <div class="chip" onclick="setUnit(2, 'Pack')">Pack</div>
+                    <div class="chip" onclick="setUnit(2, 'Box')">Box</div>
+                    <div class="chip" onclick="setUnit(2, 'Toples')">Toples</div>
                     <div class="chip" onclick="setUnit(2, 'Lusin')">Lusin</div>
+                    <div class="chip" onclick="setUnit(2, 'Pres')">Pres</div>
                     <div class="chip" onclick="setUnit(2, 'Renceng')">Renceng</div>
-                    <div class="chip" onclick="setUnit(2, 'Sak')">Sak</div>
                     <div class="chip" onclick="setUnit(2, 'Rim')">Rim</div>
-                    <div class="chip" onclick="setUnit(2, '')">Kosong</div>
+                    <div class="chip" onclick="setUnit(2, 'Sak')">Sak</div>
+                    <div class="chip" style="color: #a0a0a0; border-color: #333;" onclick="setUnit(2, '')">kosong</div>
                 </div>
             </div>
             <input type="hidden" id="i-u2">
@@ -520,7 +525,7 @@
 
     <script>
         const $ = (id) => document.getElementById(id);
-        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbypybERLfd2_LkFQ8tdqyN7-_PG2GbyJt6cZsQM9Tjy_4z_7stMhVhfQ_fW-7Glj37T/exec";
+        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbxO411twxc5ZLDMM9nuXrUiUR8B9gxVU4JCO4MrUMQaRyGBLUVqPGOrWgGNlEY2ErCA/exec";
         const NamaBln = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         const NamaBlnPendek = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 
@@ -752,7 +757,7 @@
             if(!isOpen) document.body.classList.remove('modal-open');
         }
 
-        /* --- CART LOGIC (FIXED) --- */
+        /* --- CART LOGIC --- */
         function toggleCartMode() {
             window.scrollTo({ top: 0, behavior: 'instant' }); 
             isCartMode = !isCartMode;
@@ -782,17 +787,16 @@
             if (isCartMode) renderCartUI();
         }
 
-        // FUNGSI UPDATE QTY REAL-TIME TANPA RE-RENDER DOM TOTAL
+        // FUNGSI UPDATE QTY REAL-TIME (LOGIKA GROSIR PROPORSIONAL)
         function updateCartQtyManual(id, val) {
             let n = parseInt(val, 10);
-            if (isNaN(n)) n = 0; // Atasi Bug NaN (Kosong Sementara)
+            if (isNaN(n)) n = 0;
 
             if (!cartState[id]) cartState[id] = { q: n }; 
             else cartState[id].q = n; 
             
             saveCartMem(); 
             
-            // Rekalkulasi Real-time
             let grandTotal = 0;
             const keys = Object.keys(cartState);
             keys.forEach(k => {
@@ -809,20 +813,33 @@
                     } else { 
                         subTotal = Math.round(q * p1); 
                     }
+                    
                     grandTotal += subTotal;
                     
                     const elemSub = $('sub-' + k);
                     if (elemSub) elemSub.innerText = `Rp ${fmt(subTotal)}`;
+                    
+                    // --- UPDATE TEKS LABEL QTY SECARA REAL-TIME ---
+                    const elemLabel = $('qty-label-' + k);
+                    if (elemLabel) {
+                        const unitName = item.u1 || 'Satuan'; 
+                        elemLabel.innerText = `${q} ${escapeHTML(unitName)}`;
+                    }
                 }
             });
             
             $('cp-grand-total').innerText = `Rp ${fmt(grandTotal)}`;
         }
 
-        // FUNGSI PENGHAPUSAN BARANG ONBLUR (Jika QTY 0)
-        function checkEmptyQtyOnBlur(id, val) {
+        // FUNGSI PENGHAPUSAN BARANG ONBLUR (UX ZOMBIE FIX)
+        function checkEmptyQtyOnBlur(id, inputElem, val) {
             let n = parseInt(val, 10);
-            if (isNaN(n) || n <= 0) { 
+            
+            if (isNaN(n) || val === '') { 
+                let oldVal = parseInt(inputElem.dataset.oldVal, 10) || 1;
+                inputElem.value = oldVal; 
+                updateCartQtyManual(id, oldVal); 
+            } else if (n <= 0) {
                 delete cartState[id]; 
                 saveCartMem(); 
                 renderCartUI(); 
@@ -904,9 +921,15 @@
                 cpList.style.maskImage = 'linear-gradient(to bottom, black 85%, transparent 100%)';
                 cpList.style.webkitMaskImage = 'linear-gradient(to bottom, black 85%, transparent 100%)';
                 
+                let hasDeletedItems = false;
+                
                 keys.forEach(id => {
                     const item = db.find(x => String(x.id) === id);
-                    if (!item || item.deleted) { delete cartState[id]; return; } 
+                    if (!item || item.deleted) { 
+                        delete cartState[id]; 
+                        hasDeletedItems = true; 
+                        return; 
+                    } 
                     
                     const q = cartState[id].q !== undefined ? cartState[id].q : 1;
                     const p1 = item.p1 || 0; 
@@ -926,18 +949,23 @@
                         <div class="cp-item-wrap">
                             <div class="cp-trash-bg" onclick="deleteCartItem('${id}')"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></div>
                             <div class="cp-item-front" ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event, this)" ontouchend="handleTouchEnd(event, this, '${id}')">
-                                <div class="cpi-info"><div class="cpi-name">${escapeHTML(item.n)}</div><div class="cpi-calc">${q} ${escapeHTML(unitName)}</div></div>
+                                <div class="cpi-info">
+                                    <div class="cpi-name">${escapeHTML(item.n)}</div>
+                                    <div class="cpi-calc" id="qty-label-${id}">${q} ${escapeHTML(unitName)}</div>
+                                </div>
                                 <div style="display:flex; align-items:center; gap: 12px; pointer-events: auto;">
                                     <div class="cpi-total" id="sub-${id}">Rp ${fmt(subTotal)}</div>
                                     <input class="qty-input-manual" type="tel" pattern="[0-9]*" value="${q}" 
-                                        onfocus="this.value=''" 
+                                        onfocus="this.dataset.oldVal = this.value; this.value=''" 
                                         oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length > 5) this.value = this.value.slice(0,5); updateCartQtyManual('${id}', this.value);" 
-                                        onblur="checkEmptyQtyOnBlur('${id}', this.value)">
+                                        onblur="checkEmptyQtyOnBlur('${id}', this, this.value)">
                                 </div>
                             </div>
                         </div>
                     `;
                 });
+                
+                if (hasDeletedItems) saveCartMem();
             }
             cpList.innerHTML = html;
             $('cp-grand-total').innerText = `Rp ${fmt(grandTotal)}`;
@@ -977,11 +1005,9 @@
             
             const isInputFocused = (document.activeElement && document.activeElement.tagName.toLowerCase() === 'input');
 
-            // Tangkap Alfanumerik + Strip + Spasi
             if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey && e.key.match(/[a-zA-Z0-9\-\s]/)) {
                 physicalInputBuffer += e.key; 
                 
-                // KICK FOCUS BILA KETIKAN SUPER CEPAT (Scanner Terdeteksi)
                 if (physicalInputBuffer.length >= 2 && timeDiff <= 50 && isInputFocused) {
                     document.activeElement.blur(); 
                 }
@@ -1014,7 +1040,7 @@
                     inputBuffer = ''; $('q').blur(); 
                 }
             }
-        }, true); // UseCapture True agar menahan event sebelum masuk ke input!
+        }, true); 
 
         function handlePhysicalScanner(barcode) { 
             const item = barcodeMap.get(barcode); 
@@ -1025,7 +1051,16 @@
                 } else { 
                     $('pp-name').innerText = item.n; 
                     $('pp-price').innerText = "Rp " + fmt(item.p1); 
-                    $('pp-price-grosir').innerText = item.p2 ? "Grosir: Rp " + fmt(item.p2) : ""; 
+                    
+                    let textGrosir = "";
+                    if (item.p2) {
+                        textGrosir = `Grosir: Rp ${fmt(item.p2)}`;
+                        if (item.iq > 1) {
+                            textGrosir += ` (Isi minimal ${item.iq} ${item.u2 || 'pcs'})`;
+                        }
+                    }
+                    $('pp-price-grosir').innerText = textGrosir; 
+                    
                     $('pp-barcode').innerText = item.b || ""; 
                     $('price-popup').style.display = 'flex'; document.body.classList.add('modal-open'); 
                 }
@@ -1187,9 +1222,17 @@
             } 
         }
         
+        // FUNGSI UPDATE UI SATUAN DENGAN WARNA
         function setUnit(type, val) { 
             $(`i-u${type}`).value = val; 
-            $(`lbl-u${type}`).innerText = val || "- Kosong -"; 
+            const lbl = $(`lbl-u${type}`);
+            if (val === "") {
+                lbl.innerText = "kosong";
+                lbl.style.color = "#a0a0a0";
+            } else {
+                lbl.innerText = val;
+                lbl.style.color = "#ffffff";
+            }
             $(`acc-u${type}`).classList.add('hidden'); 
             if (type === 2) toggleIsiGrosir(); 
         }
@@ -1213,11 +1256,21 @@
                 const it = db.find(x => String(x.id) === String(id)); if(!it) return; 
                 $('m-tit').innerText = "Edit Barang"; b.value = it.b || ''; n.value = it.n || ''; p1.value = fmt(it.p1); p2.value = it.p2 ? fmt(it.p2) : ''; 
                 exp.dataset.rawDate = it.exp || ''; exp.value = it.exp ? formatBulanTahun(it.exp) : ''; t.value = it.t || ''; 
-                u1.value = it.u1 || ''; $('lbl-u1').innerText = it.u1 || '- Kosong -'; u2.value = it.u2 || ''; $('lbl-u2').innerText = it.u2 || '- Kosong -'; iq.value = it.iq || ''; 
+                
+                u1.value = it.u1 || ''; 
+                $('lbl-u1').innerText = it.u1 ? it.u1 : 'kosong'; 
+                $('lbl-u1').style.color = it.u1 ? '#ffffff' : '#a0a0a0';
+                
+                u2.value = it.u2 || ''; 
+                $('lbl-u2').innerText = it.u2 ? it.u2 : 'kosong'; 
+                $('lbl-u2').style.color = it.u2 ? '#ffffff' : '#a0a0a0';
+                
+                iq.value = it.iq || ''; 
             } else { 
                 $('m-tit').innerText = "Tambah Barang"; 
                 b.value = n.value = p1.value = p2.value = exp.dataset.rawDate = exp.value = t.value = u1.value = u2.value = iq.value = ''; 
-                $('lbl-u1').innerText = '- Kosong -'; $('lbl-u2').innerText = '- Kosong -';
+                $('lbl-u1').innerText = 'kosong'; $('lbl-u1').style.color = '#a0a0a0';
+                $('lbl-u2').innerText = 'kosong'; $('lbl-u2').style.color = '#a0a0a0';
             } 
             toggleIsiGrosir(); $('mod').style.display = 'flex'; document.body.classList.add('modal-open'); setTimeout(() => $('i-n').focus(), 100); 
         }
@@ -1301,7 +1354,9 @@
                 if (tab === 'fav') return i.f;
                 if (tab === 'exp') { 
                     if (!i.exp) return false; 
-                    const utcExp = new Date(i.exp).getTime(); 
+                    let expDate = new Date(i.exp);
+                    expDate = new Date(expDate.getFullYear(), expDate.getMonth() + 1, 0); 
+                    const utcExp = expDate.getTime(); 
                     return !isNaN(utcExp) && Math.floor((utcExp - today) / 86400000) <= 210; 
                 }
                 return true;
@@ -1375,8 +1430,13 @@
             for (let i = start; i < end; i++) {
                 const it = filteredData[i]; let diff = 999, expT = '';
                 if (it.exp) { 
-                    const utcExp = new Date(it.exp).getTime(); 
-                    if (!isNaN(utcExp)) { diff = Math.floor((utcExp - today) / 86400000); expT = formatBulanTahun(it.exp); } 
+                    let expDate = new Date(it.exp);
+                    expDate = new Date(expDate.getFullYear(), expDate.getMonth() + 1, 0);
+                    const utcExp = expDate.getTime(); 
+                    if (!isNaN(utcExp)) { 
+                        diff = Math.floor((utcExp - today) / 86400000); 
+                        expT = formatBulanTahun(it.exp); 
+                    } 
                 }
                 
                 const safeName = escapeHTML(it.n);
@@ -1472,7 +1532,6 @@
                 
                 if (!nRaw.trim() || p1 === 0) { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; return showAlert("Data tidak valid!", "Gagal"); }
                 
-                // AUDIT PENCEGAHAN BUG: Wajibkan iq > 1 jika Grosir diisi!
                 if (p2 > 0 && iq < 2) { 
                     isSaving = false; 
                     if(btnSave) btnSave.disabled = false; 
@@ -1539,6 +1598,12 @@
             const idx = db.findIndex(x => String(x.id) === String(id)); 
             if(idx !== -1) { 
                 db[idx].f = !db[idx].f; db[idx].updatedAt = Date.now(); await saveItemToIDB(db[idx]); 
+                
+                if (workerResult) {
+                    const wIdx = workerResult.findIndex(x => String(x.id) === String(id));
+                    if (wIdx > -1) workerResult[wIdx].f = db[idx].f;
+                }
+
                 if (btn) { 
                     btn.style.color = db[idx].f ? 'var(--mono-main)' : 'var(--text-muted)'; 
                     btn.innerHTML = `<svg pointer-events="none" viewBox="0 0 24 24" width="18" height="18" fill="${db[idx].f?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`; 
@@ -1696,7 +1761,7 @@
                 
                 tx.oncomplete = () => { 
                     localStorage.setItem('DB_LAST_SYNC', serverTime.toString());
-                    worker.postMessage({ type: 'init', db: db }); 
+                    worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
                     updateMaps(); clearSearch(); renderCartUI(); applyFiltersAndRender();
                     hideLoading(); 
                     tampilkanToast(forceSync ? "Berhasil memuat ulang semua data!" : `Berhasil update ${dataCloud.length} data!`, "var(--mono-main)"); 
@@ -1737,9 +1802,21 @@
                 
                 jD.forEach(ro => { 
                     const n = prop(ro["Nama Barang"] || ro["Nama"]); if(!n) return; 
+                    
+                    // VALIDASI 1: Cegah Barang dengan Harga Rp 0 Masuk (Bug Akuntansi)
+                    const p1Val = parseExcelPrice(ro["Eceran"]||ro["Harga Eceran"]);
+                    if (!p1Val || p1Val <= 0) return; 
+                    
                     let cT = ro["Singkatan"]; if (!cT) cT = generateSmartAcronym(n, null, tA); if (cT) tA.add(cT); 
                     const eI = ro["ID"] ? String(ro["ID"]).trim() : null;
                     const sB = ro["Barcode"] ? String(ro["Barcode"]).trim().toUpperCase() : '';
+                    
+                    // VALIDASI 2: Cegah Tabrakan Barcode (Barcode Collision)
+                    if (sB !== '') {
+                        const collision = db.find(x => !x.deleted && String(x.b) === sB && String(x.id) !== String(eI));
+                        if (collision) return; 
+                    }
+                    
                     const iF = ro["Favorit"] === "Ya" || ro["Favorit"] === "TRUE";
                     const eD = parseBulanTahunExcel(ro["Expired"]); 
                     let u1 = ro["Satuan Ecer"] || ro["Satuan"] || ""; 
@@ -1748,10 +1825,10 @@
                     let eIdx = db.findIndex(x => (eI && String(x.id) === String(eI)) || (x.n.toLowerCase() === n.toLowerCase())); 
                     
                     if (eIdx > -1) { 
-                        db[eIdx] = { ...db[eIdx], b: sB, p1: parseExcelPrice(ro["Eceran"]||ro["Harga Eceran"]), p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; 
+                        db[eIdx] = { ...db[eIdx], b: sB, p1: p1Val, p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; 
                         s.put(db[eIdx]); 
                     } else { 
-                        const nI = { id: eI || generateUniqueId(), b: sB, n: n, p1: parseExcelPrice(ro["Eceran"]||ro["Harga Eceran"]), p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; 
+                        const nI = { id: eI || generateUniqueId(), b: sB, n: n, p1: p1Val, p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; 
                         db.push(nI); s.put(nI); 
                     } 
                 }); 
