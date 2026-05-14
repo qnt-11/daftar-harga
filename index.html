@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <meta name="color-scheme" content="dark">
     <meta name="theme-color" content="#000000">
+    
     <title>DAFTAR HARGA</title>
     <link rel="manifest" href="manifest.json">
     
@@ -32,20 +35,11 @@
             overscroll-behavior: none; 
             background-color: #000000;
         }
-        /* Penambal mutlak untuk menutupi celah kebocoran Sub-Pixel (Garis Chrome/Xiaomi) di atap layar */
-        html::before {
-            content: "";
-            position: fixed;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            height: 10px;
-            background-color: #000000 !important;
-            z-index: 2147483647 !important;
-            pointer-events: none;
-        }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-        body { margin: 0; background: var(--wa-bg); color: var(--text-light); font-family: 'Montserrat', sans-serif; font-weight: 500; overflow-x: hidden; width: 100%; position: relative; }
+        
+        /* Ditambahkan color-scheme: dark di body agar Chrome 100% yakin */
+        body { margin: 0; background: var(--wa-bg); color: var(--text-light); font-family: 'Montserrat', sans-serif; font-weight: 500; overflow-x: hidden; width: 100%; position: relative; color-scheme: dark; }
+        
         .hidden { display: none !important; }
         .audiowide-regular { font-family: "Audiowide", sans-serif !important; font-weight: 400 !important; }
         body.modal-open { overflow: hidden !important; touch-action: none; }
@@ -65,7 +59,7 @@
         #toast-notification   { z-index: 6000; }
 
         /* --- HEADER & TOMBOL --- */
-        .header { padding: calc(15px + env(safe-area-inset-top, 0px)) 20px 15px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--wa-header); box-shadow: 0 -2px 0 var(--wa-header), 0 5px 15px rgba(0, 0, 0, 0.5); margin-bottom: 15px; }
+        .header { padding: calc(15px + env(safe-area-inset-top, 0px)) 20px 15px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--wa-header); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); margin-bottom: 15px; }
 
         .header-left { display: flex; flex-direction: column; justify-content: center; }
         .header h1 { font-size: 18px; margin: 0; color: var(--text-light); }
@@ -88,7 +82,7 @@
         .glow-cloud { filter: drop-shadow(0 0 6px rgba(135, 206, 250, 0.8)); }
 
         /* --- SEARCH & TABS --- */
-        .sticky-roof-group { position: sticky; top: 0; display: flex; flex-direction: column; background: var(--wa-bg); box-shadow: 0 -2px 0 var(--wa-bg); }
+        .sticky-roof-group { position: sticky; top: 0; display: flex; flex-direction: column; background: var(--wa-bg); }
         .sticky-roof-group::after { content: ''; position: absolute; bottom: -15px; left: 0; right: 0; height: 15px; background: linear-gradient(to bottom, var(--wa-bg) 0%, transparent 100%); pointer-events: none; }
 
         #cart-panel-container { display: none; max-height: var(--cart-h); height: auto; flex-direction: column; transition: max-height 0.3s ease; }
