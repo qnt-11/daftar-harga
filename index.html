@@ -59,13 +59,13 @@
         body::before {
             content: "";
             position: fixed;
-            top: -2px; /* Ditarik sedikit melebihi batas layar atas */
+            top: -2px; 
             left: 0;
             right: 0;
-            height: 4px; /* Ketebalan lakban virtual */
+            height: 4px; 
             background-color: #000000;
-            z-index: 999999; /* Memaksa elemen ini berada paling atas dari segalanya */
-            pointer-events: none; /* Agar tidak mengganggu sentuhan pengguna */
+            z-index: 999999; 
+            pointer-events: none; 
         }
         
         .hidden { display: none !important; }
@@ -594,6 +594,7 @@
         };
 
         let isCartMode = false;
+        let isApiLoading = false; // [PERBAIKAN] Gembok untuk mencegah spam API
         let cartState = JSON.parse(localStorage.getItem('DB_WA_CART')) || {}; 
         
         for (let k in cartState) { 
@@ -606,7 +607,7 @@
             localStorage.setItem('DB_WA_CART', JSON.stringify(cartState)); 
         }
 
-        /* --- WAKELOCK (ANTI-SLEEP PRO) --- */
+        /* --- WAKELOCK & PENYELAMAT RAM KAMERA --- */
         let wakeLock = null;
         async function requestWakeLock() {
             try {
@@ -630,9 +631,12 @@
         document.addEventListener('click', enableWakeLock, { passive: true });
         document.addEventListener('touchstart', enableWakeLock, { passive: true });
         
+        // [PERBAIKAN] Menggabungkan WakeLock & Pembersihan Scanner (Kamera dimatikan bila app di minimize)
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
                 requestWakeLock();
+            } else if (document.visibilityState === 'hidden' && isScanning) {
+                closeScanner(); 
             }
         });
 
@@ -696,7 +700,7 @@
             return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2, 8); 
         }
         
-        const fetchWithTimeout = (url, options, timeout = 15000) => Promise.race([ 
+        const fetchWithTimeout = (url, options, timeout = 30000) => Promise.race([ 
             fetch(url, options), 
             new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), timeout)) 
         ]);
@@ -1201,19 +1205,51 @@
             } 
         }
 
+        // [PERBAIKAN] Array & Object dikosongkan dengan benar
         function optimizeData() { 
             $('dropdown-menu').classList.add('hidden'); 
             showConfirm("Bersihkan memori sampah?", "Optimasi Sistem", "#FFA500", () => { 
                 tampilkanToast("Mengoptimalkan...", "#FFA500"); 
-                recentSearches = TrendingSearches = {}; localStorage.removeItem('DB_WA_RECENT'); localStorage.removeItem('DB_WA_TRENDING'); 
-                const tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'); let c = 0; const aDb = []; db.forEach(i => { if (i.deleted) { s.delete(i.id); c++; } else aDb.push(i); }); 
-                tx.oncomplete = () => { db = aDb; worker.postMessage({ type: 'init', db: db }); updateMaps(); clearSearch(); setTimeout(() => showAlert(`BERHASIL!!!<br>Sampah: ${c} Data dibersihkan.`, "Sistem Bersih", "#FFA500"), 500); }; 
+                recentSearches = []; 
+                trendingSearches = {}; 
+                localStorage.removeItem('DB_WA_RECENT'); 
+                localStorage.removeItem('DB_WA_TRENDING'); 
+                
+                const tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'); let c = 0; const aDb = []; 
+                db.forEach(i => { if (i.deleted) { s.delete(i.id); c++; } else aDb.push(i); }); 
+                tx.oncomplete = () => { 
+                    db = aDb; worker.postMessage({ type: 'init', db: db }); 
+                    updateMaps(); clearSearch(); 
+                    setTimeout(() => showAlert(`BERHASIL!!!<br>Sampah: ${c} Data dibersihkan.`, "Sistem Bersih", "#FFA500"), 500); 
+                }; 
             }); 
         }
 
         function showLoading(msg, color="#87CEFA") { $('loading-text').innerHTML = msg; $('loading-spinner').style.borderTopColor = color; $('loading-title').style.color = $('loading-box').style.borderColor = color; $('loading-modal').style.display = 'flex'; document.body.classList.add('modal-open'); }
         function hideLoading() { $('loading-modal').style.display = 'none'; checkModalOpen(); }
-        function backupToCloud() { if (db.length === 0) return; showConfirm("<b>Peringatan Keamanan!</b>\n\nTindakan ini akan mengunggah dan MENIMPA seluruh data yang ada di Cloud dengan data dari HP Anda saat ini.\n\nLanjutkan?", "Informasi", "#87CEFA", () => { showLoading("Mengunggah data ke Cloud...<br>Mohon tunggu sebentar.", "#87CEFA"); fetchWithTimeout(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backup', data: db }) }, 15000) .then(() => { hideLoading(); tampilkanToast("Berhasil Upload!", "var(--mono-main)"); }) .catch(() => { hideLoading(); showAlert("Koneksi Gagal / Timeout. Silakan coba lagi.", "Error"); }); }, "LANJUTKAN"); }
+        
+        // [PERBAIKAN] Timeout ke 30000ms & Gembok (isApiLoading)
+        function backupToCloud() { 
+            if (db.length === 0) return; 
+            if (isApiLoading) return;
+
+            showConfirm("<b>Peringatan Keamanan!</b>\n\nTindakan ini akan mengunggah dan MENIMPA seluruh data yang ada di Cloud dengan data dari HP Anda saat ini.\n\nLanjutkan?", "Informasi", "#87CEFA", () => { 
+                isApiLoading = true;
+                showLoading("Mengunggah data ke Cloud...<br>Mohon tunggu sebentar.", "#87CEFA"); 
+                fetchWithTimeout(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backup', data: db }) }, 30000) 
+                .then(() => { 
+                    isApiLoading = false;
+                    hideLoading(); 
+                    tampilkanToast("Berhasil Upload!", "var(--mono-main)"); 
+                }) 
+                .catch(() => { 
+                    isApiLoading = false;
+                    hideLoading(); 
+                    showAlert("Koneksi lambat atau Gagal / Timeout. Silakan coba lagi.", "Error"); 
+                }); 
+            }, "LANJUTKAN"); 
+        }
+
         function openSyncModal() { $('dropdown-menu').classList.add('hidden'); $('sync-type').value = ''; $('sync-selected-text').innerText = '-- Pilih Mode --'; $('sync-selected-text').style.color = '#888'; $('sync-custom-options').classList.add('hidden'); handleSyncChange(); $('sync-modal').style.display = 'flex'; document.body.classList.add('modal-open'); }
         function closeSyncModal() { $('sync-modal').style.display = 'none'; checkModalOpen(); }
         function toggleSyncDropdown(e) { e.stopPropagation(); $('sync-custom-options').classList.toggle('hidden'); }
@@ -1221,13 +1257,85 @@
         function handleSyncChange() { const val = $('sync-type').value, warningArea = $('sync-warning-area'), modalBox = $('sync-modal-box'), title = $('sync-modal-title'), btnDownload = $('btn-sync-download'); if (val === 'force') { warningArea.innerHTML = "<span style='color: var(--danger); font-weight: 800;'>⚠️ PERINGATAN</span><br><span style='color: #ccc;'>Data yang belum di-Upload akan HILANG!</span>"; modalBox.style.borderColor = title.style.color = btnDownload.style.borderColor = btnDownload.style.color = "var(--danger)"; } else if (val === 'delta') { warningArea.innerHTML = "<span style='color: #87CEFA;'>💯 Aman</span><br><span style='color: #ccc;'>Load data baru tanpa menghapus data.</span>"; modalBox.style.borderColor = title.style.color = btnDownload.style.borderColor = btnDownload.style.color = "#87CEFA"; } else { warningArea.innerHTML = ""; modalBox.style.borderColor = "var(--border-color)"; title.style.color = "#87CEFA"; btnDownload.style.borderColor = "var(--border-color)"; btnDownload.style.color = "var(--text-muted)"; } }
         function executeSyncBtn() { const val = $('sync-type').value; if (!val) { tampilkanToast("Silakan pilih mode sinkronisasi dulu!", "var(--warning)"); return; } closeSyncModal(); loadFromCloud(val === 'force'); }
 
+        // [PERBAIKAN] Timeout ke 30000ms & Gembok (isApiLoading)
         function loadFromCloud(forceSync = false) { 
-            showLoading("Memuat data dari Cloud...<br>Mohon tunggu sebentar.", "#87CEFA"); const lastSyncTime = forceSync ? 0 : (parseInt(localStorage.getItem('DB_LAST_SYNC')) || 0); fetchWithTimeout(CLOUD_URL + "?action=load&lastSync=" + lastSyncTime + "&t=" + Date.now(), {}, 15000) .then(r => r.json()) .then(dataResponse => { const dataCloud = dataResponse.data || [], serverTime = dataResponse.serverTime || Date.now(); if (dataCloud.length === 0 && !forceSync) { hideLoading(); tampilkanToast("Data di HP sudah yang paling baru!", "var(--mono-main)"); localStorage.setItem('DB_LAST_SYNC', serverTime.toString()); return; } const tx = idb.transaction('items', 'readwrite'), store = tx.objectStore('items'); if (forceSync) { store.clear(); db = []; } dataCloud.forEach(itemCloud => { const localIndex = db.findIndex(l => String(l.id) === String(itemCloud.id)); if (localIndex > -1) { if ((itemCloud.updatedAt || 0) >= (db[localIndex].updatedAt || 0)) { if (itemCloud.deleted) { store.delete(itemCloud.id); db.splice(localIndex, 1); } else { db[localIndex] = itemCloud; store.put(itemCloud); } } } else if (!itemCloud.deleted) { db.push(itemCloud); store.put(itemCloud); } }); tx.oncomplete = () => { localStorage.setItem('DB_LAST_SYNC', serverTime.toString()); worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); updateMaps(); clearSearch(); renderCartUI(); applyFiltersAndRender(); hideLoading(); tampilkanToast(forceSync ? "Berhasil memuat ulang semua data!" : `Berhasil update ${dataCloud.length} data!`, "var(--mono-main)"); }; tx.onerror = () => { hideLoading(); showAlert("Gagal menyimpan ke memori HP. Silakan coba lagi.", "Error"); } }) .catch(() => { hideLoading(); showAlert("Koneksi Gagal / Server Sibuk. Pastikan internet menyala.", "Error"); }); 
+            if (isApiLoading) return;
+            isApiLoading = true;
+
+            showLoading("Memuat data dari Cloud...<br>Mohon tunggu sebentar.", "#87CEFA"); 
+            const lastSyncTime = forceSync ? 0 : (parseInt(localStorage.getItem('DB_LAST_SYNC')) || 0); 
+            fetchWithTimeout(CLOUD_URL + "?action=load&lastSync=" + lastSyncTime + "&t=" + Date.now(), {}, 30000) 
+            .then(r => r.json()) 
+            .then(dataResponse => { 
+                const dataCloud = dataResponse.data || [], serverTime = dataResponse.serverTime || Date.now(); 
+                if (dataCloud.length === 0 && !forceSync) { 
+                    isApiLoading = false; hideLoading(); 
+                    tampilkanToast("Data di HP sudah yang paling baru!", "var(--mono-main)"); 
+                    localStorage.setItem('DB_LAST_SYNC', serverTime.toString()); 
+                    return; 
+                } 
+                const tx = idb.transaction('items', 'readwrite'), store = tx.objectStore('items'); 
+                if (forceSync) { store.clear(); db = []; } 
+                dataCloud.forEach(itemCloud => { 
+                    const localIndex = db.findIndex(l => String(l.id) === String(itemCloud.id)); 
+                    if (localIndex > -1) { 
+                        if ((itemCloud.updatedAt || 0) >= (db[localIndex].updatedAt || 0)) { 
+                            if (itemCloud.deleted) { store.delete(itemCloud.id); db.splice(localIndex, 1); } 
+                            else { db[localIndex] = itemCloud; store.put(itemCloud); } 
+                        } 
+                    } else if (!itemCloud.deleted) { db.push(itemCloud); store.put(itemCloud); } 
+                }); 
+                tx.oncomplete = () => { 
+                    localStorage.setItem('DB_LAST_SYNC', serverTime.toString()); 
+                    worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
+                    updateMaps(); clearSearch(); renderCartUI(); applyFiltersAndRender(); 
+                    isApiLoading = false; hideLoading(); 
+                    tampilkanToast(forceSync ? "Berhasil memuat ulang semua data!" : `Berhasil update ${dataCloud.length} data!`, "var(--mono-main)"); 
+                }; 
+                tx.onerror = () => { isApiLoading = false; hideLoading(); showAlert("Gagal menyimpan ke memori HP. Silakan coba lagi.", "Error"); } 
+            }) 
+            .catch(() => { 
+                isApiLoading = false; hideLoading(); 
+                showAlert("Koneksi Gagal / Server Sibuk. Pastikan internet menyala.", "Error"); 
+            }); 
         }
         
         function exportData() { const data = db.filter(i => !i.deleted).map(i => ({ "ID": i.id, "Barcode": i.b, "Nama Barang": i.n, "Harga Eceran": i.p1, "Satuan Ecer": i.u1 || "", "Harga Grosir": i.p2, "Satuan Grosir": i.u2 || "", "Isi Grosir": i.iq || "", "Singkatan": i.t, "Favorit": i.f ? "Ya" : "Tidak", "Expired": i.exp || "" })); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Data"); XLSX.writeFile(wb, "Data_Harga.xlsx"); }
+        
+        // [PERBAIKAN] Mengizinkan harga 0 (barang gratis/bonus)
         function importData(e) { 
-            const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = (ev) => { const w = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'}), jD = XLSX.utils.sheet_to_json(w.Sheets[w.SheetNames[0]], { raw: false, defval: "" }), tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'), tA = new Set(), ts = Date.now(); jD.forEach(ro => { const n = prop(ro["Nama Barang"] || ro["Nama"]); if(!n) return; const p1Val = parseExcelPrice(ro["Eceran"]||ro["Harga Eceran"]); if (!p1Val || p1Val <= 0) return; let cT = ro["Singkatan"]; if (!cT) cT = generateSmartAcronym(n, null, tA); if (cT) tA.add(cT); const eI = ro["ID"] ? String(ro["ID"]).trim() : null, sB = ro["Barcode"] ? String(ro["Barcode"]).trim().toUpperCase() : ''; if (sB !== '') { const collision = db.find(x => !x.deleted && String(x.b) === sB && String(x.id) !== String(eI)); if (collision) return; } const iF = ro["Favorit"] === "Ya" || ro["Favorit"] === "TRUE", eD = parseBulanTahunExcel(ro["Expired"]); let u1 = ro["Satuan Ecer"] || ro["Satuan"] || "", u2 = ro["Satuan Grosir"] || ro["Grosir"] || "", iq = parseInt(ro["Isi Grosir"]) || 0, eIdx = db.findIndex(x => (eI && String(x.id) === String(eI)) || (x.n.toLowerCase() === n.toLowerCase())); if (eIdx > -1) { db[eIdx] = { ...db[eIdx], b: sB, p1: p1Val, p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; s.put(db[eIdx]); } else { const nI = { id: eI || generateUniqueId(), b: sB, n: n, p1: p1Val, p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; db.push(nI); s.put(nI); } }); tx.oncomplete = () => { worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); updateMaps(); clearSearch(); renderCartUI(); tampilkanToast("Import Selesai!"); }; }; r.readAsArrayBuffer(f); 
+            const f = e.target.files[0]; if(!f) return; const r = new FileReader(); 
+            r.onload = (ev) => { 
+                const w = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'}), 
+                jD = XLSX.utils.sheet_to_json(w.Sheets[w.SheetNames[0]], { raw: false, defval: "" }), 
+                tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'), tA = new Set(), ts = Date.now(); 
+                
+                jD.forEach(ro => { 
+                    const n = prop(ro["Nama Barang"] || ro["Nama"]); if(!n) return; 
+                    const p1Val = parseExcelPrice(ro["Eceran"]||ro["Harga Eceran"]); 
+                    
+                    if (p1Val === null || p1Val === undefined || isNaN(p1Val)) return; 
+                    
+                    let cT = ro["Singkatan"]; if (!cT) cT = generateSmartAcronym(n, null, tA); if (cT) tA.add(cT); 
+                    const eI = ro["ID"] ? String(ro["ID"]).trim() : null, sB = ro["Barcode"] ? String(ro["Barcode"]).trim().toUpperCase() : ''; 
+                    if (sB !== '') { const collision = db.find(x => !x.deleted && String(x.b) === sB && String(x.id) !== String(eI)); if (collision) return; } 
+                    const iF = ro["Favorit"] === "Ya" || ro["Favorit"] === "TRUE", eD = parseBulanTahunExcel(ro["Expired"]); 
+                    let u1 = ro["Satuan Ecer"] || ro["Satuan"] || "", u2 = ro["Satuan Grosir"] || ro["Grosir"] || "", iq = parseInt(ro["Isi Grosir"]) || 0, eIdx = db.findIndex(x => (eI && String(x.id) === String(eI)) || (x.n.toLowerCase() === n.toLowerCase())); 
+                    
+                    if (eIdx > -1) { 
+                        db[eIdx] = { ...db[eIdx], b: sB, p1: p1Val, p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; 
+                        s.put(db[eIdx]); 
+                    } else { 
+                        const nI = { id: eI || generateUniqueId(), b: sB, n: n, p1: p1Val, p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; 
+                        db.push(nI); s.put(nI); 
+                    } 
+                }); 
+                tx.oncomplete = () => { 
+                    worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
+                    updateMaps(); clearSearch(); renderCartUI(); tampilkanToast("Import Selesai!"); 
+                }; 
+            }; 
+            r.readAsArrayBuffer(f); 
         }
         
         let torchState = false; 
