@@ -53,27 +53,17 @@
         #toast-notification   { z-index: 6000; }
 
         /* --- HEADER & TOMBOL --- */
-        .header { 
-            padding: calc(15px + env(safe-area-inset-top, 0px)) 20px 15px 20px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            position: relative; 
-            background: var(--wa-header); 
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); 
-            margin-bottom: 15px; 
-        }
-
-        /* --- MENUTUP GARIS SISTEM WEBVIEW --- */
-        .header::before {
+        .header { padding: calc(15px + env(safe-area-inset-top, 0px)) 20px 15px 20px; display: flex; justify-content: space-between; align-items: center; position: relative; background: var(--wa-header); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); margin-bottom: 15px; } /* <-- Perubahan penting: position: relative */
+        /* KODE BARU UNTUK MENUTUP GARIS BATAS SISTEM WEBVIEW */
+        .header::after {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 1px;
-            background-color: #000000;
-            z-index: 1001;
+            height: 1px; /* Ketebalan garis penutup */
+            background-color: #000000; /* Warna hitam pekat untuk menimpa garis sistem */
+            z-index: 1001; /* Pastikan di atas konten header, di bawah status bar sistem */
         }
 
         .header-left { display: flex; flex-direction: column; justify-content: center; }
