@@ -15,7 +15,6 @@
         :root {
             --wa-bg: #000000; 
             --wa-card: #151515; 
-            /* FIXED: Warna Header diubah menjadi Pure Black untuk hilangkan garis batas sistem */
             --wa-header: #000000; 
             --text-light: #ffffff;
             --text-muted: #a0a0a0; 
@@ -31,7 +30,7 @@
         /* --- PENGATURAN DASAR --- */
         html { 
             overscroll-behavior: none; 
-            background-color: #000000; /* Menutup kebocoran garis warna di bawah status bar */
+            background-color: #000000;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         body { margin: 0; background: var(--wa-bg); color: var(--text-light); font-family: 'Montserrat', sans-serif; font-weight: 500; overflow-x: hidden; width: 100%; position: relative; }
@@ -54,8 +53,7 @@
         #toast-notification   { z-index: 6000; }
 
         /* --- HEADER & TOMBOL --- */
-        /* CLEANED: Menghapus position: relative dan pseudoelement ::after karena header sudah pure black */
-        .header { padding: calc(15px + env(safe-area-inset-top, 0px)) 20px 15px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--wa-header); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); margin-bottom: 15px; }
+        .header { padding: calc(15px + env(safe-area-inset-top, 0px)) 20px 15px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--wa-header); box-shadow: 0 -2px 0 var(--wa-header), 0 5px 15px rgba(0, 0, 0, 0.5); margin-bottom: 15px; }
 
         .header-left { display: flex; flex-direction: column; justify-content: center; }
         .header h1 { font-size: 18px; margin: 0; color: var(--text-light); }
@@ -78,7 +76,7 @@
         .glow-cloud { filter: drop-shadow(0 0 6px rgba(135, 206, 250, 0.8)); }
 
         /* --- SEARCH & TABS --- */
-        .sticky-roof-group { position: sticky; top: 0; display: flex; flex-direction: column; background: var(--wa-bg); }
+        .sticky-roof-group { position: sticky; top: 0; display: flex; flex-direction: column; background: var(--wa-bg); box-shadow: 0 -2px 0 var(--wa-bg); }
         .sticky-roof-group::after { content: ''; position: absolute; bottom: -15px; left: 0; right: 0; height: 15px; background: linear-gradient(to bottom, var(--wa-bg) 0%, transparent 100%); pointer-events: none; }
 
         #cart-panel-container { display: none; max-height: var(--cart-h); height: auto; flex-direction: column; transition: max-height 0.3s ease; }
@@ -247,11 +245,12 @@
         body.mode-kasir #cart-panel-container { display: flex; }
         body.mode-kasir #s-btn-search { display: flex; }
         body.mode-kasir.search-focus { --cart-h: 15vh; }
+        body.mode-kasir .sticky-roof-group { padding-top: env(safe-area-inset-top, 0px); }
     </style>
 </head>
 <body>
 
-    <video id="wakelock-video" loop muted playsinline style="width:1px;height:1px;position:absolute;opacity:0.01;pointer-events:none;z-index:-1;">
+    <video id="wakelock-video" loop muted playsinline style="width:1px;height:1px;position:absolute;top:-100px;left:-100px;opacity:0.01;pointer-events:none;z-index:-1;">
         <source src="data:video/webm;base64,GkXfo59ChoEBQveBAULygQRC84EIQoKEd2VibUKHgQJChYECGFOAZwEAAAAAAAAR/7GBA0JngQCgQIaBAH/gQACiQISRA0SrgQBdqgEDQpqBAl2qAQA+AAAAAABO/7CDA0JngQCgQIeBAn/gQACiQIWRA0SrgQCdxAEPQp2BAl2qAQA+AAAAAABO/7CBA0JngQCgQIaBAH/gQACiQISRA0SrgQBdqgEDQpqBAl2qAQA+AAAAAABO/7CDA0JngQCgQIeBAn/gQACiQIWRA0SrgQCdxAEPQp2BAl2qAQA+AAAAAABO/7A=" type="video/webm">
     </video>
 
