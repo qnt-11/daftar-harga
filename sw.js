@@ -2,13 +2,14 @@
  * SERVICE WORKER DAFTAR HARGA - BULLETPROOF ENTERPRISE GRADE
  */
 
-const APP_VERSION = '7.0'; 
+const APP_VERSION = '8.0'; 
 const CACHE_CORE = 'core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
 const CACHE_CDN = 'cdn-v1'; 
 
 const MAX_DYNAMIC_ITEMS = 50; 
 const MAX_CDN_ITEMS = 20;
+const NETWORK_TIMEOUT = 8000; 
 
 const coreUrls = [
   '/', 
@@ -89,9 +90,8 @@ self.addEventListener('fetch', event => {
   // STRATEGI 1: NETWORK FIRST (Proteksi Anti-Racun Cache)
   if (req.mode === 'navigate' || url.pathname === '/' || url.pathname.includes('index.html')) {
     event.respondWith(
-      fetchWithTimeout(req, 5000)
+      fetchWithTimeout(req, NETWORK_TIMEOUT)
         .then(res => {
-          // ANTI BUG 1: Jika server down (500 Error), jangan simpan ke cache! Buang!
           if (!res.ok) throw new Error('Server Error - Tidak Valid');
           
           const resClone = res.clone();
@@ -99,15 +99,9 @@ self.addEventListener('fetch', event => {
           return res;
         })
         .catch(async () => {
-          // MODE OFFLINE / SERVER DOWN
           const cache = await caches.open(CACHE_CORE);
-          const cachedRes = await cache.match(req, { ignoreSearch: true }) || 
-                            await cache.match('/index.html', { ignoreSearch: true }) || 
-                            await cache.match('/', { ignoreSearch: true });
-          
-          if (cachedRes) return cachedRes;
-          
           const offlineFile = await cache.match('/offline.html', { ignoreSearch: true });
+          
           if (offlineFile) return offlineFile;
           
           return new Response(
@@ -143,13 +137,12 @@ self.addEventListener('fetch', event => {
 
   // STRATEGI 3: STALE-WHILE-REVALIDATE (Aset Dinamis)
   event.respondWith(
-    caches.match(req).then(cachedRes => {
+    caches.match(req, { ignoreSearch: true }).then(cachedRes => {
       const fetchPromise = fetch(req).then(res => {
         if (res.ok) {
           const resClone = res.clone();
           event.waitUntil(
             caches.open(CACHE_DYNAMIC).then(async cache => {
-              // ANTI BUG 2: Membersihkan parameter URL agar cache tidak bengkak
               const cleanUrl = req.url.split('?')[0]; 
               await cache.put(cleanUrl, resClone); 
               await trimCache(CACHE_DYNAMIC, MAX_DYNAMIC_ITEMS); 
