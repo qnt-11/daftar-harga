@@ -37,8 +37,18 @@
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         
-        /* Ditambahkan color-scheme: dark di body agar Chrome 100% yakin */
-        body { margin: 0; background: var(--wa-bg); color: var(--text-light); font-family: 'Montserrat', sans-serif; font-weight: 500; overflow-x: hidden; width: 100%; position: relative; color-scheme: dark; }
+        body { 
+            margin: 0; 
+            background: var(--wa-bg); 
+            color: var(--text-light); 
+            font-family: 'Montserrat', sans-serif; 
+            font-weight: 500; 
+            overflow-x: hidden; 
+            width: 100%; 
+            min-height: 100vh;
+            position: relative; 
+            color-scheme: dark; 
+        }
         
         .hidden { display: none !important; }
         .audiowide-regular { font-family: "Audiowide", sans-serif !important; font-weight: 400 !important; }
@@ -59,7 +69,14 @@
         #toast-notification   { z-index: 6000; }
 
         /* --- HEADER & TOMBOL --- */
-        .header { padding: calc(15px + env(safe-area-inset-top, 0px)) 20px 15px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--wa-header); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); margin-bottom: 15px; }
+        .header { 
+            margin-top: -1px; 
+            padding: calc(16px + env(safe-area-inset-top, 0px)) 20px 15px 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: var(--wa-header); 
+            box-shadow: 0 -2px 0 var(--wa-header), 0 5px 15px rgba(0, 0, 0, 0.5); 
+            margin-bottom: 15px; 
+        }
 
         .header-left { display: flex; flex-direction: column; justify-content: center; }
         .header h1 { font-size: 18px; margin: 0; color: var(--text-light); }
@@ -251,7 +268,13 @@
         body.mode-kasir #cart-panel-container { display: flex; }
         body.mode-kasir #s-btn-search { display: flex; }
         body.mode-kasir.search-focus { --cart-h: 15vh; }
-        body.mode-kasir .sticky-roof-group { padding-top: env(safe-area-inset-top, 0px); }
+        
+        /* --- Menerapkan margin negatif & penambal bayangan di layar Total Belanja --- */
+        body.mode-kasir .sticky-roof-group { 
+            margin-top: -1px; 
+            padding-top: calc(1px + env(safe-area-inset-top, 0px)); 
+            box-shadow: 0 -2px 0 var(--wa-bg); 
+        }
     </style>
 </head>
 <body>
