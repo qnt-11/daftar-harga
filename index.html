@@ -53,7 +53,29 @@
         #toast-notification   { z-index: 6000; }
 
         /* --- HEADER & TOMBOL --- */
-        .header { padding: calc(15px + env(safe-area-inset-top, 0px)) 20px 15px 20px; display: flex; justify-content: space-between; align-items: center; position: relative; background: var(--wa-header); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); margin-bottom: 15px; border-top: 1px solid #000000; }
+        .header { 
+            padding: calc(15px + env(safe-area-inset-top, 0px)) 20px 15px 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            position: relative; 
+            background: var(--wa-header); 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); 
+            margin-bottom: 15px; 
+        }
+
+        /* --- MENUTUP GARIS SISTEM WEBVIEW --- */
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: #000000;
+            z-index: 1001;
+        }
+
         .header-left { display: flex; flex-direction: column; justify-content: center; }
         .header h1 { font-size: 18px; margin: 0; color: var(--text-light); }
         .header-date-location { font-size: 10px; color: var(--text-muted); margin-top: 2px; font-weight: 600; letter-spacing: 0.5px; }
