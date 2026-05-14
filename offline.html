@@ -72,7 +72,7 @@
 
     <div class="status-card">
         <h2 id="status-title">⚠️ Sedang Offline</h2>
-        <p id="status-desc">Koneksi terputus. Gunakan kalkulator & buku catatan darurat di bawah. Sistem akan otomatis memuat ulang saat sinyal kembali.</p>
+        <p id="status-desc">Koneksi terputus. Gunakan kalkulator & buku catatan darurat di bawah. Sistem otomatis memuat ulang saat sinyal kembali.</p>
         <button id="retry-btn" class="reload-btn" onclick="triggerReload('Mencoba...')">Coba Muat Ulang</button>
     </div>
 
@@ -105,7 +105,7 @@
             <button class="calc-btn op" onclick="calcCalculate()" style="grid-row: span 2; background-color: #3CB371; border-color: #2e8b57;">=</button>
             
             <button class="calc-btn" onclick="calcNum('0')" style="grid-column: span 2;">0</button>
-            <button class="calc-btn" onclick="calcNum('.')">.</button>
+            <button class="calc-btn" onclick="calcNum('.')">,</button>
         </div>
     </div>
 
@@ -129,14 +129,19 @@
             triggerReload("Memuat Ulang...");
         });
 
-        /* --- BUKU CATATAN (LEDGER) --- */
+        /* --- BUKU CATATAN (LEDGER) DENGAN DEBOUNCE --- */
         const ledger = document.getElementById('offline-ledger');
         window.onload = () => {
             const savedText = localStorage.getItem('DB_WA_OFFLINE_LEDGER');
             if (savedText) ledger.value = savedText;
         };
+        
+        let saveTimeout;
         function saveLedger() {
-            localStorage.setItem('DB_WA_OFFLINE_LEDGER', ledger.value);
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                localStorage.setItem('DB_WA_OFFLINE_LEDGER', ledger.value);
+            }, 500); 
         }
 
         /* --- KALKULATOR DARURAT (100% BULLETPROOF) --- */
@@ -144,23 +149,24 @@
         let calcVal = '0';
 
         function updateDisplay() {
-            // Tampilkan titik ribuan hanya untuk mempermudah bacaan manusia
             let parts = calcVal.split(/([\+\-\*\/])/);
             let displayStr = parts.map(p => {
                 if (p.match(/[\+\-\*\/]/)) return p;
+                if (p.includes('e')) return p; 
+                
                 let numParts = p.split('.');
-                numParts[0] = numParts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-                return numParts.join('.');
+                numParts[0] = numParts[0].replace(/\B(?=(\d{3})+(?!\d))/g, "."); 
+                return numParts.join(','); 
             }).join('');
+            
             display.innerText = displayStr.replace(/\*/g, '×').replace(/\//g, '÷');
         }
 
         function calcNum(n) {
-            // ANTI BUG 3: Pencegahan mengetik ganda desimal (contoh: 5.5.5)
             if (n === '.') {
                 const parts = calcVal.split(/[\+\-\*\/]/);
                 const currentSegment = parts[parts.length - 1];
-                if (currentSegment.includes('.')) return; // Blokir jika sudah ada titik
+                if (currentSegment.includes('.')) return; 
             }
             if (calcVal === '0' && n !== '.') calcVal = n;
             else calcVal += n;
@@ -168,7 +174,6 @@
         }
 
         function calcOp(op) {
-            // Cek jika karakter terakhir sudah operator, maka timpa dengan operator baru
             if (calcVal.match(/[\+\-\*\/]$/)) {
                 calcVal = calcVal.slice(0, -1) + op;
             } else {
@@ -193,15 +198,17 @@
         function calcCalculate() {
             try {
                 let safeVal = calcVal;
-                // ANTI BUG 3: Jika ada operator nggantung di akhir (misal: "5+"), buang sebelum dihitung
                 if (safeVal.match(/[\+\-\*\/]$/)) {
                     safeVal = safeVal.slice(0, -1);
                 }
                 
                 let result = new Function('return ' + safeVal)();
                 
-                // Cegah hasil Infinity (misal dibagi 0) atau NaN
                 if (!isFinite(result) || isNaN(result)) result = 0; 
+                
+                if (result % 1 !== 0) {
+                    result = parseFloat(result.toFixed(4)); 
+                }
                 
                 calcVal = String(result);
                 updateDisplay();
