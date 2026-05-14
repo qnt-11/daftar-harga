@@ -28,7 +28,10 @@
         }
 
         /* --- PENGATURAN DASAR --- */
-        html { overscroll-behavior: none; }
+        html { 
+        overscroll-behavior: none; 
+        background-color: #000000; /* Menutup kebocoran garis warna di bawah status bar */
+       }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         body { margin: 0; background: var(--wa-bg); color: var(--text-light); font-family: 'Montserrat', sans-serif; font-weight: 500; overflow-x: hidden; width: 100%; position: relative; }
         .hidden { display: none !important; }
