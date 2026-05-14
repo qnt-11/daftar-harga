@@ -5,7 +5,7 @@
   "description": "Aplikasi pencatatan daftar harga eceran dan grosir",
   "start_url": "./index.html",
   "scope": "./",
-  "display": "fullscreen",
+  "display": "standalone",
   "display_override": [
     "fullscreen",
     "window-controls-overlay",
