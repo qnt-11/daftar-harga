@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
+    <!-- Wajib untuk memaksa Fullscreen di berbagai OS -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <meta name="color-scheme" content="dark">
     <meta name="theme-color" content="#000000">
     
@@ -49,6 +54,19 @@
             position: relative; 
             color-scheme: dark; 
         }
+
+        /* // SOLUSI EKSTREM: Lakban Fisik penutup celah garis OS Android // */
+        body::before {
+            content: "";
+            position: fixed;
+            top: -2px; /* Ditarik sedikit melebihi batas layar atas */
+            left: 0;
+            right: 0;
+            height: 4px; /* Ketebalan lakban virtual */
+            background-color: #000000;
+            z-index: 999999; /* Memaksa elemen ini berada paling atas dari segalanya */
+            pointer-events: none; /* Agar tidak mengganggu sentuhan pengguna */
+        }
         
         .hidden { display: none !important; }
         .audiowide-regular { font-family: "Audiowide", sans-serif !important; font-weight: 400 !important; }
@@ -70,11 +88,10 @@
 
         /* --- HEADER & TOMBOL --- */
         .header { 
-            margin-top: -1px; 
-            padding: calc(16px + env(safe-area-inset-top, 0px)) 20px 15px 20px; 
+            padding: calc(15px + env(safe-area-inset-top, 0px)) 20px 15px 20px; 
             display: flex; justify-content: space-between; align-items: center; 
             background: var(--wa-header); 
-            box-shadow: 0 -2px 0 var(--wa-header), 0 5px 15px rgba(0, 0, 0, 0.5); 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); 
             margin-bottom: 15px; 
         }
 
@@ -269,11 +286,9 @@
         body.mode-kasir #s-btn-search { display: flex; }
         body.mode-kasir.search-focus { --cart-h: 15vh; }
         
-        /* --- Menerapkan margin negatif & penambal bayangan di layar Total Belanja --- */
+        /* Mengembalikan mode kasir ke aslinya */
         body.mode-kasir .sticky-roof-group { 
-            margin-top: -1px; 
-            padding-top: calc(1px + env(safe-area-inset-top, 0px)); 
-            box-shadow: 0 -2px 0 var(--wa-bg); 
+            padding-top: env(safe-area-inset-top, 0px); 
         }
     </style>
 </head>
