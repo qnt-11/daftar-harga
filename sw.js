@@ -1,4 +1,4 @@
-const APP_VERSION = '9.3'; // Naikkan versi ini jika ada update aplikasi
+const APP_VERSION = '9.4'; 
 const CACHE_CORE = 'core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
 const CACHE_CDN = 'cdn-v1'; 
@@ -35,14 +35,13 @@ async function trimCache(cacheName, maxItems) {
   } 
 }
 
-// Fitur 3: Pembersihan Otomatis (Storage Manager)
+// Fitur Pembersihan Memori HP Otomatis
 async function manageStorage() {
   if (navigator.storage && navigator.storage.estimate) {
     const quota = await navigator.storage.estimate();
-    // Jika penggunaan lebih dari 80%, potong cache dinamis lebih agresif
     if (quota.usage / quota.quota > 0.8) {
-      console.log('[SW] Memori hampir penuh, melakukan pembersihan ekstra...');
-      await trimCache(CACHE_DYNAMIC, 20); // Sisakan hanya 20 item terbaru
+      console.log('[SW] Memori penuh, melakukan pembersihan ekstra...');
+      await trimCache(CACHE_DYNAMIC, 20); 
     }
   }
 }
@@ -63,12 +62,18 @@ function fetchWithTimeout(request, timeout = 5000) {
 }
 
 self.addEventListener('install', event => {
-  // Fitur 1: self.skipWaiting() DIHAPUS agar update terjadi diam-diam di background
+  self.skipWaiting(); // Wajib agar tombol "Refresh" di index.html berfungsi
   event.waitUntil(
     caches.open(CACHE_CORE).then(cache => {
-      return cache.addAll(coreUrls).catch(err => {
-        console.error('[SW] Gagal caching pondasi awal. Menunggu koneksi stabil...', err);
-      });
+      // Instalasi kebal error: Jika 1 file hilang (misal beep.mp3), aplikasi tetap bisa diinstal
+      return Promise.allSettled(
+        coreUrls.map(url => {
+          return fetch(url).then(res => {
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            return cache.put(url, res);
+          }).catch(err => console.warn(`[SW] File terlewat: ${url}`, err));
+        })
+      );
     })
   );
 });
@@ -82,7 +87,7 @@ self.addEventListener('activate', event => {
         }
       }));
     }).then(async () => {
-      await manageStorage(); // Jalankan audit memori saat SW baru aktif
+      await manageStorage(); 
       return self.clients.claim();
     }) 
   );
@@ -94,24 +99,19 @@ self.addEventListener('fetch', event => {
 
   if (req.method !== 'GET' || url.hostname.includes('script.google') || !url.protocol.startsWith('http')) return;
 
-  // Fitur 2: Prioritas Audio Cache (Zero-Delay Beep)
-  // Langsung ambil dari Cache, JANGAN cek internet untuk mempercepat proses scan
+  // Zero-Delay Beep Sound (Membaca audio langsung dari RAM cache)
   if (url.pathname.includes('beep.mp3')) {
     event.respondWith(
-      caches.match(req).then(cachedRes => {
-        return cachedRes || fetch(req); // Fallback jika cache terhapus paksa
-      })
+      caches.match(req).then(cachedRes => cachedRes || fetch(req))
     );
     return;
   }
 
-  // STRATEGI 1: NETWORK FIRST (Proteksi Anti-Racun Cache)
   if (req.mode === 'navigate' || url.pathname === '/' || url.pathname.includes('index.html')) {
     event.respondWith(
       fetchWithTimeout(req, NETWORK_TIMEOUT)
         .then(res => {
-          if (!res.ok) throw new Error('Server Error - Tidak Valid');
-          
+          if (!res.ok) throw new Error('Server Error');
           const resClone = res.clone();
           event.waitUntil(caches.open(CACHE_CORE).then(cache => cache.put(req, resClone))); 
           return res;
@@ -119,11 +119,9 @@ self.addEventListener('fetch', event => {
         .catch(async () => {
           const cache = await caches.open(CACHE_CORE);
           const offlineFile = await cache.match('/offline.html', { ignoreSearch: true });
-          
           if (offlineFile) return offlineFile;
-          
           return new Response(
-            `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><title>Offline</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>body{background:#121212;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;font-family:sans-serif;}h2{color:#ff3b30;}p{color:#aaa;}</style></head><body><h2>⚠️ Koneksi Terputus</h2><p>Silakan periksa jaringan internet Anda.</p></body></html>`,
+            `<!DOCTYPE html><html><body style="background:#000;color:#f00;text-align:center;padding:50px;"><h2>⚠️ Sedang Offline</h2></body></html>`,
             { headers: { 'Content-Type': 'text/html' } }
           );
         })
@@ -131,7 +129,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // STRATEGI 2: CACHE FIRST (CDN)
   if (cdnDomains.some(domain => url.hostname.includes(domain))) {
     event.respondWith(
       caches.match(req).then(cachedRes => {
@@ -139,12 +136,7 @@ self.addEventListener('fetch', event => {
         return fetch(req).then(res => {
           if (res.ok || res.type === 'opaque') {
             const resClone = res.clone();
-            event.waitUntil(
-              caches.open(CACHE_CDN).then(async cache => {
-                await cache.put(req, resClone); 
-                await trimCache(CACHE_CDN, MAX_CDN_ITEMS); 
-              })
-            );
+            event.waitUntil(caches.open(CACHE_CDN).then(async cache => { await cache.put(req, resClone); await trimCache(CACHE_CDN, MAX_CDN_ITEMS); }));
           }
           return res;
         }).catch(() => new Response('', { status: 503 }));
@@ -153,52 +145,28 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // STRATEGI 3: STALE-WHILE-REVALIDATE (Aset Dinamis)
   event.respondWith(
     caches.match(req, { ignoreSearch: true }).then(cachedRes => {
       const fetchPromise = fetch(req).then(res => {
         if (res.ok) {
           const resClone = res.clone();
-          event.waitUntil(
-            caches.open(CACHE_DYNAMIC).then(async cache => {
-              const cleanUrl = req.url.split('?')[0];
-              const cleanRequest = new Request(cleanUrl, {
-                method: req.method,
-                headers: req.headers,
-                mode: req.mode,
-                credentials: req.credentials
-              });
-              await cache.put(cleanRequest, resClone); 
-              await trimCache(CACHE_DYNAMIC, MAX_DYNAMIC_ITEMS); 
-            })
-          );
+          event.waitUntil(caches.open(CACHE_DYNAMIC).then(async cache => {
+            const cleanUrl = req.url.split('?')[0];
+            const cleanRequest = new Request(cleanUrl, { method: req.method, headers: req.headers, mode: req.mode, credentials: req.credentials });
+            await cache.put(cleanRequest, resClone); await trimCache(CACHE_DYNAMIC, MAX_DYNAMIC_ITEMS); 
+          }));
         }
         return res;
       }).catch(() => null);
 
-      if (cachedRes) {
-        event.waitUntil(fetchPromise); 
-        return cachedRes;
-      }
+      if (cachedRes) { event.waitUntil(fetchPromise); return cachedRes; }
       return fetchPromise.then(res => res || new Response('', { status: 503 }));
     })
   );
 });
 
-// BACKGROUND SYNC FOUNDATION
 self.addEventListener('sync', event => {
   if (event.tag === 'sync-data-antrean') {
-    event.waitUntil(
-      new Promise((resolve) => {
-        console.log('[SW] Background Sync Aktif: Sinyal ditemukan...');
-        resolve();
-      })
-    );
-  }
-});
-
-self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
+    event.waitUntil(new Promise((resolve) => resolve()));
   }
 });
