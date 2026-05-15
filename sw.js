@@ -1,4 +1,4 @@
-const APP_VERSION = '9.7'; 
+const APP_VERSION = '9.8'; 
 const CACHE_CORE = 'core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
 const CACHE_CDN = 'cdn-v1'; 
