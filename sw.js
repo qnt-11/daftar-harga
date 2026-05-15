@@ -1,4 +1,4 @@
-const APP_VERSION = '9.2'; 
+const APP_VERSION = '9.3'; // Naikkan versi ini jika ada update aplikasi
 const CACHE_CORE = 'core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
 const CACHE_CDN = 'cdn-v1'; 
@@ -35,6 +35,18 @@ async function trimCache(cacheName, maxItems) {
   } 
 }
 
+// Fitur 3: Pembersihan Otomatis (Storage Manager)
+async function manageStorage() {
+  if (navigator.storage && navigator.storage.estimate) {
+    const quota = await navigator.storage.estimate();
+    // Jika penggunaan lebih dari 80%, potong cache dinamis lebih agresif
+    if (quota.usage / quota.quota > 0.8) {
+      console.log('[SW] Memori hampir penuh, melakukan pembersihan ekstra...');
+      await trimCache(CACHE_DYNAMIC, 20); // Sisakan hanya 20 item terbaru
+    }
+  }
+}
+
 function fetchWithTimeout(request, timeout = 5000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -51,16 +63,12 @@ function fetchWithTimeout(request, timeout = 5000) {
 }
 
 self.addEventListener('install', event => {
-  self.skipWaiting(); 
+  // Fitur 1: self.skipWaiting() DIHAPUS agar update terjadi diam-diam di background
   event.waitUntil(
     caches.open(CACHE_CORE).then(cache => {
-      return Promise.all(
-        coreUrls.map(url => {
-          return fetch(url).then(res => {
-            if (res.ok) return cache.put(url, res);
-          }).catch(err => console.warn('[SW] Peringatan: File pondasi belum siap:', url));
-        })
-      );
+      return cache.addAll(coreUrls).catch(err => {
+        console.error('[SW] Gagal caching pondasi awal. Menunggu koneksi stabil...', err);
+      });
     })
   );
 });
@@ -73,7 +81,10 @@ self.addEventListener('activate', event => {
           return caches.delete(key); 
         }
       }));
-    }).then(() => self.clients.claim()) 
+    }).then(async () => {
+      await manageStorage(); // Jalankan audit memori saat SW baru aktif
+      return self.clients.claim();
+    }) 
   );
 });
 
@@ -82,6 +93,17 @@ self.addEventListener('fetch', event => {
   const url = new URL(req.url);
 
   if (req.method !== 'GET' || url.hostname.includes('script.google') || !url.protocol.startsWith('http')) return;
+
+  // Fitur 2: Prioritas Audio Cache (Zero-Delay Beep)
+  // Langsung ambil dari Cache, JANGAN cek internet untuk mempercepat proses scan
+  if (url.pathname.includes('beep.mp3')) {
+    event.respondWith(
+      caches.match(req).then(cachedRes => {
+        return cachedRes || fetch(req); // Fallback jika cache terhapus paksa
+      })
+    );
+    return;
+  }
 
   // STRATEGI 1: NETWORK FIRST (Proteksi Anti-Racun Cache)
   if (req.mode === 'navigate' || url.pathname === '/' || url.pathname.includes('index.html')) {
@@ -101,7 +123,7 @@ self.addEventListener('fetch', event => {
           if (offlineFile) return offlineFile;
           
           return new Response(
-            `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><title>Offline</title><style>body{background:#000;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;}h2{color:#ff3b30;}</style></head><body><h2>⚠️ Sedang Offline</h2></body></html>`,
+            `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><title>Offline</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>body{background:#121212;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;font-family:sans-serif;}h2{color:#ff3b30;}p{color:#aaa;}</style></head><body><h2>⚠️ Koneksi Terputus</h2><p>Silakan periksa jaringan internet Anda.</p></body></html>`,
             { headers: { 'Content-Type': 'text/html' } }
           );
         })
@@ -125,7 +147,7 @@ self.addEventListener('fetch', event => {
             );
           }
           return res;
-        }).catch(err => new Response('', { status: 503 }));
+        }).catch(() => new Response('', { status: 503 }));
       })
     );
     return;
@@ -139,8 +161,14 @@ self.addEventListener('fetch', event => {
           const resClone = res.clone();
           event.waitUntil(
             caches.open(CACHE_DYNAMIC).then(async cache => {
-              const cleanUrl = req.url.split('?')[0]; 
-              await cache.put(cleanUrl, resClone); 
+              const cleanUrl = req.url.split('?')[0];
+              const cleanRequest = new Request(cleanUrl, {
+                method: req.method,
+                headers: req.headers,
+                mode: req.mode,
+                credentials: req.credentials
+              });
+              await cache.put(cleanRequest, resClone); 
               await trimCache(CACHE_DYNAMIC, MAX_DYNAMIC_ITEMS); 
             })
           );
