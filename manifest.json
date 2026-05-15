@@ -69,15 +69,13 @@
       "src": "screenshot-1.png",
       "sizes": "1080x2340",
       "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Daftar Harga Cepat dan Mudah"
+      "form_factor": "narrow"
     },
     {
       "src": "screenshot-desktop.png",
       "sizes": "1920x1080",
       "type": "image/png",
-      "form_factor": "wide",
-      "label": "Tampilan di Layar Besar"
+      "form_factor": "wide"
     }
   ],
   "file_handlers": [
