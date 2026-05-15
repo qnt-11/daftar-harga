@@ -1,4 +1,4 @@
-const APP_VERSION = '10.7'; 
+const APP_VERSION = '10.8'; 
 const CACHE_CORE = 'core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
 const CACHE_CDN = 'cdn-v1'; 
@@ -7,12 +7,11 @@ const MAX_DYNAMIC_ITEMS = 50;
 const MAX_CDN_ITEMS = 20;
 const NETWORK_TIMEOUT = 8000; 
 
-// [SUDAH DIAUDIT]: offline.html dimasukkan kembali agar dikenali oleh sistem saat mati lampu/sinyal
 const coreUrls = [
-  '/', 
-  '/index.html', 
-  '/manifest.json',
-  '/offline.html'
+  './', 
+  './index.html', 
+  './manifest.json',
+  './offline.html'
 ];
 
 const cdnDomains = [
@@ -35,7 +34,6 @@ async function trimCache(cacheName, maxItems) {
   } 
 }
 
-// Fitur Pembersihan Memori HP Otomatis
 async function manageStorage() {
   if (navigator.storage && navigator.storage.estimate) {
     const quota = await navigator.storage.estimate();
@@ -62,13 +60,12 @@ function fetchWithTimeout(request, timeout = 5000) {
 }
 
 self.addEventListener('install', event => {
-  self.skipWaiting(); // Memastikan update langsung aktif saat tombol refresh diklik
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_CORE).then(cache => {
-      // Instalasi kebal error dengan Promise.allSettled
       return Promise.allSettled(
         coreUrls.map(url => {
-          return fetch(url).then(res => {
+          return fetch(new Request(url, { cache: 'reload' })).then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return cache.put(url, res);
           }).catch(err => console.warn(`[SW] File terlewat: ${url}`, err));
@@ -99,7 +96,6 @@ self.addEventListener('fetch', event => {
 
   if (req.method !== 'GET' || url.hostname.includes('script.google') || !url.protocol.startsWith('http')) return;
 
-  // STRATEGI 1: NETWORK FIRST (Halaman Utama & Pondasi)
   if (req.mode === 'navigate' || url.pathname === '/' || url.pathname.includes('index.html')) {
     event.respondWith(
       fetchWithTimeout(req, NETWORK_TIMEOUT)
@@ -112,15 +108,14 @@ self.addEventListener('fetch', event => {
         .catch(async () => {
           const cache = await caches.open(CACHE_CORE);
           
-          // 1. Coba buka Kasir Utama (index.html) dari memori lokal (Offline Mode)
-          const cachedIndex = await cache.match('/index.html', { ignoreSearch: true }) || await cache.match('/', { ignoreSearch: true });
+          const cachedIndex = await cache.match(req, { ignoreSearch: true }) || 
+                              await cache.match('./index.html', { ignoreSearch: true }) || 
+                              await cache.match('./', { ignoreSearch: true });
           if (cachedIndex) return cachedIndex; 
           
-          // 2. Jika Kasir Utama tidak ketemu di memori, buka Kalkulator Darurat (offline.html)
-          const offlinePage = await cache.match('/offline.html', { ignoreSearch: true });
+          const offlinePage = await cache.match('./offline.html', { ignoreSearch: true });
           if (offlinePage) return offlinePage;
 
-          // 3. Fallback Kiamat (Jika HP benar-benar kosong belum pernah instal)
           return new Response(
             `<!DOCTYPE html><html><body style="background:#000;color:#f00;text-align:center;padding:50px;font-family:sans-serif;"><h2>⚠️ Sedang Offline</h2><p>Aplikasi belum tersimpan di memori HP. Hubungkan ke internet untuk membuka pertama kali.</p></body></html>`,
             { headers: { 'Content-Type': 'text/html' } }
@@ -130,7 +125,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // STRATEGI 2: CACHE FIRST (CDN Font & Library Luar)
   if (cdnDomains.some(domain => url.hostname.includes(domain))) {
     event.respondWith(
       caches.match(req).then(cachedRes => {
@@ -147,7 +141,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // STRATEGI 3: STALE-WHILE-REVALIDATE (Aset Dinamis)
   event.respondWith(
     caches.match(req, { ignoreSearch: true }).then(cachedRes => {
       const fetchPromise = fetch(req).then(res => {
