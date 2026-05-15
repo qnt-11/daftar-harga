@@ -1519,10 +1519,12 @@
             $('torch-btn').style.color = "white"; 
             
             try { 
+                // Setingan khusus Xiaomi Note 12 / Snapdragon 685
                 const scanConfig = { 
-                    fps: 30, 
+                    fps: 10, 
                     disableFlip: true, 
-                    qrbox: { width: 260, height: 180 }, 
+                    qrbox: { width: 280, height: 120 }, 
+                    aspectRatio: 1.0, 
                     formatsToSupport: [ 
                         Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8, 
                         Html5QrcodeSupportedFormats.UPC_A, Html5QrcodeSupportedFormats.UPC_E, 
@@ -1531,9 +1533,7 @@
                 };
                 
                 const videoConstraints = { 
-                    facingMode: "environment",
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
+                    facingMode: "environment"
                 };
 
                 await html5QrCode.start( videoConstraints, scanConfig, async (text) => { 
@@ -1562,9 +1562,9 @@
                 let errMsg = "Kamera Error. Coba muat ulang aplikasi.";
                 if (e) {
                     if (e.name === "NotAllowedError" || (e.message && e.message.includes("Permission denied"))) {
-                        errMsg = "Izin ditolak! Izinkan akses kamera di pengaturan browser Anda.";
+                        errMsg = "Izin ditolak! Izinkan akses kamera di browser Anda.";
                     } else if (e.name === "NotFoundError" || e.name === "OverconstrainedError") {
-                        errMsg = "Kamera belakang tidak ditemukan atau format tidak didukung HP ini.";
+                        errMsg = "Kamera gagal dimuat oleh sistem HP Anda.";
                     } else if (e.name === "NotSupportedError") {
                         errMsg = "Browser tidak mendukung. Pastikan Anda menggunakan HTTPS.";
                     }
