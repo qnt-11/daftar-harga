@@ -615,6 +615,7 @@
         const NamaBln = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         const NamaBlnPendek = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 
+        // [PERBAIKAN 2: Injeksi cartSaveTimer ke Global]
         let db = [], idb, worker, workerResult = null, filteredData = [], listOffsets = [];
         let lastStartIndex = -1, lastEndIndex = -1, currentSearchReqId = 0, inputBuffer = '', bufferTimer;
         let barcodeMap = new Map(), acronymMap = new Map(), physicalInputBuffer = "", lastKeyTime = 0;
@@ -1568,9 +1569,7 @@
         }
         
         let isClosingScan = false;
-
-        // [PERBAIKAN 1 - REVISI: Scanner Cepat dan SUPER AMAN (Anti-Crash)]
-        async function openScanner(mode) { 
+            async function openScanner(mode) { 
             if(isStartingScan || isScanning || isClosingScan) return; 
             isStartingScan = true; 
             scanMode = mode; 
@@ -1583,12 +1582,15 @@
             
             try { 
                 const scanConfig = { 
-                    fps: 10, // Kunci rahasia anti-lag dan anti-panas tetap kita pertahankan
-                    disableFlip: true, 
-                    qrbox: function(viewfinderWidth, viewFinderHeight) {
-                        let boxWidth = Math.floor(viewfinderWidth * 0.85);
-                        return { width: boxWidth, height: 160 };
-                    },
+                    fps: 15, // Kita naikkan ke 15 agar lebih responsif menangkap gambar
+                    
+                    // [HACK 1]: qrbox DIHAPUS dari sistem. 
+                    // Visual kotak putih di layar tetap ada, tapi mesin di belakang layar 
+                    // men-scan KESELURUHAN layar. Sangat ampuh untuk barcode panjang / melengkung!
+                    
+                    // [HACK 2]: WAJIB FALSE agar bisa baca barcode vertikal / terbalik seperti di foto Anda!
+                    disableFlip: false, 
+                    
                     experimentalFeatures: {
                         useBarCodeDetectorIfSupported: true
                     },
@@ -1602,10 +1604,12 @@
                     ] 
                 };
                 
-                // [SOLUSI BUG]: Kita hapus paksaan 'advanced focus' dan resolusi.
-                // Kita gunakan constraint paling standar yang dijamin 100% didukung oleh semua HP Android/iOS.
+                // [HACK 3]: Resolusi "Soft Ideal". 
+                // Meminta gambar tajam HD secara halus agar HP mid-range tidak error/kaget.
                 const videoConstraints = { 
-                    facingMode: "environment"
+                    facingMode: "environment",
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
                 };
 
                 await html5QrCode.start( videoConstraints, scanConfig, async (text) => { 
@@ -1631,7 +1635,6 @@
             } catch (e) { 
                 await closeScanner(); 
                 
-                // Penambahan deteksi pesan error spesifik agar jika terjadi lagi, kita tahu persis penyebabnya
                 let errMsg = "Kamera Error. Coba muat ulang aplikasi.";
                 if (e) {
                     if (e.name === "NotAllowedError" || (e.message && e.message.includes("Permission denied"))) {
@@ -1641,7 +1644,6 @@
                     } else if (e.name === "NotSupportedError") {
                         errMsg = "Browser tidak mendukung. Pastikan Anda menggunakan Chrome & HTTPS.";
                     } else {
-                        // Ini akan menampilkan pesan asli dari HP jika errornya tidak terduga
                         errMsg = "Kamera Error: " + (e.message || e.name || "Tidak diketahui");
                     }
                 }
