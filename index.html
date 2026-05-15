@@ -137,8 +137,7 @@
         .cpi-total { font-size: 15px; font-weight: 800; color: var(--mono-main); text-align: right; }
         .cpi-empty { text-align: center; color: #555; font-size: 12px; font-weight: 600; padding: 30px 0; }
         
-        .qty-input-manual { width: 48px; text-align: center; background: var(--wa-card); border: 1px solid var(--border-color); color: var(--mono-main); font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 16px; border-radius: 8px; padding: 8px 0; outline: none; margin-left: 15px; -moz-appearance: textfield; }
-        .qty-input-manual::-webkit-outer-spin-button, .qty-input-manual::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .qty-input-manual { width: 48px; text-align: center; background: var(--wa-card); border: 1px solid var(--border-color); color: var(--mono-main); font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 16px; border-radius: 8px; padding: 8px 0; outline: none; margin-left: 15px; }
         .qty-input-manual:focus { border-color: var(--mono-main); }
 
         .search-area { display: flex; flex-direction: column; gap: 6px; padding: 8px 16px 12px 16px; position: relative; }
@@ -220,8 +219,8 @@
         
         .modal-box label { display: block; font-size: 10px; color: #888888; margin-bottom: 6px; margin-top: 14px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
         .modal-box label:first-child { margin-top: 0; }
-        .modal-box input { width: 100%; padding: 12px 14px; background: var(--wa-bg); border: 1px solid var(--border-color); color: var(--text-light); font-size: 14px; font-family: 'Montserrat', sans-serif; font-weight: 600; outline: none; border-radius: 8px; transition: border-color 0.2s; margin-bottom: 2px;}
-        .modal-box input:focus { border-color: var(--mono-main); }
+        .modal-box input, .modal-box textarea { width: 100%; padding: 12px 14px; background: var(--wa-bg); border: 1px solid var(--border-color); color: var(--text-light); font-size: 14px; font-family: 'Montserrat', sans-serif; font-weight: 600; outline: none; border-radius: 8px; transition: border-color 0.2s; margin-bottom: 2px;}
+        .modal-box input:focus, .modal-box textarea:focus { border-color: var(--mono-main); }
         
         .form-grid { display: flex; gap: 10px; margin-top: 14px; align-items: flex-start;}
         .form-grid .col-price { flex: 6; }
@@ -480,8 +479,21 @@
         </div>
     </div>
 
+    <!-- [PERBAIKAN 1] Modal Khusus Log Darurat -->
+    <div id="offline-ledger-modal" class="modal" onclick="if(event.target===this) closeOfflineLedger()">
+        <div class="modal-box" style="border-color: var(--warning);">
+            <h3 style="margin-top:0; font-size:15px; color: var(--warning); text-transform:uppercase;">Catatan Darurat Offline</h3>
+            <p style="font-size:11px; color:#888; margin-bottom:12px;">Salin data ini ke kasir utama, lalu hapus jika sudah selesai.</p>
+            <textarea id="offline-ledger-view" readonly style="height:150px; margin-bottom:10px; background:#000; color:var(--text-light); border:1px solid #333;"></textarea>
+            <div class="modal-btns">
+                <button class="btn-main btn-cancel" onclick="closeOfflineLedger()">TUTUP</button>
+                <button class="btn-main" style="border:1px solid var(--danger)!important; color:var(--danger)!important; background:transparent!important;" onclick="clearOfflineLedger()">HAPUS CATATAN</button>
+            </div>
+        </div>
+    </div>
+
     <div id="sync-modal" class="modal" onclick="if(event.target===this) closeSyncModal()">
-        <div class="modal-box" id="sync-modal-box" style="text-align: center; max-width: 310px; padding: 25px 20px; border: 2px solid var(--border-color); transition: border-color 0.3s ease;">
+        <div class="modal-box" id="sync-modal-box" style="text-align: center; max-width: 310px; padding: 25px 20px; border: 2px solid var(--border-color); transition: border-color 0.3s ease; overflow: visible;">
             <h3 id="sync-modal-title" style="margin-top:0; color: #87CEFA; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Montserrat', sans-serif; transition: color 0.3s ease;">
                 Load Data Cloud
             </h3>
@@ -593,11 +605,11 @@
         const TemaNotifikasi = { 
             "Error": "var(--danger)", "Gagal": "var(--danger)", "Hapus": "var(--danger)", 
             "Peringatan": "var(--warning)", "Optimasi Sistem": "#FFA500", "Sistem Bersih": "#FFA500", 
-            "Backup": "#87CEFA", "Sinkronisasi": "#87CEFA", "Sukses": "var(--mono-main)", "Info": "var(--mono-main)" 
+            "Backup": "#87CEFA", "Sinkronisasi": "#87CEFA", "Sukses": "var(--mono-main)", "Info": "var(--mono-main)", "Info Offline": "var(--warning)" 
         };
 
         let isCartMode = false;
-        let isApiLoading = false; // [PERBAIKAN] Gembok untuk mencegah spam API
+        let isApiLoading = false; 
         let cartState = JSON.parse(localStorage.getItem('DB_WA_CART')) || {}; 
         
         for (let k in cartState) { 
@@ -634,7 +646,6 @@
         document.addEventListener('click', enableWakeLock, { passive: true });
         document.addEventListener('touchstart', enableWakeLock, { passive: true });
         
-        // [PERBAIKAN] Menggabungkan WakeLock & Pembersihan Scanner (Kamera dimatikan bila app di minimize)
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
                 requestWakeLock();
@@ -750,17 +761,24 @@
             return parts.length >= 2 ? `${NamaBln[parseInt(parts[1], 10) - 1]} ${parts[0]}` : dStr; 
         }
 
+        // [PERBAIKAN 2] Penanganan Parsing Tanggal Ekstra dari Excel
         function parseBulanTahunExcel(str) { 
             if (!str) return ""; 
             if (!isNaN(str) && Number(str) > 20000) { 
                 let d = new Date(Date.UTC(1970, 0, Math.floor(Number(str) - 25569) + 1)); 
                 return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-01`; 
             } 
-            let p = String(str).trim().split(/[\s-]+/); 
+            let p = String(str).trim().split(/[\s\-\/]+/); 
             if (p.length === 2) { 
                 let b = NamaBln.findIndex(x => x.toLowerCase() === p[0].toLowerCase()); 
                 if(b===-1) b = NamaBlnPendek.findIndex(x => x.toLowerCase() === p[0].toLowerCase()); 
                 if (b !== -1) return `${p[1]}-${String(b + 1).padStart(2, '0')}-01`; 
+                // Deteksi format angka MM/YYYY
+                if (!isNaN(p[0]) && !isNaN(p[1])) {
+                    let m = parseInt(p[0], 10); let y = parseInt(p[1], 10);
+                    if (m > 12) { let t=m; m=y; y=t; } 
+                    return `${y}-${String(m).padStart(2, '0')}-01`;
+                }
             } 
             let pt = String(str).split(/[\-\/]/); 
             return pt.length === 3 ? `${pt[0].length === 4 ? pt[0] : pt[2]}-${String(pt[1]).padStart(2, '0')}-${String(pt[0].length === 4 ? pt[2] : pt[0]).padStart(2, '0')}` : ''; 
@@ -843,8 +861,10 @@
             if (isCartMode) renderCartUI();
         }
 
+        // [PERBAIKAN 4] Mendukung angka desimal di kuantitas keranjang
         function updateCartQtyManual(id, val) {
-            let n = parseInt(val, 10);
+            let cleanVal = String(val).replace(',', '.'); 
+            let n = parseFloat(cleanVal);
             if (isNaN(n)) n = 0;
             if (!cartState[id]) cartState[id] = { q: n }; else cartState[id].q = n; 
             saveCartMem(); 
@@ -867,9 +887,10 @@
         }
 
         function checkEmptyQtyOnBlur(id, inputElem, val) {
-            let n = parseInt(val, 10);
-            if (isNaN(n) || val === '') { 
-                let oldVal = parseInt(inputElem.dataset.oldVal, 10) || 1;
+            let cleanVal = String(val).replace(',', '.');
+            let n = parseFloat(cleanVal);
+            if (isNaN(n) || cleanVal === '') { 
+                let oldVal = parseFloat(inputElem.dataset.oldVal) || 1;
                 inputElem.value = oldVal; updateCartQtyManual(id, oldVal); 
             } else if (n <= 0) {
                 delete cartState[id]; saveCartMem(); renderCartUI(); applyFiltersAndRender(); 
@@ -935,7 +956,8 @@
                     const q = cartState[id].q, p1 = item.p1, p2 = item.p2, iq = item.iq, unitName = item.u1 || 'Satuan'; 
                     let subTotal = (p2 > 0 && iq > 1 && q >= iq) ? Math.round((q * p2) / iq) : Math.round(q * p1);
                     grandTotal += subTotal;
-                    html += `<div class="cp-item-wrap"><div class="cp-trash-bg" onclick="deleteCartItem('${id}')"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></div><div class="cp-item-front" ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event, this)" ontouchend="handleTouchEnd(event, this, '${id}')"><div class="cpi-info"><div class="cpi-name">${escapeHTML(item.n)}</div><div class="cpi-calc" id="qty-label-${id}">${q} ${escapeHTML(unitName)}</div></div><div style="display:flex; align-items:center; gap: 12px; pointer-events: auto;"><div class="cpi-total" id="sub-${id}">Rp ${fmt(subTotal)}</div><input class="qty-input-manual" type="tel" pattern="[0-9]*" value="${q}" onfocus="this.dataset.oldVal = this.value; this.value=''" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length > 5) this.value = this.value.slice(0,5); updateCartQtyManual('${id}', this.value);" onblur="checkEmptyQtyOnBlur('${id}', this, this.value)"></div></div></div>`;
+                    // [PERBAIKAN 4] Mengganti pattern input manual keranjang untuk angka koma/desimal
+                    html += `<div class="cp-item-wrap"><div class="cp-trash-bg" onclick="deleteCartItem('${id}')"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></div><div class="cp-item-front" ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event, this)" ontouchend="handleTouchEnd(event, this, '${id}')"><div class="cpi-info"><div class="cpi-name">${escapeHTML(item.n)}</div><div class="cpi-calc" id="qty-label-${id}">${q} ${escapeHTML(unitName)}</div></div><div style="display:flex; align-items:center; gap: 12px; pointer-events: auto;"><div class="cpi-total" id="sub-${id}">Rp ${fmt(subTotal)}</div><input class="qty-input-manual" type="text" inputmode="decimal" value="${q}" onfocus="this.dataset.oldVal = this.value; this.value=''" oninput="this.value = this.value.replace(/[^0-9.,]/g, ''); if(this.value.length > 6) this.value = this.value.slice(0,6); updateCartQtyManual('${id}', this.value);" onblur="checkEmptyQtyOnBlur('${id}', this, this.value)"></div></div></div>`;
                 });
                 if (hasDeletedItems) saveCartMem();
             }
@@ -952,18 +974,35 @@
         $('q').addEventListener('focus', () => { if (isCartMode) document.body.classList.add('search-focus'); });
         $('q').addEventListener('blur', () => { setTimeout(() => document.body.classList.remove('search-focus'), 100); });
 
+        // [PERBAIKAN 5] Memisahkan murni logika Enter kotak pencarian untuk mencegah bentrok dengan barcode
+        $('q').addEventListener('keypress', function(e) { 
+            if(e.key === 'Enter') { 
+                $('search-dropdown').classList.add('hidden'); 
+                let valStr = this.value.trim();
+                recordSearchLog(valStr); 
+                this.blur(); 
+                handleSearchLogic(valStr);
+            } 
+        });
+
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') { 
-                hideMod(); hidePicker(); closeCustomAlert(); closePinModal(); closePricePopup(e, true); closeSyncModal(); 
+                hideMod(); hidePicker(); closeCustomAlert(); closePinModal(); closePricePopup(e, true); closeSyncModal(); closeOfflineLedger();
                 if (isScanning) closeScanner(); return; 
             }
-            if (document.body.classList.contains('modal-open') || isScanning) return;
+            
+            // [PERBAIKAN 3] Mengizinkan Scanner masuk jika sedang berada di Modal Tambah Barang
+            const isModOpen = $('mod') && $('mod').style.display === 'flex';
+            if (isScanning || (document.body.classList.contains('modal-open') && !isModOpen)) return;
+            
             const t = Date.now(), timeDiff = t - lastKeyTime; lastKeyTime = t;
             if (timeDiff > 50) physicalInputBuffer = ""; 
             const isInputFocused = (document.activeElement && document.activeElement.tagName.toLowerCase() === 'input');
-            if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey && e.key.match(/[a-zA-Z0-9\-\s]/)) {
+            
+            if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey && e.key.match(/[a-zA-Z0-9\-\s.,]/)) {
                 physicalInputBuffer += e.key; 
                 if (physicalInputBuffer.length >= 2 && timeDiff <= 50 && isInputFocused) document.activeElement.blur(); 
+                
                 if (!isInputFocused) {
                     inputBuffer += e.key; clearTimeout(bufferTimer);
                     bufferTimer = setTimeout(() => { 
@@ -972,13 +1011,32 @@
                     }, 150); 
                 }
             } else if (e.key === 'Enter') {
-                if (physicalInputBuffer.length >= 4) { 
-                    let b = physicalInputBuffer.toUpperCase().trim(); physicalInputBuffer = inputBuffer = ""; clearTimeout(bufferTimer); 
-                    e.preventDefault(); if (isInputFocused) document.activeElement.blur(); handlePhysicalScanner(b); return; 
+                if (physicalInputBuffer.length >= 2) { 
+                    let b = physicalInputBuffer.toUpperCase().trim(); 
+                    physicalInputBuffer = inputBuffer = ""; 
+                    clearTimeout(bufferTimer); 
+                    e.preventDefault(); 
+                    if (isInputFocused) document.activeElement.blur(); 
+                    
+                    // Arahkan otomatis ke Input Barcode jika sedang ada di form Tambah Barang
+                    if (isModOpen) {
+                        $('i-b').value = b;
+                        tampilkanToast("Barcode terscan!", "var(--mono-main)");
+                    } else {
+                        handlePhysicalScanner(b); 
+                    }
+                    return; 
                 }
+                
                 if (!isInputFocused && inputBuffer.length > 0) { 
-                    physicalInputBuffer = ""; clearTimeout(bufferTimer); $('q').value = inputBuffer; $('q-x').style.display = 'flex'; 
-                    window.scrollTo({ top: 0, behavior: 'instant' }); handleSearchLogic(inputBuffer); inputBuffer = ''; $('q').blur(); 
+                    let queryTeks = inputBuffer.trim();
+                    physicalInputBuffer = ""; 
+                    clearTimeout(bufferTimer); 
+                    $('q').value = queryTeks; 
+                    $('q-x').style.display = 'flex'; 
+                    window.scrollTo({ top: 0, behavior: 'instant' }); 
+                    handleSearchLogic(queryTeks); 
+                    inputBuffer = ''; $('q').blur(); 
                 }
             }
         }, true); 
@@ -1032,7 +1090,6 @@
         }, 150);
         searchInput.addEventListener('input', (e) => { $('q-x').style.display = e.target.value.trim() ? 'flex' : 'none'; handleSearchInput(); });
         searchInput.addEventListener('focus', showSearchSuggestions);
-        searchInput.addEventListener('keypress', function(e) { if(e.key === 'Enter') { searchDropdown.classList.add('hidden'); recordSearchLog(this.value); this.blur(); } });
         function clearSearch() { searchInput.value = ''; $('q-x').style.display = 'none'; workerResult = null; currentSearchReqId++; window.scrollTo({ top: 0, behavior: 'instant' }); showSearchSuggestions(); applyFiltersAndRender(); searchInput.blur(); }
 
         document.addEventListener('click', (e) => { 
@@ -1098,7 +1155,17 @@
         function applyFiltersAndRender(silentB = null) {
             if (swipedCardElem) swipedCardElem = null; const q = $('q').value.trim(), qL = q.toLowerCase(); let active = db.filter(i => !i.deleted); const exact = active.find(i => i.b && String(i.b).toLowerCase() === qL); let base = silentB ? active.filter(i => i.b === silentB) : (exact ? [exact] : (workerResult !== null && q !== '' ? workerResult : active)); const today = Date.now();
             filteredData = base.filter(i => { if (tab === 'fav') return i.f; if (tab === 'exp') { if (!i.exp) return false; let expDate = new Date(i.exp); expDate = new Date(expDate.getFullYear(), expDate.getMonth() + 1, 0); const utcExp = expDate.getTime(); return !isNaN(utcExp) && Math.floor((utcExp - today) / 86400000) <= 210; } return true; });
-            if (!q || tab === 'exp') { if (tab === 'exp') filteredData.sort((a, b) => new Date(a.exp||'9999').getTime() - new Date(b.exp||'9999').getTime()); else if (sortAZ) filteredData.sort((a,b) => String(a.n||"").localeCompare(String(b.n||"")) || (b.updatedAt||0) - (a.updatedAt||0)); else filteredData.sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0)); }
+            
+            if (!q || tab === 'exp') { 
+                if (tab === 'exp') {
+                    filteredData.sort((a, b) => new Date(a.exp || '9999-12-31').getTime() - new Date(b.exp || '9999-12-31').getTime()); 
+                } else if (sortAZ) {
+                    filteredData.sort((a,b) => String(a.n||"").localeCompare(String(b.n||"")) || (b.updatedAt||0) - (a.updatedAt||0)); 
+                } else {
+                    filteredData.sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0)); 
+                }
+            }
+            
             const sumEl = $('search-summary'); if (q && !silentB && !exact) { sumEl.innerText = `Ditemukan ${filteredData.length} barang`; sumEl.classList.remove('hidden'); } else sumEl.classList.add('hidden');
             lastStartIndex = lastEndIndex = -1; computeDVS(); renderVirtualList(false);
         }
@@ -1208,7 +1275,6 @@
             } 
         }
 
-        // [PERBAIKAN] Array & Object dikosongkan dengan benar
         function optimizeData() { 
             $('dropdown-menu').classList.add('hidden'); 
             showConfirm("Bersihkan memori sampah?", "Optimasi Sistem", "#FFA500", () => { 
@@ -1231,7 +1297,6 @@
         function showLoading(msg, color="#87CEFA") { $('loading-text').innerHTML = msg; $('loading-spinner').style.borderTopColor = color; $('loading-title').style.color = $('loading-box').style.borderColor = color; $('loading-modal').style.display = 'flex'; document.body.classList.add('modal-open'); }
         function hideLoading() { $('loading-modal').style.display = 'none'; checkModalOpen(); }
         
-        // [PERBAIKAN] Timeout ke 30000ms & Gembok (isApiLoading)
         function backupToCloud() { 
             if (db.length === 0) return; 
             if (isApiLoading) return;
@@ -1260,7 +1325,6 @@
         function handleSyncChange() { const val = $('sync-type').value, warningArea = $('sync-warning-area'), modalBox = $('sync-modal-box'), title = $('sync-modal-title'), btnDownload = $('btn-sync-download'); if (val === 'force') { warningArea.innerHTML = "<span style='color: var(--danger); font-weight: 800;'>⚠️ PERINGATAN</span><br><span style='color: #ccc;'>Data yang belum di-Upload akan HILANG!</span>"; modalBox.style.borderColor = title.style.color = btnDownload.style.borderColor = btnDownload.style.color = "var(--danger)"; } else if (val === 'delta') { warningArea.innerHTML = "<span style='color: #87CEFA;'>💯 Aman</span><br><span style='color: #ccc;'>Load data baru tanpa menghapus data.</span>"; modalBox.style.borderColor = title.style.color = btnDownload.style.borderColor = btnDownload.style.color = "#87CEFA"; } else { warningArea.innerHTML = ""; modalBox.style.borderColor = "var(--border-color)"; title.style.color = "#87CEFA"; btnDownload.style.borderColor = "var(--border-color)"; btnDownload.style.color = "var(--text-muted)"; } }
         function executeSyncBtn() { const val = $('sync-type').value; if (!val) { tampilkanToast("Silakan pilih mode sinkronisasi dulu!", "var(--warning)"); return; } closeSyncModal(); loadFromCloud(val === 'force'); }
 
-        // [PERBAIKAN] Timeout ke 30000ms & Gembok (isApiLoading)
         function loadFromCloud(forceSync = false) { 
             if (isApiLoading) return;
             isApiLoading = true;
@@ -1305,7 +1369,6 @@
         
         function exportData() { const data = db.filter(i => !i.deleted).map(i => ({ "ID": i.id, "Barcode": i.b, "Nama Barang": i.n, "Harga Eceran": i.p1, "Satuan Ecer": i.u1 || "", "Harga Grosir": i.p2, "Satuan Grosir": i.u2 || "", "Isi Grosir": i.iq || "", "Singkatan": i.t, "Favorit": i.f ? "Ya" : "Tidak", "Expired": i.exp || "" })); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Data"); XLSX.writeFile(wb, "Data_Harga.xlsx"); }
         
-        // [PERBAIKAN] Mengizinkan harga 0 (barang gratis/bonus)
         function importData(e) { 
             const f = e.target.files[0]; if(!f) return; const r = new FileReader(); 
             r.onload = (ev) => { 
@@ -1352,14 +1415,105 @@
         async function closeScanner() { $('scanner-wrap').style.display = 'none'; checkModalOpen(); if (torchState) toggleFlashlight(); if (isScanning && html5QrCode) { try { await html5QrCode.stop(); html5QrCode.clear(); } catch(e) {} } isScanning = false; requestWakeLock(); }
 
         document.addEventListener('touchstart', function(e) { if (swipedCardElem && !swipedCardElem.contains(e.target) && !e.target.closest('.trash-trigger')) { swipedCardElem.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)'; swipedCardElem.style.transform = 'translateX(0px)'; swipedCardElem = null; } }, { passive: true });
-        async function processUrlParameters() { const urlParams = new URLSearchParams(window.location.search), action = urlParams.get('action'); if (action === 'scan') setTimeout(() => openScanner('search'), 500); else if (action === 'cart' && !isCartMode) toggleCartMode(); const linkData = urlParams.get('link'); if (linkData) { let cleanData = decodeURIComponent(linkData); if (cleanData.startsWith('web+harga://')) cleanData = cleanData.replace('web+harga://', ''); $('q').value = cleanData; $('q-x').style.display = 'flex'; handleSearchLogic(cleanData); } if (action || linkData) window.history.replaceState({}, document.title, window.location.pathname); }
+        
+        async function processUrlParameters() { 
+            const urlParams = new URLSearchParams(window.location.search);
+            const action = urlParams.get('action'); 
+            
+            if (action === 'scan') {
+                setTimeout(() => openScanner('search'), 500); 
+            } else if (action === 'cart' && !isCartMode) {
+                toggleCartMode(); 
+            } else if (action === 'add_item') {
+                setTimeout(() => showMod(), 500); 
+            }
+
+            const linkData = urlParams.get('link'); 
+            if (linkData) { 
+                let cleanData = decodeURIComponent(linkData); 
+                if (cleanData.startsWith('web+harga://')) {
+                    cleanData = cleanData.replace('web+harga://', ''); 
+                }
+                $('q').value = cleanData; 
+                $('q-x').style.display = 'flex'; 
+                handleSearchLogic(cleanData); 
+            } 
+            
+            if (action || linkData) {
+                window.history.replaceState({}, document.title, window.location.pathname); 
+            }
+        }
+
+        // [LOGIKA POP-UP OFFLINE LEDGER]
+        function showOfflineLedger(text) {
+            $('offline-ledger-view').value = text;
+            $('offline-ledger-modal').style.display = 'flex';
+            document.body.classList.add('modal-open');
+        }
+        
+        function closeOfflineLedger() {
+            $('offline-ledger-modal').style.display = 'none';
+            checkModalOpen();
+        }
+        
+        function clearOfflineLedger() {
+            try {
+                const req = indexedDB.open('KasirOfflineDB', 1);
+                req.onsuccess = (e) => {
+                    const dbOff = e.target.result;
+                    const tx = dbOff.transaction('CatatanDarurat', 'readwrite');
+                    tx.objectStore('CatatanDarurat').delete(1);
+                    tx.oncomplete = () => { closeOfflineLedger(); tampilkanToast("Catatan dihapus!", "var(--danger)"); };
+                };
+            } catch(err){}
+        }
+
+        function checkOfflineLedger() {
+            try {
+                const req = indexedDB.open('KasirOfflineDB', 1);
+                req.onsuccess = (e) => {
+                    const dbOff = e.target.result;
+                    if (dbOff.objectStoreNames.contains('CatatanDarurat')) {
+                        const tx = dbOff.transaction('CatatanDarurat', 'readonly');
+                        const store = tx.objectStore('CatatanDarurat');
+                        const getReq = store.get(1);
+                        getReq.onsuccess = () => {
+                            if (getReq.result && getReq.result.text && getReq.result.text.trim().length > 0) {
+                                showConfirm("Terdapat catatan transaksi saat offline yang belum direkap.", "Info Offline", "var(--warning)", () => { 
+                                    showOfflineLedger(getReq.result.text); 
+                                }, "LIHAT CATATAN");
+                            }
+                        };
+                    }
+                };
+            } catch(err) {}
+        }
 
         /* --- INIT APP UTAMA --- */
         let isDbReady = false, pendingLaunchFile = null; 
         async function initApp() { 
-            try { const t = new Date(); $('current-date-location').innerText = `Boyolali, ${t.getDate()} ${NamaBln[t.getMonth()]} ${t.getFullYear()}`; await initDB(); db = await loadAllFromIDB(); worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); updateMaps(); renderCartUI(); applyFiltersAndRender(); processUrlParameters(); isDbReady = true; if (pendingLaunchFile) { processQueuedFile(pendingLaunchFile); pendingLaunchFile = null; } } catch (e) { showAlert("DB Error: " + e.message, "Error"); } 
+            try { 
+                const t = new Date(); 
+                $('current-date-location').innerText = `Boyolali, ${t.getDate()} ${NamaBln[t.getMonth()]} ${t.getFullYear()}`; 
+                await initDB(); 
+                db = await loadAllFromIDB(); 
+                worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
+                updateMaps(); 
+                renderCartUI(); 
+                applyFiltersAndRender(); 
+                processUrlParameters(); 
+                isDbReady = true; 
+                if (pendingLaunchFile) { 
+                    processQueuedFile(pendingLaunchFile); 
+                    pendingLaunchFile = null; 
+                } 
+                checkOfflineLedger();
+            } catch (e) { 
+                showAlert("DB Error: " + e.message, "Error"); 
+            } 
         }
         initApp();
+        
         function processQueuedFile(file) { showLoading("Mengimpor data dari file...<br>Mohon tunggu.", "var(--warning)"); setTimeout(() => { importData({ target: { files: [file] } }); setTimeout(hideLoading, 1500); }, 300); }
         if ('launchQueue' in window) { window.launchQueue.setConsumer((launchParams) => { if (launchParams.files && launchParams.files.length > 0) launchParams.files[0].getFile().then(file => { if (isDbReady) processQueuedFile(file); else pendingLaunchFile = file; }); }); }
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js') .then((registration) => { registration.addEventListener('updatefound', () => { const newWorker = registration.installing; newWorker.addEventListener('statechange', () => { if (newWorker.state === 'installed' && navigator.serviceWorker.controller) showConfirm("Versi terbaru aplikasi telah tersedia! Perbarui sekarang.", "Update Sistem", "#87CEFA", () => { window.location.reload(); }, "REFRESH"); }); }); }).catch(console.error); }); }
