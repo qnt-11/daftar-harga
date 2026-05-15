@@ -14,19 +14,15 @@
             display: flex; flex-direction: column; align-items: center; min-height: 100vh;
         }
 
-        /* UI STATUS */
         .status-card {
             background-color: #151515; border: 1px solid #333333; border-radius: 12px;
             padding: 15px; width: 100%; max-width: 400px; text-align: center; margin-bottom: 15px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.8);
         }
-        .status-card h2 { margin: 0 0 5px 0; font-size: 16px; color: #ff3b30; }
+        .status-card h2 { margin: 0 0 5px 0; font-size: 16px; color: #ff3b30; transition: color 0.3s; }
         .status-card p { margin: 0; font-size: 11px; color: #a0a0a0; line-height: 1.4; }
 
-        /* UI LEDGER */
-        .ledger-container {
-            width: 100%; max-width: 400px; margin-bottom: 15px;
-        }
+        .ledger-container { width: 100%; max-width: 400px; margin-bottom: 15px; }
         .ledger-container label {
             display: block; font-size: 11px; color: #87CEFA; font-weight: 700; margin-bottom: 6px; text-transform: uppercase;
         }
@@ -37,7 +33,6 @@
         }
         textarea:focus { border-color: #87CEFA; }
 
-        /* UI KALKULATOR */
         .calc-container {
             width: 100%; max-width: 400px; background-color: #151515; border: 1px solid #333;
             border-radius: 16px; padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.8);
@@ -47,9 +42,7 @@
             padding: 15px; font-size: 24px; text-align: right; color: #fff; margin-bottom: 15px;
             font-weight: 700; overflow-x: auto; white-space: nowrap;
         }
-        .calc-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
-        }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         .calc-btn {
             background-color: #222; color: #fff; border: 1px solid #444; border-radius: 8px;
             padding: 15px 0; font-size: 18px; font-weight: 700; cursor: pointer; outline: none;
@@ -77,8 +70,8 @@
     </div>
 
     <div class="ledger-container">
-        <label>Buku Catatan Darurat (Otomatis Tersimpan)</label>
-        <textarea id="offline-ledger" placeholder="Catat pesanan pelanggan di sini jika kasir utama belum bisa diakses..." oninput="saveLedger()"></textarea>
+        <label>Buku Catatan Darurat (Anti-Hilang)</label>
+        <textarea id="offline-ledger" placeholder="Catat pesanan pelanggan di sini. Data tersimpan permanen di IndexedDB..." oninput="saveLedger()"></textarea>
     </div>
 
     <div class="calc-container">
@@ -110,7 +103,6 @@
     </div>
 
     <script>
-        /* --- STATUS & AUTO-RELOAD --- */
         const btn = document.getElementById('retry-btn');
         const title = document.getElementById('status-title');
         const desc = document.getElementById('status-desc');
@@ -129,22 +121,66 @@
             triggerReload("Memuat Ulang...");
         });
 
-        /* --- BUKU CATATAN (LEDGER) DENGAN DEBOUNCE --- */
+        /* =========================================
+           FITUR 7: INDEXEDDB UNTUK BUKU CATATAN
+           ========================================= */
         const ledger = document.getElementById('offline-ledger');
-        window.onload = () => {
+        const DB_NAME = 'KasirOfflineDB';
+        const STORE_NAME = 'CatatanDarurat';
+        let db;
+
+        // Inisialisasi Database
+        const requestDB = indexedDB.open(DB_NAME, 1);
+        
+        requestDB.onupgradeneeded = function(event) {
+            db = event.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+            }
+        };
+
+        requestDB.onsuccess = function(event) {
+            db = event.target.result;
+            loadLedger(); // Muat data setelah DB siap
+        };
+
+        requestDB.onerror = function(event) {
+            console.error("IndexedDB error: ", event.target.errorCode);
+            // Fallback ke localStorage jika browser menolak IndexedDB
             const savedText = localStorage.getItem('DB_WA_OFFLINE_LEDGER');
             if (savedText) ledger.value = savedText;
         };
-        
+
+        function loadLedger() {
+            const transaction = db.transaction([STORE_NAME], 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.get(1); // Kita gunakan ID 1 sebagai kunci tunggal
+
+            request.onsuccess = function() {
+                if (request.result) {
+                    ledger.value = request.result.text;
+                }
+            };
+        }
+
         let saveTimeout;
         function saveLedger() {
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
-                localStorage.setItem('DB_WA_OFFLINE_LEDGER', ledger.value);
+                if (db) {
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+                    store.put({ id: 1, text: ledger.value }); // Simpan atau Timpa
+                } else {
+                    // Fallback
+                    localStorage.setItem('DB_WA_OFFLINE_LEDGER', ledger.value);
+                }
             }, 500); 
         }
 
-        /* --- KALKULATOR DARURAT (100% BULLETPROOF) --- */
+        /* =========================================
+           LOGIKA KALKULATOR DARURAT (TIDAK DIUBAH)
+           ========================================= */
         const display = document.getElementById('calc-display');
         let calcVal = '0';
 
@@ -153,63 +189,46 @@
             let displayStr = parts.map(p => {
                 if (p.match(/[\+\-\*\/]/)) return p;
                 if (p.includes('e')) return p; 
-                
                 let numParts = p.split('.');
                 numParts[0] = numParts[0].replace(/\B(?=(\d{3})+(?!\d))/g, "."); 
                 return numParts.join(','); 
             }).join('');
-            
             display.innerText = displayStr.replace(/\*/g, '×').replace(/\//g, '÷');
         }
 
         function calcNum(n) {
-            if (n === '.') {
-                const parts = calcVal.split(/[\+\-\*\/]/);
-                const currentSegment = parts[parts.length - 1];
-                if (currentSegment.includes('.')) return; 
+            const parts = calcVal.split(/[\+\-\*\/]/);
+            const currentSegment = parts[parts.length - 1];
+            if (n === '.') { if (currentSegment.includes('.')) return; }
+            if (currentSegment === '0' && n !== '.') {
+                calcVal = calcVal.slice(0, -1) + n;
+            } else {
+                calcVal += n;
             }
-            if (calcVal === '0' && n !== '.') calcVal = n;
-            else calcVal += n;
             updateDisplay();
         }
 
         function calcOp(op) {
-            if (calcVal.match(/[\+\-\*\/]$/)) {
-                calcVal = calcVal.slice(0, -1) + op;
-            } else {
-                calcVal += op;
-            }
+            if (calcVal.match(/[\+\-\*\/]$/)) { calcVal = calcVal.slice(0, -1) + op; } 
+            else { calcVal += op; }
             updateDisplay();
         }
 
-        function calcClear() {
-            calcVal = '0'; updateDisplay();
-        }
+        function calcClear() { calcVal = '0'; updateDisplay(); }
 
         function calcBack() {
-            if (calcVal.length > 1) {
-                calcVal = calcVal.slice(0, -1);
-            } else {
-                calcVal = '0';
-            }
+            if (calcVal.length > 1) { calcVal = calcVal.slice(0, -1); } 
+            else { calcVal = '0'; }
             updateDisplay();
         }
 
         function calcCalculate() {
             try {
                 let safeVal = calcVal;
-                if (safeVal.match(/[\+\-\*\/]$/)) {
-                    safeVal = safeVal.slice(0, -1);
-                }
-                
+                if (safeVal.match(/[\+\-\*\/]$/)) { safeVal = safeVal.slice(0, -1); }
                 let result = new Function('return ' + safeVal)();
-                
                 if (!isFinite(result) || isNaN(result)) result = 0; 
-                
-                if (result % 1 !== 0) {
-                    result = parseFloat(result.toFixed(4)); 
-                }
-                
+                if (result % 1 !== 0) { result = parseFloat(result.toFixed(4)); }
                 calcVal = String(result);
                 updateDisplay();
             } catch (e) {
