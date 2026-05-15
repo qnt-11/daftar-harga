@@ -1,4 +1,4 @@
-const APP_VERSION = '9.4'; 
+const APP_VERSION = '9.5'; 
 const CACHE_CORE = 'core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
 const CACHE_CDN = 'cdn-v1'; 
@@ -7,12 +7,12 @@ const MAX_DYNAMIC_ITEMS = 50;
 const MAX_CDN_ITEMS = 20;
 const NETWORK_TIMEOUT = 8000; 
 
+// File beep.mp3 dihapus dari memori inti karena index.html menggunakan AudioContext
 const coreUrls = [
   '/', 
   '/index.html', 
   '/manifest.json',
-  '/offline.html',
-  '/beep.mp3' 
+  '/offline.html'
 ];
 
 const cdnDomains = [
@@ -62,10 +62,10 @@ function fetchWithTimeout(request, timeout = 5000) {
 }
 
 self.addEventListener('install', event => {
-  self.skipWaiting(); // Wajib agar tombol "Refresh" di index.html berfungsi
+  self.skipWaiting(); // Memastikan update langsung aktif saat tombol refresh diklik
   event.waitUntil(
     caches.open(CACHE_CORE).then(cache => {
-      // Instalasi kebal error: Jika 1 file hilang (misal beep.mp3), aplikasi tetap bisa diinstal
+      // Instalasi kebal error dengan Promise.allSettled
       return Promise.allSettled(
         coreUrls.map(url => {
           return fetch(url).then(res => {
@@ -99,14 +99,7 @@ self.addEventListener('fetch', event => {
 
   if (req.method !== 'GET' || url.hostname.includes('script.google') || !url.protocol.startsWith('http')) return;
 
-  // Zero-Delay Beep Sound (Membaca audio langsung dari RAM cache)
-  if (url.pathname.includes('beep.mp3')) {
-    event.respondWith(
-      caches.match(req).then(cachedRes => cachedRes || fetch(req))
-    );
-    return;
-  }
-
+  // STRATEGI 1: NETWORK FIRST (Halaman Utama & Pondasi)
   if (req.mode === 'navigate' || url.pathname === '/' || url.pathname.includes('index.html')) {
     event.respondWith(
       fetchWithTimeout(req, NETWORK_TIMEOUT)
@@ -129,6 +122,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // STRATEGI 2: CACHE FIRST (CDN Font & Library Luar)
   if (cdnDomains.some(domain => url.hostname.includes(domain))) {
     event.respondWith(
       caches.match(req).then(cachedRes => {
@@ -145,6 +139,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // STRATEGI 3: STALE-WHILE-REVALIDATE (Aset Dinamis)
   event.respondWith(
     caches.match(req, { ignoreSearch: true }).then(cachedRes => {
       const fetchPromise = fetch(req).then(res => {
