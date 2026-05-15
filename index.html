@@ -181,7 +181,18 @@
         body.is-scrolling .render-container { pointer-events: none; }
         .render-container { position: absolute; top: 12px; left: 0; width: 100%; padding-left: 16px; padding-right: 16px; will-change: transform; transform: translateZ(0); }
         
-        .card { position: relative; display: flex; align-items: flex-start; padding: 15px 18px 15px 18px; padding-right: 90px; background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; height: auto; min-height: 90px; overflow: hidden; box-sizing: border-box; contain: content; touch-action: pan-y; }
+        /* [PERBAIKAN 3 - CSS: Anti-Jank Virtual List Rendering] */
+        .card { 
+            position: relative; display: flex; align-items: flex-start; padding: 15px 18px 15px 18px; 
+            padding-right: 90px; background: var(--wa-card); border: 1px solid var(--border-color); 
+            border-radius: 12px; height: auto; min-height: 90px; overflow: hidden; 
+            box-sizing: border-box; touch-action: pan-y;
+            /* Tambahan untuk scroll super ringan (Mencegah reflow berlebihan) */
+            content-visibility: auto; 
+            contain-intrinsic-size: 90px; 
+            contain: content; 
+        }
+
         .card-exp-mode { height: auto !important; min-height: 70px !important; padding-bottom: 15px !important; align-items: center !important; padding-right: 18px !important; }
         
         .info { flex: 1; min-width: 0; pointer-events: none; }
@@ -274,7 +285,7 @@
 
         .scanner-overlay { position: absolute; inset: 0; pointer-events: none; display: flex; justify-content: center; align-items: center; }
         
-        /* [PERBAIKAN 1 - UI] Posisi Scanner Dinaikkan */
+        /* Posisi Scanner Dinaikkan */
         .scanner-box { 
             width: 260px; 
             height: 180px; 
@@ -604,11 +615,12 @@
         const NamaBln = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         const NamaBlnPendek = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 
+        // [PERBAIKAN 2: Injeksi cartSaveTimer ke Global]
         let db = [], idb, worker, workerResult = null, filteredData = [], listOffsets = [];
         let lastStartIndex = -1, lastEndIndex = -1, currentSearchReqId = 0, inputBuffer = '', bufferTimer;
         let barcodeMap = new Map(), acronymMap = new Map(), physicalInputBuffer = "", lastKeyTime = 0;
         let tab = 'all', activeId = null, html5QrCode = null, isScanning = false, isStartingScan = false, sortAZ = false, scanMode = 'search'; 
-        let toastTimeoutHide, toastTimeoutRemove, isSaving = false, scrollLetterTimeout;
+        let toastTimeoutHide, toastTimeoutRemove, isSaving = false, scrollLetterTimeout, cartSaveTimer = null;
         const Picker = { sel: new Date(), targetId: '', tempYear: new Date().getFullYear(), tempMonth: new Date().getMonth() };
         let recentSearches = JSON.parse(localStorage.getItem('DB_WA_RECENT')) || [];
         let trendingSearches = JSON.parse(localStorage.getItem('DB_WA_TRENDING')) || {};
@@ -629,8 +641,12 @@
             } 
         }
         
+        // [PERBAIKAN 2: Debounce Storage untuk Anti-Lag saat scan beruntun]
         function saveCartMem() { 
-            localStorage.setItem('DB_WA_CART', JSON.stringify(cartState)); 
+            if (cartSaveTimer) clearTimeout(cartSaveTimer);
+            cartSaveTimer = setTimeout(() => {
+                localStorage.setItem('DB_WA_CART', JSON.stringify(cartState)); 
+            }, 300);
         }
 
         /* --- UI HELPERS GLOBAL FOCUS (KEYBOARD TRAP FIX) --- */
@@ -1103,9 +1119,37 @@
             if (exact && q.length > 0) { currentSearchReqId++; workerResult = [exact]; applyFiltersAndRender(); } else worker.postMessage({ type: 'search', query: q, reqId: ++currentSearchReqId }); 
         }
 
-        /* --- NATIVE SEARCH WORKER (OFFLINE SAFE) --- */
+        /* --- NATIVE SEARCH WORKER (OFFLINE SAFE) --- [PERBAIKAN 5: Antrean Worker Drop] */
         const searchInput = $('q'), searchDropdown = $('search-dropdown'), sdContent = $('sd-content');
-        const workerScript = `let workerList = []; self.onmessage = function(e) { if (e.data.type === 'init') workerList = e.data.db; else if (e.data.type === 'add') workerList.push(e.data.item); else if (e.data.type === 'update') { workerList = workerList.filter(x => String(x.id) !== String(e.data.item.id)); workerList.push(e.data.item); } else if (e.data.type === 'remove') workerList = workerList.filter(x => String(x.id) !== String(e.data.id)); else if (e.data.type === 'search') { const query = (e.data.query || '').toLowerCase(), terms = query.split(' ').filter(Boolean); const hasil = workerList.filter(item => { const n = (item.n || '').toLowerCase(), t = (item.t || '').toLowerCase(), b = (item.b || '').toLowerCase(); return terms.every(term => n.includes(term) || t.includes(term) || b.includes(term)); }); self.postMessage({ type: 'result', data: hasil, query: e.data.query, reqId: e.data.reqId }); } };`;
+        
+        const workerScript = `
+        let workerList = []; 
+        let latestReqId = 0; 
+        self.onmessage = function(e) { 
+            if (e.data.type === 'init') workerList = e.data.db; 
+            else if (e.data.type === 'add') workerList.push(e.data.item); 
+            else if (e.data.type === 'update') { 
+                workerList = workerList.filter(x => String(x.id) !== String(e.data.item.id)); 
+                workerList.push(e.data.item); 
+            } 
+            else if (e.data.type === 'remove') workerList = workerList.filter(x => String(x.id) !== String(e.data.id)); 
+            else if (e.data.type === 'search') { 
+                latestReqId = e.data.reqId; 
+                const query = (e.data.query || '').toLowerCase();
+                const terms = query.split(' ').filter(Boolean); 
+                
+                const hasil = workerList.filter(item => { 
+                    if (latestReqId !== e.data.reqId) return false; 
+                    const n = (item.n || '').toLowerCase(), t = (item.t || '').toLowerCase(), b = (item.b || '').toLowerCase(); 
+                    return terms.every(term => n.includes(term) || t.includes(term) || b.includes(term)); 
+                }); 
+                
+                if (latestReqId === e.data.reqId) {
+                    self.postMessage({ type: 'result', data: hasil, query: e.data.query, reqId: e.data.reqId }); 
+                }
+            } 
+        };`;
+        
         worker = new Worker(URL.createObjectURL(new Blob([workerScript], { type: 'application/javascript' })));
         worker.onmessage = function(e) { if (e.data.type === 'result' && e.data.reqId === currentSearchReqId) { workerResult = e.data.data; applyFiltersAndRender(); } };
 
@@ -1374,16 +1418,20 @@
         function handleSyncChange() { const val = $('sync-type').value, warningArea = $('sync-warning-area'), modalBox = $('sync-modal-box'), title = $('sync-modal-title'), btnDownload = $('btn-sync-download'); if (val === 'force') { warningArea.innerHTML = "<span style='color: var(--danger); font-weight: 800;'>⚠️ PERINGATAN</span><br><span style='color: #ccc;'>Data yang belum di-Upload akan HILANG!</span>"; modalBox.style.borderColor = title.style.color = btnDownload.style.borderColor = btnDownload.style.color = "var(--danger)"; } else if (val === 'delta') { warningArea.innerHTML = "<span style='color: #87CEFA;'>💯 Aman</span><br><span style='color: #ccc;'>Load data baru tanpa menghapus data.</span>"; modalBox.style.borderColor = title.style.color = btnDownload.style.borderColor = btnDownload.style.color = "#87CEFA"; } else { warningArea.innerHTML = ""; modalBox.style.borderColor = "var(--border-color)"; title.style.color = "#87CEFA"; btnDownload.style.borderColor = "var(--border-color)"; btnDownload.style.color = "var(--text-muted)"; } }
         function executeSyncBtn() { const val = $('sync-type').value; if (!val) { tampilkanToast("Silakan pilih mode sinkronisasi dulu!", "var(--warning)"); return; } closeSyncModal(); loadFromCloud(val === 'force'); }
 
+        // [PERBAIKAN 4: Database Chunking untuk mencegah HP Freeze]
         function loadFromCloud(forceSync = false) { 
             if (isApiLoading) return;
             isApiLoading = true;
 
             showLoading("Memuat data dari Cloud...<br>Mohon tunggu sebentar.", "#87CEFA"); 
             const lastSyncTime = forceSync ? 0 : (parseInt(localStorage.getItem('DB_LAST_SYNC')) || 0); 
+            
             fetchWithTimeout(CLOUD_URL + "?action=load&lastSync=" + lastSyncTime + "&t=" + Date.now(), {}, 30000) 
             .then(r => r.json()) 
             .then(dataResponse => { 
-                const dataCloud = dataResponse.data || [], serverTime = dataResponse.serverTime || Date.now(); 
+                const dataCloud = dataResponse.data || [];
+                const serverTime = dataResponse.serverTime || Date.now(); 
+                
                 if (dataCloud.length === 0 && !forceSync) { 
                     isApiLoading = false; hideLoading(); 
                     tampilkanToast("Data di HP sudah yang paling baru!", "var(--mono-main)"); 
@@ -1391,52 +1439,66 @@
                     return; 
                 } 
                 
-                // Map O(1) Atomic Transaction
                 let tempMap = new Map();
                 if (!forceSync) {
                     db.forEach(item => tempMap.set(String(item.id), item));
                 }
                 
-                const tx = idb.transaction('items', 'readwrite'), store = tx.objectStore('items'); 
-                if (forceSync) store.clear(); 
-                
-                dataCloud.forEach(itemCloud => { 
-                    if (forceSync) {
-                        tempMap.set(String(itemCloud.id), itemCloud); store.put(itemCloud);
-                    } else {
-                        const existing = tempMap.get(String(itemCloud.id));
-                        if (existing) { 
-                            if ((itemCloud.updatedAt || 0) >= (existing.updatedAt || 0)) { 
-                                if (itemCloud.deleted) { store.delete(itemCloud.id); tempMap.delete(String(itemCloud.id)); } 
-                                else { tempMap.set(String(itemCloud.id), itemCloud); store.put(itemCloud); } 
-                            } 
-                        } else if (!itemCloud.deleted) { 
-                            tempMap.set(String(itemCloud.id), itemCloud); store.put(itemCloud); 
-                        } 
+                const chunkSize = 500;
+                let currentIndex = 0;
+
+                function processNextChunk() {
+                    const chunk = dataCloud.slice(currentIndex, currentIndex + chunkSize);
+                    
+                    if (chunk.length === 0) {
+                        db = Array.from(tempMap.values());
+                        localStorage.setItem('DB_LAST_SYNC', serverTime.toString()); 
+                        worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
+                        updateMaps(); 
+                        
+                        currentSearchReqId++; 
+                        $('q').value = '';
+                        workerResult = null;
+                        $('q-x').style.display = 'none';
+                        
+                        renderCartUI(); 
+                        applyFiltersAndRender(); 
+                        isApiLoading = false; hideLoading(); 
+                        tampilkanToast(forceSync ? "Berhasil memuat ulang semua data!" : `Berhasil update ${dataCloud.length} data!`, "var(--mono-main)"); 
+                        return;
                     }
-                }); 
+
+                    const tx = idb.transaction('items', 'readwrite');
+                    const store = tx.objectStore('items'); 
+                    if (forceSync && currentIndex === 0) store.clear(); 
+                    
+                    chunk.forEach(itemCloud => { 
+                        if (forceSync) {
+                            tempMap.set(String(itemCloud.id), itemCloud); store.put(itemCloud);
+                        } else {
+                            const existing = tempMap.get(String(itemCloud.id));
+                            if (existing) { 
+                                if ((itemCloud.updatedAt || 0) >= (existing.updatedAt || 0)) { 
+                                    if (itemCloud.deleted) { store.delete(itemCloud.id); tempMap.delete(String(itemCloud.id)); } 
+                                    else { tempMap.set(String(itemCloud.id), itemCloud); store.put(itemCloud); } 
+                                } 
+                            } else if (!itemCloud.deleted) { 
+                                tempMap.set(String(itemCloud.id), itemCloud); store.put(itemCloud); 
+                            } 
+                        }
+                    }); 
+                    
+                    tx.oncomplete = () => { 
+                        currentIndex += chunkSize;
+                        requestAnimationFrame(processNextChunk); 
+                    }; 
+                    tx.onerror = () => { 
+                        isApiLoading = false; hideLoading(); 
+                        showAlert("Gagal menyimpan ke memori HP. Data Anda sebelumnya tetap aman. Silakan coba lagi.", "Error"); 
+                    };
+                }
                 
-                tx.oncomplete = () => { 
-                    db = Array.from(tempMap.values());
-                    localStorage.setItem('DB_LAST_SYNC', serverTime.toString()); 
-                    worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
-                    updateMaps(); 
-                    
-                    // Reset pencarian lama agar tidak muncul hantu
-                    currentSearchReqId++; 
-                    $('q').value = '';
-                    workerResult = null;
-                    $('q-x').style.display = 'none';
-                    
-                    renderCartUI(); 
-                    applyFiltersAndRender(); 
-                    isApiLoading = false; hideLoading(); 
-                    tampilkanToast(forceSync ? "Berhasil memuat ulang semua data!" : `Berhasil update ${dataCloud.length} data!`, "var(--mono-main)"); 
-                }; 
-                tx.onerror = () => { 
-                    isApiLoading = false; hideLoading(); 
-                    showAlert("Gagal menyimpan ke memori HP. Data Anda sebelumnya tetap aman. Silakan coba lagi.", "Error"); 
-                } 
+                processNextChunk();
             }) 
             .catch(() => { 
                 isApiLoading = false; hideLoading(); 
@@ -1507,6 +1569,7 @@
         }
         
         let isClosingScan = false;
+        // [PERBAIKAN 1: Scanner Cepat dan Aman Memori]
         async function openScanner(mode) { 
             if(isStartingScan || isScanning || isClosingScan) return; 
             isStartingScan = true; 
@@ -1520,32 +1583,30 @@
             
             try { 
                 const scanConfig = { 
-                    fps: 20, 
+                    fps: 10, 
                     disableFlip: true, 
-                    
-                    // [PERBAIKAN 1 - SMART BOX]: Kotak otomatis melebar 85% dari ukuran layar HP.
-                    // Ini menjamin ruang putih di ujung barcode (Quiet Zone) ikut masuk ke dalam kotak!
                     qrbox: function(viewfinderWidth, viewFinderHeight) {
                         let boxWidth = Math.floor(viewfinderWidth * 0.85);
                         return { width: boxWidth, height: 160 };
                     },
-                    
-                    // [PERBAIKAN 2 - HARDWARE ACCELERATION]: 
-                    // Memaksa Chrome Android menggunakan Scanner Hardware bawaan HP (Sangat Cepat & Akurat!)
                     experimentalFeatures: {
                         useBarCodeDetectorIfSupported: true
                     },
-
                     formatsToSupport: [ 
-                        Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8, 
-                        Html5QrcodeSupportedFormats.UPC_A, Html5QrcodeSupportedFormats.UPC_E, 
-                        Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.QR_CODE 
+                        Html5QrcodeSupportedFormats.EAN_13, 
+                        Html5QrcodeSupportedFormats.EAN_8, 
+                        Html5QrcodeSupportedFormats.UPC_A, 
+                        Html5QrcodeSupportedFormats.UPC_E, 
+                        Html5QrcodeSupportedFormats.CODE_128, 
+                        Html5QrcodeSupportedFormats.QR_CODE 
                     ] 
                 };
                 
-                // Lensa dibiarkan natural tanpa distorsi rasio
                 const videoConstraints = { 
-                    facingMode: "environment"
+                    facingMode: "environment",
+                    width: { ideal: 1280, max: 1920 },
+                    height: { ideal: 720, max: 1080 },
+                    advanced: [{ focusMode: "continuous" }] 
                 };
 
                 await html5QrCode.start( videoConstraints, scanConfig, async (text) => { 
