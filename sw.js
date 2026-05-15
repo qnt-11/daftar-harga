@@ -1,4 +1,4 @@
-const APP_VERSION = '10.1'; 
+const APP_VERSION = '10.2'; 
 const CACHE_CORE = 'core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
 const CACHE_CDN = 'cdn-v1'; 
@@ -7,7 +7,7 @@ const MAX_DYNAMIC_ITEMS = 50;
 const MAX_CDN_ITEMS = 20;
 const NETWORK_TIMEOUT = 8000; 
 
-// File beep.mp3 dihapus dari memori inti karena index.html menggunakan AudioContext
+// [SUDAH DIAUDIT]: offline.html dimasukkan kembali agar dikenali oleh sistem saat mati lampu/sinyal
 const coreUrls = [
   '/', 
   '/index.html', 
@@ -111,10 +111,18 @@ self.addEventListener('fetch', event => {
         })
         .catch(async () => {
           const cache = await caches.open(CACHE_CORE);
-          const offlineFile = await cache.match('/offline.html', { ignoreSearch: true });
-          if (offlineFile) return offlineFile;
+          
+          // 1. Coba buka Kasir Utama (index.html) dari memori lokal (Offline Mode)
+          const cachedIndex = await cache.match('/index.html', { ignoreSearch: true }) || await cache.match('/', { ignoreSearch: true });
+          if (cachedIndex) return cachedIndex; 
+          
+          // 2. Jika Kasir Utama tidak ketemu di memori, buka Kalkulator Darurat (offline.html)
+          const offlinePage = await cache.match('/offline.html', { ignoreSearch: true });
+          if (offlinePage) return offlinePage;
+
+          // 3. Fallback Kiamat (Jika HP benar-benar kosong belum pernah instal)
           return new Response(
-            `<!DOCTYPE html><html><body style="background:#000;color:#f00;text-align:center;padding:50px;"><h2>⚠️ Sedang Offline</h2></body></html>`,
+            `<!DOCTYPE html><html><body style="background:#000;color:#f00;text-align:center;padding:50px;font-family:sans-serif;"><h2>⚠️ Sedang Offline</h2><p>Aplikasi belum tersimpan di memori HP. Hubungkan ke internet untuk membuka pertama kali.</p></body></html>`,
             { headers: { 'Content-Type': 'text/html' } }
           );
         })
