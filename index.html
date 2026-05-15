@@ -1582,17 +1582,20 @@
             
             try { 
                 const scanConfig = { 
-                    fps: 15, // Kita naikkan ke 15 agar lebih responsif menangkap gambar
+                    fps: 10, // KEMBALI KE 10 FPS (Paling stabil untuk HP mid-range, tidak bikin panas)
+                    disableFlip: false, // TETAP FALSE agar bisa baca barcode vertikal/terbalik
                     
-                    // [HACK 1]: qrbox DIHAPUS dari sistem. 
-                    // Visual kotak putih di layar tetap ada, tapi mesin di belakang layar 
-                    // men-scan KESELURUHAN layar. Sangat ampuh untuk barcode panjang / melengkung!
-                    
-                    // [HACK 2]: WAJIB FALSE agar bisa baca barcode vertikal / terbalik seperti di foto Anda!
-                    disableFlip: false, 
+                    // [SOLUSI CERDAS]: Kotak Pindai Raksasa. 
+                    // Luasnya 95% layar. Sangat mudah menangkap botol miring, 
+                    // TAPI tetap membatasi memori agar HP tidak Crash/Freeze!
+                    qrbox: function(viewfinderWidth, viewFinderHeight) {
+                        let boxWidth = Math.floor(viewfinderWidth * 0.95);
+                        let boxHeight = Math.floor(viewFinderHeight * 0.60);
+                        return { width: boxWidth, height: boxHeight };
+                    },
                     
                     experimentalFeatures: {
-                        useBarCodeDetectorIfSupported: true
+                        useBarCodeDetectorIfSupported: true // Akselerasi Hardware Bawaan HP
                     },
                     formatsToSupport: [ 
                         Html5QrcodeSupportedFormats.EAN_13, 
@@ -1604,12 +1607,9 @@
                     ] 
                 };
                 
-                // [HACK 3]: Resolusi "Soft Ideal". 
-                // Meminta gambar tajam HD secara halus agar HP mid-range tidak error/kaget.
+                // [SOLUSI AMAN]: Bebaskan HP memilih resolusi aslinya sendiri tanpa dipaksa.
                 const videoConstraints = { 
-                    facingMode: "environment",
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
+                    facingMode: "environment"
                 };
 
                 await html5QrCode.start( videoConstraints, scanConfig, async (text) => { 
@@ -1654,6 +1654,7 @@
                 isStartingScan = false; 
             } 
         }
+ 
 
         async function closeScanner() { 
             if(isClosingScan) return;
