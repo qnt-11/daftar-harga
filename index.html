@@ -16,7 +16,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-<script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
     <style>
         :root {
@@ -92,6 +92,8 @@
             background: var(--wa-header); 
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); 
             margin-bottom: 15px; 
+            border-top: none !important;
+            border-bottom: none !important;
         }
 
         .header-left { display: flex; flex-direction: column; justify-content: center; }
@@ -119,7 +121,7 @@
         .sticky-roof-group::after { content: ''; position: absolute; bottom: -15px; left: 0; right: 0; height: 15px; background: linear-gradient(to bottom, var(--wa-bg) 0%, transparent 100%); pointer-events: none; }
 
         #cart-panel-container { display: none; max-height: var(--cart-h); height: auto; flex-direction: column; transition: max-height 0.3s ease; }
-        .cp-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px 8px 16px; background: transparent; border-bottom: none; flex-shrink: 0; }
+        .cp-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px 8px 16px; background: transparent; border-bottom: none; flex-shrink: 0; border-top: none !important; }
         .cp-title-box { display: flex; flex-direction: column; }
         .cp-btn { background: transparent; border: 1px solid var(--mono-sec); color: var(--mono-main); padding: 8px 14px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; outline: none; transition: 0.2s; letter-spacing: 0.5px; }
         .cp-btn:active { transform: scale(0.95); background: var(--highlight-bg); }
@@ -1505,7 +1507,7 @@
         }
         
         let isClosingScan = false;
-                async function openScanner(mode) { 
+        async function openScanner(mode) { 
             if(isStartingScan || isScanning || isClosingScan) return; 
             isStartingScan = true; 
             scanMode = mode; 
@@ -1518,7 +1520,7 @@
             
             try { 
                 const scanConfig = { 
-                    fps: 15, 
+                    fps: 30, 
                     disableFlip: true, 
                     qrbox: { width: 260, height: 180 }, 
                     formatsToSupport: [ 
@@ -1528,8 +1530,11 @@
                     ] 
                 };
                 
-                // [PERBAIKAN 1]: Hapus auto-focus bawaan browser yang memicu crash
-                const videoConstraints = { facingMode: "environment" };
+                const videoConstraints = { 
+                    facingMode: "environment",
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                };
 
                 await html5QrCode.start( videoConstraints, scanConfig, async (text) => { 
                     playBeep(); 
@@ -1554,7 +1559,6 @@
             } catch (e) { 
                 await closeScanner(); 
                 
-                // [PERBAIKAN 2]: Pesan error spesifik agar gampang dilacak
                 let errMsg = "Kamera Error. Coba muat ulang aplikasi.";
                 if (e) {
                     if (e.name === "NotAllowedError" || (e.message && e.message.includes("Permission denied"))) {
@@ -1572,6 +1576,7 @@
                 isStartingScan = false; 
             } 
         }
+
         async function closeScanner() { 
             if(isClosingScan) return;
             isClosingScan = true;
