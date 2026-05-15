@@ -1519,12 +1519,23 @@
             $('torch-btn').style.color = "white"; 
             
             try { 
-                // Setingan khusus Xiaomi Note 12 / Snapdragon 685
                 const scanConfig = { 
-                    fps: 10, 
+                    fps: 20, 
                     disableFlip: true, 
-                    qrbox: { width: 280, height: 120 }, 
-                    aspectRatio: 1.0, 
+                    
+                    // [PERBAIKAN 1 - SMART BOX]: Kotak otomatis melebar 85% dari ukuran layar HP.
+                    // Ini menjamin ruang putih di ujung barcode (Quiet Zone) ikut masuk ke dalam kotak!
+                    qrbox: function(viewfinderWidth, viewFinderHeight) {
+                        let boxWidth = Math.floor(viewfinderWidth * 0.85);
+                        return { width: boxWidth, height: 160 };
+                    },
+                    
+                    // [PERBAIKAN 2 - HARDWARE ACCELERATION]: 
+                    // Memaksa Chrome Android menggunakan Scanner Hardware bawaan HP (Sangat Cepat & Akurat!)
+                    experimentalFeatures: {
+                        useBarCodeDetectorIfSupported: true
+                    },
+
                     formatsToSupport: [ 
                         Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8, 
                         Html5QrcodeSupportedFormats.UPC_A, Html5QrcodeSupportedFormats.UPC_E, 
@@ -1532,6 +1543,7 @@
                     ] 
                 };
                 
+                // Lensa dibiarkan natural tanpa distorsi rasio
                 const videoConstraints = { 
                     facingMode: "environment"
                 };
