@@ -272,7 +272,6 @@
 
         .scanner-overlay { position: absolute; inset: 0; pointer-events: none; display: flex; justify-content: center; align-items: center; }
         
-        /* [PERBAIKAN 1 - UI] Posisi Scanner Dinaikkan */
         .scanner-box { 
             width: 260px; 
             height: 180px; 
@@ -281,6 +280,7 @@
             position: relative; 
             overflow: hidden; 
             box-shadow: 0 0 0 4000px rgba(0,0,0,0.85); 
+            /* [PERBAIKAN 1 - UI] Ergonomi Scanner (Naikkan 15vh) */
             transform: translateY(-15vh);
         }
         
@@ -299,6 +299,7 @@
         body.mode-kasir #s-btn-search { display: flex; }
         body.mode-kasir.search-focus { --cart-h: 15vh; }
         
+        /* Mengembalikan mode kasir ke aslinya */
         body.mode-kasir .sticky-roof-group { 
             padding-top: env(safe-area-inset-top, 0px); 
         }
@@ -631,18 +632,9 @@
             localStorage.setItem('DB_WA_CART', JSON.stringify(cartState)); 
         }
 
-        /* --- UI HELPERS GLOBAL FOCUS (KEYBOARD TRAP FIX) --- */
-        document.addEventListener('focus', function(e) {
-            if (e.target.tagName && e.target.tagName.toLowerCase() === 'input' && e.target.closest('.modal-box')) {
-                setTimeout(() => {
-                    e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 300);
-            }
-        }, true);
-
-        /* --- WAKELOCK & DEBOUNCE (HARDWARE FIX) --- */
+        /* --- WAKELOCK & PENYELAMAT RAM KAMERA --- */
         let wakeLock = null;
-        let isRequestingWakeLock = false; 
+        let isRequestingWakeLock = false; // [PERBAIKAN 4] Throttle Flag
         async function requestWakeLock() {
             if (isRequestingWakeLock || wakeLock !== null) return;
             try {
@@ -663,6 +655,8 @@
         const enableWakeLock = () => {
             const v = $('wakelock-video');
             if (v && v.paused) v.play().catch(()=>{});
+            
+            // [PERBAIKAN 4] Debounce Hardware Spamming
             if (wakeLockThrottleTimer) return;
             wakeLockThrottleTimer = setTimeout(() => {
                 requestWakeLock();
@@ -770,7 +764,7 @@
             return tryAcr + c; 
         }
 
-        /* --- GLOBAL AUDIO ENGINE FIX --- */
+        // [PERBAIKAN 2] Global AudioContext untuk mencegah Memory Leak Beep
         let globalAudioCtx = null; 
         function playBeep() { 
             try { 
@@ -867,11 +861,8 @@
                     isOpen = true; break;
                 }
             }
-            const isScannerOpen = $('scanner-wrap') && $('scanner-wrap').style.display === 'block';
-            if(!isOpen && !isScannerOpen) {
-                document.body.classList.remove('modal-open');
-            }
-            return isOpen || isScannerOpen;
+            if(!isOpen) document.body.classList.remove('modal-open');
+            return isOpen;
         }
 
         /* --- CART LOGIC --- */
@@ -909,6 +900,7 @@
             let n = parseFloat(cleanVal);
             if (isNaN(n)) n = 0;
             if (!cartState[id]) cartState[id] = { q: n }; else cartState[id].q = n; 
+            // Tetap simpan 0 sementara di state, tapi akan dibersihkan via Blur agar tidak merusak ketikan user
             saveCartMem(); 
             let grandTotal = 0;
             Object.keys(cartState).forEach(k => {
@@ -931,7 +923,7 @@
         function checkEmptyQtyOnBlur(id, inputElem, val) {
             let cleanVal = String(val).replace(',', '.');
             let n = parseFloat(cleanVal);
-            // Ghost Item GC: Hapus bersih jika Qty = 0
+            // [PERBAIKAN 5] Ghost Item GC (Garbage Collection): Hapus bersih dari memori jika Qty = 0
             if (isNaN(n) || cleanVal === '' || n <= 0) { 
                 delete cartState[id]; 
                 saveCartMem(); 
@@ -999,7 +991,7 @@
                     const q = cartState[id].q, p1 = item.p1, p2 = item.p2, iq = item.iq, unitName = item.u1 || 'Satuan'; 
                     let subTotal = (p2 > 0 && iq > 1 && q >= iq) ? Math.round((q * p2) / iq) : Math.round(q * p1); // Logika Bisnis Asli
                     grandTotal += subTotal;
-                    html += `<div class="cp-item-wrap"><div class="cp-trash-bg" onclick="deleteCartItem('${id}')"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></div><div class="cp-item-front" ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event, this)" ontouchend="handleTouchEnd(event, this, '${id}')"><div class="cpi-info"><div class="cpi-name">${escapeHTML(item.n)}</div><div class="cpi-calc" id="qty-label-${id}">${q} ${escapeHTML(unitName)}</div></div><div style="display:flex; align-items:center; gap: 12px; pointer-events: auto;"><div class="cpi-total" id="sub-${id}">Rp ${fmt(subTotal)}</div><input class="qty-input-manual" type="text" inputmode="decimal" value="${q}" onfocus="this.dataset.oldVal = this.value; this.value=''" oninput="let v = this.value.replace(/[^0-9.,]/g, ''); let parts = v.split(/[.,]/); if(parts.length > 2) v = parts[0] + '.' + parts.slice(1).join(''); if(v.length > 6) v = v.slice(0,6); this.value = v; updateCartQtyManual('${id}', this.value);" onblur="checkEmptyQtyOnBlur('${id}', this, this.value)"></div></div></div>`;
+                    html += `<div class="cp-item-wrap"><div class="cp-trash-bg" onclick="deleteCartItem('${id}')"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></div><div class="cp-item-front" ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event, this)" ontouchend="handleTouchEnd(event, this, '${id}')"><div class="cpi-info"><div class="cpi-name">${escapeHTML(item.n)}</div><div class="cpi-calc" id="qty-label-${id}">${q} ${escapeHTML(unitName)}</div></div><div style="display:flex; align-items:center; gap: 12px; pointer-events: auto;"><div class="cpi-total" id="sub-${id}">Rp ${fmt(subTotal)}</div><input class="qty-input-manual" type="text" inputmode="decimal" value="${q}" onfocus="this.dataset.oldVal = this.value; this.value=''" oninput="this.value = this.value.replace(/[^0-9.,]/g, ''); if(this.value.length > 6) this.value = this.value.slice(0,6); updateCartQtyManual('${id}', this.value);" onblur="checkEmptyQtyOnBlur('${id}', this, this.value)"></div></div></div>`;
                 });
                 if (hasDeletedItems) saveCartMem();
             }
@@ -1032,9 +1024,10 @@
                 if (isScanning) closeScanner(); return; 
             }
             
-            // Isolasi Scanner Fisik
+            // [PERBAIKAN 6] Blokir Scanner Fisik Liar jika ada modal kritis terbuka
             const isAnyModalOpen = document.body.classList.contains('modal-open');
-            const isModOpen = $('mod') && $('mod').style.display === 'flex';
+            const isModOpen = $('mod') && $('mod').style.display === 'flex'; // Modal Tambah Barang (Aman untuk di-scan)
+            
             if (isScanning || (isAnyModalOpen && !isModOpen)) return;
             
             const t = Date.now(), timeDiff = t - lastKeyTime; lastKeyTime = t;
@@ -1144,13 +1137,7 @@
         function applyModalColor(title, customColor) { const c = customColor || TemaNotifikasi[title] || "var(--mono-main)"; $('alert-title').innerText = title; $('alert-title').style.color = c; $('alert-box').style.borderColor = c; return c; }
         function showAlert(msg, title = "Info", color = null) { const c = applyModalColor(title, color); $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); $('alert-btns').innerHTML = `<button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" onclick="closeCustomAlert()">OKE</button>`; $('custom-alert').style.display = 'flex'; document.body.classList.add('modal-open'); }
         function showConfirm(msg, title, color, callbackOk, confirmText = "OKE", callbackCancel = null) { const c = applyModalColor(title, color); $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); $('alert-btns').innerHTML = `<button class="btn-main btn-cancel" id="confirm-cancel-btn">BATAL</button><button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" id="confirm-ok-btn">${confirmText}</button>`; $('confirm-ok-btn').onclick = () => { closeCustomAlert(); callbackOk(); }; $('confirm-cancel-btn').onclick = () => { closeCustomAlert(); if(callbackCancel) callbackCancel(); }; $('custom-alert').style.display = 'flex'; document.body.classList.add('modal-open'); }
-        
-        function toggleAcc(id) { 
-            const el = $(id); 
-            if(id === 'acc-u1') $('acc-u2').classList.add('hidden');
-            if(id === 'acc-u2') $('acc-u1').classList.add('hidden');
-            if(el.classList.contains('hidden')) { el.classList.remove('hidden'); } else { el.classList.add('hidden'); } 
-        }
+        function toggleAcc(id) { const el = $(id); if(el.classList.contains('hidden')) { $('acc-u1').classList.add('hidden'); $('acc-u2').classList.add('hidden'); el.classList.remove('hidden'); } else el.classList.add('hidden'); }
         
         function setUnit(type, val) { 
             $(`i-u${type}`).value = val; 
@@ -1389,45 +1376,31 @@
                     return; 
                 } 
                 
-                // Map O(1) Atomic Transaction
-                let tempMap = new Map();
-                if (!forceSync) {
-                    db.forEach(item => tempMap.set(String(item.id), item));
-                }
-                
+                // [PERBAIKAN 7] Atomic Transaction untuk mencegah wipe data jika error
+                let tempDb = forceSync ? [] : [...db]; 
                 const tx = idb.transaction('items', 'readwrite'), store = tx.objectStore('items'); 
-                if (forceSync) store.clear(); 
+                
+                if (forceSync) { store.clear(); } 
                 
                 dataCloud.forEach(itemCloud => { 
                     if (forceSync) {
-                        tempMap.set(String(itemCloud.id), itemCloud); store.put(itemCloud);
+                        tempDb.push(itemCloud); store.put(itemCloud);
                     } else {
-                        const existing = tempMap.get(String(itemCloud.id));
-                        if (existing) { 
-                            if ((itemCloud.updatedAt || 0) >= (existing.updatedAt || 0)) { 
-                                if (itemCloud.deleted) { store.delete(itemCloud.id); tempMap.delete(String(itemCloud.id)); } 
-                                else { tempMap.set(String(itemCloud.id), itemCloud); store.put(itemCloud); } 
+                        const localIndex = tempDb.findIndex(l => String(l.id) === String(itemCloud.id)); 
+                        if (localIndex > -1) { 
+                            if ((itemCloud.updatedAt || 0) >= (tempDb[localIndex].updatedAt || 0)) { 
+                                if (itemCloud.deleted) { store.delete(itemCloud.id); tempDb.splice(localIndex, 1); } 
+                                else { tempDb[localIndex] = itemCloud; store.put(itemCloud); } 
                             } 
-                        } else if (!itemCloud.deleted) { 
-                            tempMap.set(String(itemCloud.id), itemCloud); store.put(itemCloud); 
-                        } 
+                        } else if (!itemCloud.deleted) { tempDb.push(itemCloud); store.put(itemCloud); } 
                     }
                 }); 
                 
                 tx.oncomplete = () => { 
-                    db = Array.from(tempMap.values());
+                    db = tempDb; // Memori HP HANYA diperbarui jika IndexedDB sukses 100%
                     localStorage.setItem('DB_LAST_SYNC', serverTime.toString()); 
                     worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
-                    updateMaps(); 
-                    
-                    // Reset pencarian lama agar tidak muncul hantu
-                    currentSearchReqId++; 
-                    $('q').value = '';
-                    workerResult = null;
-                    $('q-x').style.display = 'none';
-                    
-                    renderCartUI(); 
-                    applyFiltersAndRender(); 
+                    updateMaps(); clearSearch(); renderCartUI(); applyFiltersAndRender(); 
                     isApiLoading = false; hideLoading(); 
                     tampilkanToast(forceSync ? "Berhasil memuat ulang semua data!" : `Berhasil update ${dataCloud.length} data!`, "var(--mono-main)"); 
                 }; 
@@ -1445,20 +1418,13 @@
         function exportData() { const data = db.filter(i => !i.deleted).map(i => ({ "ID": i.id, "Barcode": i.b, "Nama Barang": i.n, "Harga Eceran": i.p1, "Satuan Ecer": i.u1 || "", "Harga Grosir": i.p2, "Satuan Grosir": i.u2 || "", "Isi Grosir": i.iq || "", "Singkatan": i.t, "Favorit": i.f ? "Ya" : "Tidak", "Expired": i.exp || "" })); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Data"); XLSX.writeFile(wb, "Data_Harga.xlsx"); }
         
         function importData(e) { 
-            const f = e.target.files[0]; if(!f) return; 
-            
-            // Limitasi file maks 2MB cegah OOM Crash
-            if (f.size > 2 * 1024 * 1024) {
-                return showAlert("Gagal! Ukuran file terlalu besar (Maks 2MB). Pastikan Anda memilih file Excel yang benar.", "Error");
-            }
-
-            const r = new FileReader(); 
+            const f = e.target.files[0]; if(!f) return; const r = new FileReader(); 
             r.onload = (ev) => { 
                 const w = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'}), 
                 jD = XLSX.utils.sheet_to_json(w.Sheets[w.SheetNames[0]], { raw: false, defval: "" }), 
                 tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'), tA = new Set(), ts = Date.now(); 
                 
-                let skippedCount = 0;
+                let skippedCount = 0; // [PERBAIKAN 8] Alert Penghitung Import Excel
 
                 jD.forEach(ro => { 
                     const n = prop(ro["Nama Barang"] || ro["Nama"]); if(!n) return; 
@@ -1490,7 +1456,7 @@
                     updateMaps(); clearSearch(); renderCartUI(); applyFiltersAndRender();
                     
                     if (skippedCount > 0) {
-                        showAlert(`Import Selesai!<br><br><span style="color:var(--warning);">⚠️ ${skippedCount} data diabaikan karena barcode kembar.</span>`, "Info Import", "var(--warning)");
+                        showAlert(`Import Selesai!<br><br><span style="color:var(--warning);">⚠️ ${skippedCount} data diabaikan karena barcode kembar / dipakai barang lain.</span>`, "Info Import", "var(--warning)");
                     } else {
                         tampilkanToast("Import Selesai!"); 
                     }
@@ -1503,11 +1469,10 @@
         function toggleFlashlight() { 
             const vid = document.querySelector('#reader video'); if (vid && vid.srcObject) { try { const track = vid.srcObject.getVideoTracks()[0], cap = track.getCapabilities(); if (cap.torch) { torchState = !torchState; track.applyConstraints({ advanced: [{ torch: torchState }] }).catch(e => console.log(e)); $('torch-btn').style.color = torchState ? "var(--warning)" : "white"; } else tampilkanToast("Kamera tidak dukung senter", "var(--warning)"); } catch(e) { console.log(e); } } 
         }
-        
-        let isClosingScan = false;
         async function openScanner(mode) { 
-            if(isStartingScan || isScanning || isClosingScan) return; isStartingScan = true; scanMode = mode; $('scanner-wrap').style.display = 'block'; document.body.classList.add('modal-open'); if (!html5QrCode) html5QrCode = new Html5Qrcode("reader"); torchState = false; $('torch-btn').style.color = "white"; 
+            if(isStartingScan || isScanning) return; isStartingScan = true; scanMode = mode; $('scanner-wrap').style.display = 'block'; document.body.classList.add('modal-open'); if (!html5QrCode) html5QrCode = new Html5Qrcode("reader"); torchState = false; $('torch-btn').style.color = "white"; 
             try { 
+                // [PERBAIKAN 3] Scanner Engine Pintar & Ringan
                 const scanConfig = { 
                     fps: 15, 
                     disableFlip: true, 
@@ -1539,19 +1504,7 @@
                 isStartingScan = false; 
             } 
         }
-        async function closeScanner() { 
-            if(isClosingScan) return;
-            isClosingScan = true;
-            $('scanner-wrap').style.display = 'none'; 
-            checkModalOpen(); 
-            if (torchState) toggleFlashlight(); 
-            if (isScanning && html5QrCode) { 
-                try { await html5QrCode.stop(); html5QrCode.clear(); } catch(e) {} 
-            } 
-            isScanning = false; 
-            isClosingScan = false;
-            requestWakeLock(); 
-        }
+        async function closeScanner() { $('scanner-wrap').style.display = 'none'; checkModalOpen(); if (torchState) toggleFlashlight(); if (isScanning && html5QrCode) { try { await html5QrCode.stop(); html5QrCode.clear(); } catch(e) {} } isScanning = false; requestWakeLock(); }
 
         document.addEventListener('touchstart', function(e) { if (swipedCardElem && !swipedCardElem.contains(e.target) && !e.target.closest('.trash-trigger')) { swipedCardElem.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)'; swipedCardElem.style.transform = 'translateX(0px)'; swipedCardElem = null; } }, { passive: true });
         
