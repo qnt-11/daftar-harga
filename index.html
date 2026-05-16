@@ -54,7 +54,6 @@
             color-scheme: dark; 
         }
 
-        /* // SOLUSI EKSTREM: Lakban Fisik penutup celah garis OS Android // */
         body::before {
             content: "";
             position: fixed;
@@ -181,13 +180,11 @@
         body.is-scrolling .render-container { pointer-events: none; }
         .render-container { position: absolute; top: 12px; left: 0; width: 100%; padding-left: 16px; padding-right: 16px; will-change: transform; transform: translateZ(0); }
         
-        /* [PERBAIKAN 3 - CSS: Anti-Jank Virtual List Rendering] */
         .card { 
             position: relative; display: flex; align-items: flex-start; padding: 15px 18px 15px 18px; 
             padding-right: 90px; background: var(--wa-card); border: 1px solid var(--border-color); 
             border-radius: 12px; height: auto; min-height: 90px; overflow: hidden; 
             box-sizing: border-box; touch-action: pan-y;
-            /* Tambahan untuk scroll super ringan (Mencegah reflow berlebihan) */
             content-visibility: auto; 
             contain-intrinsic-size: 90px; 
             contain: content; 
@@ -224,7 +221,6 @@
         /* --- MODAL / POPUPS --- */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
         .modal-box { background: var(--wa-card); padding: 24px 22px; border-radius: 16px; width: 100%; max-width: 320px; border: 2px solid var(--border-color); box-shadow: 0 15px 40px rgba(0,0,0,0.9); text-align: left; animation: popInBouncy 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); max-height: 85vh; overflow-y: auto; overscroll-behavior: contain; margin: auto; transition: border-color 0.3s ease; }
-        /* Khusus untuk modal PIN Otorisasi agar tidak tertutup keyboard */
         #pin-modal { align-items: flex-start; padding-top: 15vh; overflow-y: auto; }
         #pin-box { margin: 0 auto; }
         @keyframes popInBouncy { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -244,7 +240,6 @@
         .custom-select-btn:active { border-color: var(--mono-main); }
         .acc-content { padding: 12px; background: #111; border: 1px solid var(--border-color); border-radius: 8px; margin-top: 8px; animation: slideDown 0.2s ease-out; }
         
-        /* Flex Layout Rapi untuk Satuan & Grosir */
         .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
         .chip { padding: 8px 12px; background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; color: var(--text-light); transition: 0.2s; text-align: center; flex: 1 1 calc(33.333% - 8px); min-width: 60px;}
         .chip:active { background: var(--mono-main); color: #000; border-color: var(--mono-main); transform: scale(0.95); }
@@ -253,7 +248,7 @@
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
         .barcode-row { display: flex; gap: 8px; align-items: center; }
-        .modal-box input[id="i-b"] { flex: 1; margin: 0; }
+        .modal-box input[id^="i-b"] { flex: 1; margin: 0; }
         .modal-box button[onclick*="openScanner"] { background: var(--wa-bg); border: 1px solid var(--border-color); border-radius: 8px; height: 44px; width: 46px; transition: all 0.2s ease; outline:none; display:flex; justify-content:center; align-items:center; }
         .modal-box button[onclick*="openScanner"]:active { background: #222; transform: scale(0.95); }
         
@@ -285,7 +280,6 @@
 
         .scanner-overlay { position: absolute; inset: 0; pointer-events: none; display: flex; justify-content: center; align-items: center; }
         
-        /* Posisi Scanner Dinaikkan */
         .scanner-box { 
             width: 260px; 
             height: 180px; 
@@ -409,10 +403,18 @@
             <label>Nama Barang</label>
             <input type="text" id="i-n" autocomplete="off" style="text-transform: capitalize;">
             
-            <label>Barcode</label>
+            <label>Kode Barcode Satuan</label>
             <div class="barcode-row">
                 <input type="text" id="i-b" autocomplete="off" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\-\s]/g, '').toUpperCase()">
                 <button type="button" onclick="openScanner('input')">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke="white" stroke-width="1.5"></rect><line x1="5" y1="12" x2="19" y2="12" stroke="red" stroke-width="2"></line></svg>
+                </button>
+            </div>
+
+            <label>Kode Barcode Grosir</label>
+            <div class="barcode-row">
+                <input type="text" id="i-b2" placeholder="Opsional" autocomplete="off" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\-\s]/g, '').toUpperCase()">
+                <button type="button" onclick="openScanner('input-grosir')">
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke="white" stroke-width="1.5"></rect><line x1="5" y1="12" x2="19" y2="12" stroke="red" stroke-width="2"></line></svg>
                 </button>
             </div>
@@ -608,14 +610,16 @@
     </div>
 
     <div id="toast-notification" class="hidden"><span id="toast-message"></span></div>
-
     <script>
+        // --- KONFIGURASI & VARIABEL GLOBAL ---
         const $ = (id) => document.getElementById(id);
         const CLOUD_URL = "https://script.google.com/macros/s/AKfycbzy-naSl9Zm3K2vYENCKfG6bTfVwglRMULMG7n42ezPT5z4a9w43-3-x-8O_H1krSjr/exec";
         const NamaBln = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         const NamaBlnPendek = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 
-        // [PERBAIKAN 2: Injeksi cartSaveTimer ke Global]
+        // KEAMANAN PIN: Mudah diubah tanpa mencari ke tengah kode
+        const APP_SECURE_PIN = localStorage.getItem('APP_PIN') || '170823';
+
         let db = [], idb, worker, workerResult = null, filteredData = [], listOffsets = [];
         let lastStartIndex = -1, lastEndIndex = -1, currentSearchReqId = 0, inputBuffer = '', bufferTimer;
         let barcodeMap = new Map(), acronymMap = new Map(), physicalInputBuffer = "", lastKeyTime = 0;
@@ -641,7 +645,6 @@
             } 
         }
         
-        // [PERBAIKAN 2: Debounce Storage untuk Anti-Lag saat scan beruntun]
         function saveCartMem() { 
             if (cartSaveTimer) clearTimeout(cartSaveTimer);
             cartSaveTimer = setTimeout(() => {
@@ -649,7 +652,7 @@
             }, 300);
         }
 
-        /* --- UI HELPERS GLOBAL FOCUS (KEYBOARD TRAP FIX) --- */
+        /* --- UI HELPERS GLOBAL FOCUS --- */
         document.addEventListener('focus', function(e) {
             if (e.target.tagName && e.target.tagName.toLowerCase() === 'input' && e.target.closest('.modal-box')) {
                 setTimeout(() => {
@@ -658,7 +661,7 @@
             }
         }, true);
 
-        /* --- WAKELOCK & DEBOUNCE (HARDWARE FIX) --- */
+        /* --- WAKELOCK & DEBOUNCE --- */
         let wakeLock = null;
         let isRequestingWakeLock = false; 
         async function requestWakeLock() {
@@ -750,6 +753,7 @@
             db.forEach(item => { 
                 if (!item.deleted) { 
                     if (item.b) barcodeMap.set(String(item.b).trim().toUpperCase(), item); 
+                    if (item.b2) barcodeMap.set(String(item.b2).trim().toUpperCase(), item); 
                     if (item.t) acronymMap.set(String(item.t).trim().toLowerCase(), item); 
                 } 
             }); 
@@ -788,7 +792,7 @@
             return tryAcr + c; 
         }
 
-        /* --- GLOBAL AUDIO ENGINE FIX --- */
+        /* --- GLOBAL AUDIO ENGINE --- */
         let globalAudioCtx = null; 
         function playBeep() { 
             try { 
@@ -925,43 +929,69 @@
         function updateCartQtyManual(id, val) {
             let cleanVal = String(val).replace(',', '.'); 
             let n = parseFloat(cleanVal);
-            if (isNaN(n)) n = 0;
+            if (isNaN(n)) n = 0; 
+            
             if (!cartState[id]) cartState[id] = { q: n }; else cartState[id].q = n; 
             saveCartMem(); 
+            
             let grandTotal = 0;
             Object.keys(cartState).forEach(k => {
                 const item = db.find(x => String(x.id) === k);
                 if (item && !item.deleted) {
                     const q = cartState[k].q, p1 = item.p1, p2 = item.p2, iq = item.iq;
-                    let subTotal = (p2 > 0 && iq > 1 && q >= iq) ? Math.round((q * p2) / iq) : Math.round(q * p1); // Logika Bisnis Asli
+                    let subTotal = (p2 > 0 && iq > 1 && q >= iq) ? Math.round((q * p2) / iq) : Math.round(q * p1);
                     grandTotal += subTotal;
-                    const elemSub = $('sub-' + k); if (elemSub) elemSub.innerText = `Rp ${fmt(subTotal)}`;
+                    
+                    const elemSub = $('sub-' + k); 
+                    if (elemSub) elemSub.innerText = `Rp ${fmt(subTotal)}`;
+                    
                     const elemLabel = $('qty-label-' + k);
-                    if (elemLabel) {
-                        const unitName = item.u1 || 'Satuan'; 
-                        elemLabel.innerText = `${q} ${escapeHTML(unitName)}`;
-                    }
+                    if (elemLabel) elemLabel.innerText = `${q} ${escapeHTML(item.u1 || 'Satuan')}`;
                 }
             });
             $('cp-grand-total').innerText = `Rp ${fmt(grandTotal)}`;
         }
 
-        function checkEmptyQtyOnBlur(id, inputElem, val) {
-            let cleanVal = String(val).replace(',', '.');
-            let n = parseFloat(cleanVal);
-            // Ghost Item GC: Hapus bersih jika Qty = 0
-            if (isNaN(n) || cleanVal === '' || n <= 0) { 
-                delete cartState[id]; 
-                saveCartMem(); 
-                renderCartUI(); 
-                applyFiltersAndRender(); 
+        function handleBlurQty(id, inputElem) {
+            let cleanVal = parseFloat(String(inputElem.value).replace(',', '.'));
+            if (isNaN(cleanVal) || cleanVal <= 0) { 
+                deleteCartItem(id); 
             } else {
-                updateCartQtyManual(id, val);
+                updateCartQtyManual(id, inputElem.value);
             }
         }
 
         function deleteCartItem(id) { 
             delete cartState[id]; saveCartMem(); renderCartUI(); applyFiltersAndRender(); 
+        }
+
+        function renderCartUI() {
+            let html = '', grandTotal = 0;
+            const keys = Object.keys(cartState), cpList = $('cp-list');
+            if (keys.length === 0) {
+                html = '<div class="cpi-empty">Keranjang Kosong.<br>Pilih atau Scan barang.</div>';
+                cpList.style.maskImage = cpList.style.webkitMaskImage = 'none';
+            } else {
+                cpList.style.maskImage = cpList.style.webkitMaskImage = 'linear-gradient(to bottom, black 85%, transparent 100%)';
+                let hasDeletedItems = false;
+                keys.forEach(id => {
+                    const item = db.find(x => String(x.id) === id);
+                    if (!item || item.deleted) { delete cartState[id]; hasDeletedItems = true; return; } 
+                    const q = cartState[id].q, p1 = item.p1, p2 = item.p2, iq = item.iq, unitName = item.u1 || 'Satuan'; 
+                    let subTotal = (p2 > 0 && iq > 1 && q >= iq) ? Math.round((q * p2) / iq) : Math.round(q * p1);
+                    grandTotal += subTotal;
+                    
+                    html += `<div class="cp-item-wrap"><div class="cp-trash-bg" onclick="deleteCartItem('${id}')"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></div><div class="cp-item-front" ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event, this)" ontouchend="handleTouchEnd(event, this, '${id}')"><div class="cpi-info"><div class="cpi-name">${escapeHTML(item.n)}</div><div class="cpi-calc" id="qty-label-${id}">${q} ${escapeHTML(unitName)}</div></div><div style="display:flex; align-items:center; gap: 12px; pointer-events: auto;"><div class="cpi-total" id="sub-${id}">Rp ${fmt(subTotal)}</div><input class="qty-input-manual" type="text" inputmode="decimal" value="${q}" onfocus="this.dataset.oldVal = this.value; this.value=''" oninput="let v = this.value.replace(/[^0-9.,]/g, ''); this.value = v; updateCartQtyManual('${id}', this.value);" onblur="handleBlurQty('${id}', this)"></div></div></div>`;
+                });
+                if (hasDeletedItems) saveCartMem();
+            }
+            cpList.innerHTML = html;
+            $('cp-grand-total').innerText = `Rp ${fmt(grandTotal)}`;
+        }
+
+        function resetCart() {
+            if (Object.keys(cartState).length === 0) return;
+            showConfirm("Kosongkan semua keranjang?", "Reset", "var(--danger)", () => { cartState = {}; saveCartMem(); renderCartUI(); applyFiltersAndRender(); });
         }
 
         /* --- SWIPE LOGIC --- */
@@ -1002,34 +1032,6 @@
             mainStartX = mainStartY = null;
         }
 
-        function renderCartUI() {
-            let html = '', grandTotal = 0;
-            const keys = Object.keys(cartState), cpList = $('cp-list');
-            if (keys.length === 0) {
-                html = '<div class="cpi-empty">Keranjang Kosong.<br>Pilih atau Scan barang.</div>';
-                cpList.style.maskImage = cpList.style.webkitMaskImage = 'none';
-            } else {
-                cpList.style.maskImage = cpList.style.webkitMaskImage = 'linear-gradient(to bottom, black 85%, transparent 100%)';
-                let hasDeletedItems = false;
-                keys.forEach(id => {
-                    const item = db.find(x => String(x.id) === id);
-                    if (!item || item.deleted) { delete cartState[id]; hasDeletedItems = true; return; } 
-                    const q = cartState[id].q, p1 = item.p1, p2 = item.p2, iq = item.iq, unitName = item.u1 || 'Satuan'; 
-                    let subTotal = (p2 > 0 && iq > 1 && q >= iq) ? Math.round((q * p2) / iq) : Math.round(q * p1); // Logika Bisnis Asli
-                    grandTotal += subTotal;
-                    html += `<div class="cp-item-wrap"><div class="cp-trash-bg" onclick="deleteCartItem('${id}')"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></div><div class="cp-item-front" ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event, this)" ontouchend="handleTouchEnd(event, this, '${id}')"><div class="cpi-info"><div class="cpi-name">${escapeHTML(item.n)}</div><div class="cpi-calc" id="qty-label-${id}">${q} ${escapeHTML(unitName)}</div></div><div style="display:flex; align-items:center; gap: 12px; pointer-events: auto;"><div class="cpi-total" id="sub-${id}">Rp ${fmt(subTotal)}</div><input class="qty-input-manual" type="text" inputmode="decimal" value="${q}" onfocus="this.dataset.oldVal = this.value; this.value=''" oninput="let v = this.value.replace(/[^0-9.,]/g, ''); let parts = v.split(/[.,]/); if(parts.length > 2) v = parts[0] + '.' + parts.slice(1).join(''); if(v.length > 6) v = v.slice(0,6); this.value = v; updateCartQtyManual('${id}', this.value);" onblur="checkEmptyQtyOnBlur('${id}', this, this.value)"></div></div></div>`;
-                });
-                if (hasDeletedItems) saveCartMem();
-            }
-            cpList.innerHTML = html;
-            $('cp-grand-total').innerText = `Rp ${fmt(grandTotal)}`;
-        }
-
-        function resetCart() {
-            if (Object.keys(cartState).length === 0) return;
-            showConfirm("Kosongkan semua keranjang?", "Reset", "var(--danger)", () => { cartState = {}; saveCartMem(); renderCartUI(); applyFiltersAndRender(); });
-        }
-
         /* --- EVENTS & LISTENER --- */
         $('q').addEventListener('focus', () => { if (isCartMode) document.body.classList.add('search-focus'); });
         $('q').addEventListener('blur', () => { setTimeout(() => document.body.classList.remove('search-focus'), 100); });
@@ -1050,7 +1052,6 @@
                 if (isScanning) closeScanner(); return; 
             }
             
-            // Isolasi Scanner Fisik
             const isAnyModalOpen = document.body.classList.contains('modal-open');
             const isModOpen = $('mod') && $('mod').style.display === 'flex';
             if (isScanning || (isAnyModalOpen && !isModOpen)) return;
@@ -1079,7 +1080,9 @@
                     if (isInputFocused) document.activeElement.blur(); 
                     
                     if (isModOpen) {
-                        $('i-b').value = b;
+                        const activeId = document.activeElement ? document.activeElement.id : null;
+                        if (activeId === 'i-b2') $('i-b2').value = b; 
+                        else $('i-b').value = b; 
                         tampilkanToast("Barcode terscan!", "var(--mono-main)");
                     } else {
                         handlePhysicalScanner(b); 
@@ -1104,22 +1107,46 @@
             const item = barcodeMap.get(barcode); 
             if (item) { 
                 playBeep(); 
-                if (isCartMode) modifyCartItem(item.id, 1); else { 
-                    $('pp-name').innerText = item.n; $('pp-price').innerText = "Rp " + fmt(item.p1); 
-                    let textGrosir = ""; if (item.p2) { textGrosir = `Grosir: Rp ${fmt(item.p2)}`; if (item.iq > 1) textGrosir += ` (Isi minimal ${item.iq} ${item.u2 || 'pcs'})`; }
-                    $('pp-price-grosir').innerText = textGrosir; $('pp-barcode').innerText = item.b || ""; 
-                    $('price-popup').style.display = 'flex'; document.body.classList.add('modal-open'); 
+                if (isCartMode) {
+                    let qtyToAdd = 1;
+                    if (item.b2 && barcode === String(item.b2).trim().toUpperCase()) {
+                        if (!item.iq || item.iq < 2) {
+                            tampilkanToast("Isi Grosir belum diatur! Gunakan Barcode Satuan.", "var(--warning)");
+                            return; 
+                        }
+                        qtyToAdd = item.iq;
+                        tampilkanToast(`Grosir: +${qtyToAdd} ${escapeHTML(item.u1 || 'Satuan')}`, "var(--mono-main)");
+                    }
+                    modifyCartItem(item.id, qtyToAdd); 
+                } else { 
+                    $('pp-name').innerText = item.n; 
+                    $('pp-price').innerText = "Rp " + fmt(item.p1); 
+                    let textGrosir = ""; 
+                    if (item.p2) { 
+                        textGrosir = `Grosir: Rp ${fmt(item.p2)}`; 
+                        if (item.iq > 1) textGrosir += ` (Isi minimal ${item.iq} ${escapeHTML(item.u2 || 'pcs')})`; 
+                    }
+                    $('pp-price-grosir').innerText = textGrosir; 
+                    $('pp-barcode').innerText = barcode; 
+                    $('price-popup').style.display = 'flex'; 
+                    document.body.classList.add('modal-open'); 
                 }
             } else tampilkanToast("Barcode tidak ditemukan!", "var(--danger)"); 
         }
         
         function closePricePopup(e, force = false) { if (force || e.target === $('price-popup')) { $('price-popup').style.display = 'none'; checkModalOpen(); $('q').value = ''; clearSearch(); } }
+        
         function handleSearchLogic(query) { 
-            const q = query.trim(), qL = q.toLowerCase(), exact = barcodeMap.get(q.toUpperCase()) || acronymMap.get(qL); 
-            if (exact && q.length > 0) { currentSearchReqId++; workerResult = [exact]; applyFiltersAndRender(); } else worker.postMessage({ type: 'search', query: q, reqId: ++currentSearchReqId }); 
+            const q = query.trim(), qL = q.toLowerCase();
+            const exact = barcodeMap.get(q.toUpperCase()) || acronymMap.get(qL); 
+            if (exact && q.length > 0) { 
+                currentSearchReqId++; workerResult = [exact]; applyFiltersAndRender(); 
+            } else {
+                worker.postMessage({ type: 'search', query: q, reqId: ++currentSearchReqId }); 
+            }
         }
 
-        /* --- NATIVE SEARCH WORKER (OFFLINE SAFE) --- [PERBAIKAN 5: Antrean Worker Drop] */
+        /* --- NATIVE SEARCH WORKER (OFFLINE SAFE) --- */
         const searchInput = $('q'), searchDropdown = $('search-dropdown'), sdContent = $('sd-content');
         
         const workerScript = `
@@ -1140,8 +1167,9 @@
                 
                 const hasil = workerList.filter(item => { 
                     if (latestReqId !== e.data.reqId) return false; 
-                    const n = (item.n || '').toLowerCase(), t = (item.t || '').toLowerCase(), b = (item.b || '').toLowerCase(); 
-                    return terms.every(term => n.includes(term) || t.includes(term) || b.includes(term)); 
+                    const n = (item.n || '').toLowerCase(), t = (item.t || '').toLowerCase();
+                    const b = (item.b || '').toLowerCase(), b2 = (item.b2 || '').toLowerCase(); 
+                    return terms.every(term => n.includes(term) || t.includes(term) || b.includes(term) || b2.includes(term)); 
                 }); 
                 
                 if (latestReqId === e.data.reqId) {
@@ -1213,10 +1241,16 @@
         function toggleIsiGrosir() { const val = $('i-u2').value; if (val) { $('label-iq').innerText = `Isi per ${val}`; $('wrap-iq').style.display = 'block'; } else { $('wrap-iq').style.display = 'none'; $('i-iq').value = ''; } }
 
         function showMod(id = null) { 
-            activeId = id; const b = $('i-b'), n = $('i-n'), p1 = $('i-p1'), p2 = $('i-p2'), exp = $('i-exp'), t = $('i-t'), u1 = $('i-u1'), u2 = $('i-u2'), iq = $('i-iq'); $('mod-box').style.borderColor = "var(--border-color)"; $('acc-u1').classList.add('hidden'); $('acc-u2').classList.add('hidden');
+            activeId = id; 
+            const b = $('i-b'), b2 = $('i-b2'), n = $('i-n'), p1 = $('i-p1'), p2 = $('i-p2'), exp = $('i-exp'), t = $('i-t'), u1 = $('i-u1'), u2 = $('i-u2'), iq = $('i-iq'); 
+            $('mod-box').style.borderColor = "var(--border-color)"; $('acc-u1').classList.add('hidden'); $('acc-u2').classList.add('hidden');
+            
             if (id) { 
                 const it = db.find(x => String(x.id) === String(id)); if(!it) return; 
-                $('m-tit').innerText = "Edit Barang"; b.value = it.b || ''; n.value = it.n || ''; p1.value = fmt(it.p1); p2.value = it.p2 ? fmt(it.p2) : ''; 
+                $('m-tit').innerText = "Edit Barang"; 
+                b.value = it.b || ''; 
+                b2.value = it.b2 || ''; 
+                n.value = it.n || ''; p1.value = fmt(it.p1); p2.value = it.p2 ? fmt(it.p2) : ''; 
                 exp.dataset.rawDate = it.exp || ''; exp.value = it.exp ? formatBulanTahun(it.exp) : ''; t.value = it.t || ''; 
                 u1.value = it.u1 || ''; 
                 const lbl1 = $('lbl-u1'); if (u1.value === "") { lbl1.innerText = "kosong"; lbl1.style.color = "#a0a0a0"; } else { lbl1.innerText = u1.value; lbl1.style.color = "#ffffff"; }
@@ -1224,7 +1258,8 @@
                 const lbl2 = $('lbl-u2'); if (u2.value === "") { lbl2.innerText = "kosong"; lbl2.style.color = "#a0a0a0"; } else { lbl2.innerText = u2.value; lbl2.style.color = "#ffffff"; }
                 iq.value = it.iq || ''; 
             } else { 
-                $('m-tit').innerText = "Tambah Barang"; b.value = n.value = p1.value = p2.value = exp.dataset.rawDate = exp.value = t.value = u1.value = u2.value = iq.value = ''; 
+                $('m-tit').innerText = "Tambah Barang"; 
+                b.value = b2.value = n.value = p1.value = p2.value = exp.dataset.rawDate = exp.value = t.value = u1.value = u2.value = iq.value = ''; 
                 const lbl1 = $('lbl-u1'); lbl1.innerText = "kosong"; lbl1.style.color = "#a0a0a0";
                 const lbl2 = $('lbl-u2'); lbl2.innerText = "kosong"; lbl2.style.color = "#a0a0a0";
             } 
@@ -1233,7 +1268,9 @@
         function hideMod() { activeId = null; $('mod').style.display = 'none'; checkModalOpen(); }
         function deleteAllDataPrompt() { if (db.filter(i => !i.deleted).length === 0) return showAlert("Data sudah kosong!", "Info"); $('dropdown-menu').classList.add('hidden'); $('pin-input').value = ''; $('pin-modal').style.display = 'flex'; document.body.classList.add('modal-open'); setTimeout(() => $('pin-input').focus(), 100); }
         function closePinModal() { $('pin-modal').style.display = 'none'; checkModalOpen(); }
-        function verifyPinAndExecute() { if ($('pin-input').value === '170823') { closePinModal(); executeDeleteAll(); } else tampilkanToast("PIN Salah!", "var(--danger)"); }
+        
+        function verifyPinAndExecute() { if ($('pin-input').value === APP_SECURE_PIN) { closePinModal(); executeDeleteAll(); } else tampilkanToast("PIN Salah!", "var(--danger)"); }
+        
         function openPicker(id, m) { Picker.targetId = id; const el = $(id); if (!el) return; let val = el.dataset.rawDate || el.value; if (!val) { Picker.sel = new Date(); Picker.tempYear = Picker.sel.getFullYear(); Picker.tempMonth = Picker.sel.getMonth(); } else { const p = val.split('-'); Picker.tempYear = parseInt(p[0], 10); Picker.tempMonth = parseInt(p[1], 10) - 1; } renderKalenderGrid(); $('custom-picker').style.display = 'flex'; document.body.classList.add('modal-open'); }
         function hidePicker() { $('custom-picker').style.display = 'none'; checkModalOpen(); }
         function clearPickerDate() { const el = $(Picker.targetId); if(el) el.dataset.rawDate = el.value = ''; hidePicker(); }
@@ -1246,7 +1283,9 @@
         function getDVSStartIndex(st) { let l = 0, h = listOffsets.length - 1; while (l <= h) { let m = Math.floor((l + h) / 2); if (listOffsets[m] === st) return m; if (listOffsets[m] < st) l = m + 1; else h = m - 1; } return h > 0 ? h : 0; }
         
         function applyFiltersAndRender(silentB = null) {
-            if (swipedCardElem) swipedCardElem = null; const q = $('q').value.trim(), qL = q.toLowerCase(); let active = db.filter(i => !i.deleted); const exact = active.find(i => i.b && String(i.b).toLowerCase() === qL); let base = silentB ? active.filter(i => i.b === silentB) : (exact ? [exact] : (workerResult !== null && q !== '' ? workerResult : active)); const today = Date.now();
+            if (swipedCardElem) swipedCardElem = null; const q = $('q').value.trim(), qL = q.toLowerCase(); let active = db.filter(i => !i.deleted); 
+            const exact = active.find(i => (i.b && String(i.b).toLowerCase() === qL) || (i.b2 && String(i.b2).toLowerCase() === qL)); 
+            let base = silentB ? active.filter(i => i.b === silentB || i.b2 === silentB) : (exact ? [exact] : (workerResult !== null && q !== '' ? workerResult : active)); const today = Date.now();
             filteredData = base.filter(i => { if (tab === 'fav') return i.f; if (tab === 'exp') { if (!i.exp) return false; let expDate = new Date(i.exp); expDate = new Date(expDate.getFullYear(), expDate.getMonth() + 1, 0); const utcExp = expDate.getTime(); return !isNaN(utcExp) && Math.floor((utcExp - today) / 86400000) <= 210; } return true; });
             
             if (!q || tab === 'exp') { 
@@ -1277,7 +1316,19 @@
             rend.style.transform = `translateY(${listOffsets[start]}px)`; let html = ''; const today = Date.now(), sq = $('q').value.trim(); 
             for (let i = start; i < end; i++) {
                 const it = filteredData[i]; let diff = 999, expT = ''; if (it.exp) { let expDate = new Date(it.exp); expDate = new Date(expDate.getFullYear(), expDate.getMonth() + 1, 0); const utcExp = expDate.getTime(); if (!isNaN(utcExp)) { diff = Math.floor((utcExp - today) / 86400000); expT = formatBulanTahun(it.exp); } }
-                const safeName = escapeHTML(it.n), safeAcronym = escapeHTML(it.t || ''), safeBarcode = escapeHTML(it.b || '- Tanpa Barcode -'), dn = highlightMatch(safeName, sq);
+                const safeName = escapeHTML(it.n), safeAcronym = escapeHTML(it.t || ''), dn = highlightMatch(safeName, sq);
+                
+                let barcodeDisplay = '- Tanpa Barcode -';
+                const safeB1 = it.b ? escapeHTML(it.b) : '';
+                const safeB2 = it.b2 ? escapeHTML(it.b2) : '';
+                if (safeB1 && safeB2) {
+                    barcodeDisplay = `Satuan: ${safeB1} | Grosir: ${safeB2}`;
+                } else if (safeB1) {
+                    barcodeDisplay = `Satuan: ${safeB1}`;
+                } else if (safeB2) {
+                    barcodeDisplay = `Grosir: ${safeB2}`;
+                }
+
                 if (tab === 'exp') {
                     const c = diff <= 30 ? 'var(--danger)' : (diff <= 90 ? '#FFA500' : (diff <= 180 ? '#FFD700' : 'var(--mono-main)')); html += `<div class="card card-exp-mode" id="c-${it.id}" style="will-change: transform;"><div class="info" style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:10px;"><div class="name" style="margin:0; flex:1; min-width:0;"><span>${dn}</span> <span class="card-badge">${safeAcronym}</span></div><div style="font-size:13px; font-weight:800; color:${c}; flex-shrink: 0;">${expT}</div></div></div>`;
                 } else {
@@ -1287,7 +1338,8 @@
                         trashBgHtml = `<div class="trash-trigger" onclick="del('${it.id}')" style="position:absolute; right:0; top:0; bottom:0; width:80px; background:transparent; display:flex; justify-content:center; align-items:center; color:var(--danger); z-index:1; cursor:pointer;"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></div>`;
                         rightSideUI = `<div class="action-btns-absolute"><button class="card-action-btn action-fav" data-id="${it.id}" style="color:${it.f?'var(--mono-main)':'var(--text-muted)'};"><svg pointer-events="none" viewBox="0 0 24 24" width="18" height="18" fill="${it.f?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button><button class="card-action-btn btn-edit-icon action-edit" data-id="${it.id}"><svg pointer-events="none" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button></div>`;
                     } else rightSideUI = `<div style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: auto;"><button class="btn-add-cart calc-add" data-id="${it.id}">+</button></div>`;
-                    html += `<div style="position:relative; margin-bottom:12px;">${trashBgHtml}<div class="card" id="c-${it.id}" style="margin-bottom:0; z-index:2; will-change: transform;" ${swipeAttributes}><div class="info"><div class="name"><span>${dn}</span> <span class="card-badge">${safeAcronym}</span></div>${it.p1?`<div class="card-price-ecer">Satuan: Rp ${fmt(it.p1)}</div>`:''}${it.p2?`<div class="card-price-grosir">Grosir: Rp ${fmt(it.p2)}</div>`:''}<div class="card-barcode">${safeBarcode}</div>${exH}</div>${rightSideUI}</div></div>`;
+                    
+                    html += `<div style="position:relative; margin-bottom:12px;">${trashBgHtml}<div class="card" id="c-${it.id}" style="margin-bottom:0; z-index:2; will-change: transform;" ${swipeAttributes}><div class="info"><div class="name"><span>${dn}</span> <span class="card-badge">${safeAcronym}</span></div>${it.p1?`<div class="card-price-ecer">Satuan: Rp ${fmt(it.p1)}</div>`:''}${it.p2?`<div class="card-price-grosir">Grosir: Rp ${fmt(it.p2)}</div>`:''}<div class="card-barcode">${barcodeDisplay}</div>${exH}</div>${rightSideUI}</div></div>`;
                 }
             }
             rend.innerHTML = html;
@@ -1320,19 +1372,48 @@
             if (isSaving) return; isSaving = true;
             const btnSave = $('btn-save-item'), btnCancel = $('btn-cancel-item'); if (btnSave) btnSave.disabled = true; if (btnCancel) btnCancel.disabled = true;
             try {
-                const nRaw = $('i-n').value, b = $('i-b').value.trim().toUpperCase(), exp = $('i-exp').dataset.rawDate || '', p1 = parseInt($('i-p1').value.replace(/[^\d]/g, ''), 10) || 0, p2 = parseInt($('i-p2').value.replace(/[^\d]/g, ''), 10) || null, u1 = $('i-u1').value, u2 = $('i-u2').value; let iq = parseInt($('i-iq').value) || 0;
+                const nRaw = $('i-n').value;
+                const b = $('i-b').value.trim().toUpperCase();
+                const b2 = $('i-b2').value.trim().toUpperCase(); 
+                const exp = $('i-exp').dataset.rawDate || '';
+                const p1 = parseInt($('i-p1').value.replace(/[^\d]/g, ''), 10) || 0;
+                const p2 = parseInt($('i-p2').value.replace(/[^\d]/g, ''), 10) || null;
+                const u1 = $('i-u1').value, u2 = $('i-u2').value; 
+                let iq = parseInt($('i-iq').value) || 0;
+                
                 if (!nRaw.trim() || p1 === 0) { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; return showAlert("Data tidak valid!", "Gagal"); }
+                
+                if (b2 !== '') {
+                    if (iq < 2) {
+                        isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false;
+                        return showAlert("Isi Grosir (Isi per...) wajib diisi minimal 2 jika Barcode Grosir digunakan!", "Gagal");
+                    }
+                    if (b2 === b) {
+                        isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false;
+                        return showAlert("Kode Barcode Grosir tidak boleh sama persis dengan Satuan!", "Gagal");
+                    }
+                    const exB2 = db.find(x => !x.deleted && (String(x.b) === b2 || String(x.b2) === b2) && String(x.id) !== String(activeId)); 
+                    if (exB2) { 
+                        isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; 
+                        return showAlert("Kode Barcode Grosir sudah terdaftar pada barang lain!", "Gagal"); 
+                    }
+                }
+
                 if (p2 > 0 && iq < 2) { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; return showAlert("Isi Grosir (Isi per...) harus lebih dari 1!", "Gagal"); } 
                 const clean = prop(nRaw), ex = db.find(x => !x.deleted && String(x.n || "").toLowerCase() === clean.toLowerCase() && String(x.id) !== String(activeId)); if (ex) { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; return showAlert("Nama sudah ada!", "Gagal"); }
                 if (b !== '') { const exB = db.find(x => !x.deleted && String(x.b) === b && String(x.id) !== String(activeId)); if (exB) { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; return showAlert("Barcode dipakai barang lain!", "Gagal"); } }
+                
                 let t = $('i-t').value.trim().toLowerCase(); if (t && isAcronymUsed(t, activeId)) { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; return showAlert("Singkatan sudah dipakai!", "Gagal"); } if (!t) t = generateSmartAcronym(clean, activeId);
                 const ts = Date.now();
+                
                 if (activeId) {
-                    const idx = db.findIndex(x => String(x.id) === String(activeId)); db[idx] = { ...db[idx], b, n: clean, p1, p2, exp, t, u1, u2, iq, updatedAt: ts };
+                    const idx = db.findIndex(x => String(x.id) === String(activeId)); 
+                    db[idx] = { ...db[idx], b, b2, n: clean, p1, p2, exp, t, u1, u2, iq, updatedAt: ts };
                     await saveItemToIDB(db[idx]); worker.postMessage({ type: 'update', item: db[idx] }); 
                     if (workerResult) { const wIdx = workerResult.findIndex(x => String(x.id) === String(activeId)); if (wIdx > -1) workerResult[wIdx] = db[idx]; }
                 } else {
-                    const nIt = { id: generateUniqueId(), b, n: clean, p1, p2, f: false, exp, t, u1, u2, iq, updatedAt: ts, deleted: false }; db.push(nIt); await saveItemToIDB(nIt); worker.postMessage({ type: 'add', item: nIt }); if (workerResult) workerResult.unshift(nIt); 
+                    const nIt = { id: generateUniqueId(), b, b2, n: clean, p1, p2, f: false, exp, t, u1, u2, iq, updatedAt: ts, deleted: false }; 
+                    db.push(nIt); await saveItemToIDB(nIt); worker.postMessage({ type: 'add', item: nIt }); if (workerResult) workerResult.unshift(nIt); 
                 }
                 updateMaps(); hideMod(); applyFiltersAndRender(); tampilkanToast("Tersimpan!");
             } catch (e) { console.error(e); } finally { isSaving = false; if(btnSave) btnSave.disabled = false; if(btnCancel) btnCancel.disabled = false; }
@@ -1412,13 +1493,33 @@
         }
 
         function openSyncModal() { $('dropdown-menu').classList.add('hidden'); $('sync-type').value = ''; $('sync-selected-text').innerText = '-- Pilih Mode --'; $('sync-selected-text').style.color = '#888'; $('sync-custom-options').classList.add('hidden'); handleSyncChange(); $('sync-modal').style.display = 'flex'; document.body.classList.add('modal-open'); }
-        function closeSyncModal() { $('sync-modal').style.display = 'none'; checkModalOpen(); }
+        function closeSyncModal() { 
+            $('sync-modal').style.display = 'none'; 
+            const btn = $('btn-sync-download');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = "DOWNLOAD";
+            }
+            checkModalOpen(); 
+        }
         function toggleSyncDropdown(e) { e.stopPropagation(); $('sync-custom-options').classList.toggle('hidden'); }
         function selectSyncOption(mode, e) { e.stopPropagation(); $('sync-type').value = mode; $('sync-selected-text').innerText = mode === 'delta' ? 'Load Pembaruan (Cepat)' : 'Load Semua Data (Darurat)'; $('sync-selected-text').style.color = mode === 'delta' ? 'white' : 'var(--danger)'; $('sync-custom-options').classList.add('hidden'); handleSyncChange(); }
         function handleSyncChange() { const val = $('sync-type').value, warningArea = $('sync-warning-area'), modalBox = $('sync-modal-box'), title = $('sync-modal-title'), btnDownload = $('btn-sync-download'); if (val === 'force') { warningArea.innerHTML = "<span style='color: var(--danger); font-weight: 800;'>⚠️ PERINGATAN</span><br><span style='color: #ccc;'>Data yang belum di-Upload akan HILANG!</span>"; modalBox.style.borderColor = title.style.color = btnDownload.style.borderColor = btnDownload.style.color = "var(--danger)"; } else if (val === 'delta') { warningArea.innerHTML = "<span style='color: #87CEFA;'>💯 Aman</span><br><span style='color: #ccc;'>Load data baru tanpa menghapus data.</span>"; modalBox.style.borderColor = title.style.color = btnDownload.style.borderColor = btnDownload.style.color = "#87CEFA"; } else { warningArea.innerHTML = ""; modalBox.style.borderColor = "var(--border-color)"; title.style.color = "#87CEFA"; btnDownload.style.borderColor = "var(--border-color)"; btnDownload.style.color = "var(--text-muted)"; } }
-        function executeSyncBtn() { const val = $('sync-type').value; if (!val) { tampilkanToast("Silakan pilih mode sinkronisasi dulu!", "var(--warning)"); return; } closeSyncModal(); loadFromCloud(val === 'force'); }
+        
+        function executeSyncBtn() { 
+            const val = $('sync-type').value; 
+            if (!val) { tampilkanToast("Silakan pilih mode sinkronisasi dulu!", "var(--warning)"); return; } 
+            
+            const btn = $('btn-sync-download');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = "MEMPROSES...";
+            }
+            
+            closeSyncModal(); 
+            loadFromCloud(val === 'force'); 
+        }
 
-        // [PERBAIKAN 4: Database Chunking untuk mencegah HP Freeze]
         function loadFromCloud(forceSync = false) { 
             if (isApiLoading) return;
             isApiLoading = true;
@@ -1451,11 +1552,7 @@
                     const chunk = dataCloud.slice(currentIndex, currentIndex + chunkSize);
                     
                     if (chunk.length === 0) {
-                        db = Array.from(tempMap.values());
                         localStorage.setItem('DB_LAST_SYNC', serverTime.toString()); 
-                        worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
-                        updateMaps(); 
-                        
                         currentSearchReqId++; 
                         $('q').value = '';
                         workerResult = null;
@@ -1489,6 +1586,10 @@
                     }); 
                     
                     tx.oncomplete = () => { 
+                        db = Array.from(tempMap.values());
+                        updateMaps();
+                        worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
+                        
                         currentIndex += chunkSize;
                         requestAnimationFrame(processNextChunk); 
                     }; 
@@ -1506,12 +1607,29 @@
             }); 
         }
         
-        function exportData() { const data = db.filter(i => !i.deleted).map(i => ({ "ID": i.id, "Barcode": i.b, "Nama Barang": i.n, "Harga Eceran": i.p1, "Satuan Ecer": i.u1 || "", "Harga Grosir": i.p2, "Satuan Grosir": i.u2 || "", "Isi Grosir": i.iq || "", "Singkatan": i.t, "Favorit": i.f ? "Ya" : "Tidak", "Expired": i.exp || "" })); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Data"); XLSX.writeFile(wb, "Data_Harga.xlsx"); }
+        function exportData() { 
+            const data = db.filter(i => !i.deleted).map(i => ({ 
+                "ID": i.id, 
+                "Barcode Satuan": i.b, 
+                "Barcode Grosir": i.b2 || "", 
+                "Nama Barang": i.n, 
+                "Harga Satuan": i.p1, 
+                "Satuan": i.u1 || "", 
+                "Harga Grosir": i.p2, 
+                "Satuan Grosir": i.u2 || "", 
+                "Isi Grosir": i.iq || "", 
+                "Singkatan": i.t, 
+                "Favorit": i.f ? "Ya" : "Tidak", 
+                "Expired": i.exp || "" 
+            })); 
+            const wb = XLSX.utils.book_new(); 
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Data"); 
+            XLSX.writeFile(wb, "Data_Harga.xlsx"); 
+        }
         
         function importData(e) { 
             const f = e.target.files[0]; if(!f) return; 
             
-            // Limitasi file maks 2MB cegah OOM Crash
             if (f.size > 2 * 1024 * 1024) {
                 return showAlert("Gagal! Ukuran file terlalu besar (Maks 2MB). Pastikan Anda memilih file Excel yang benar.", "Error");
             }
@@ -1526,26 +1644,38 @@
 
                 jD.forEach(ro => { 
                     const n = prop(ro["Nama Barang"] || ro["Nama"]); if(!n) return; 
-                    const p1Val = parseExcelPrice(ro["Eceran"]||ro["Harga Eceran"]); 
+                    const p1Val = parseExcelPrice(ro["Harga Satuan"] || ro["Eceran"] || ro["Harga Eceran"]); 
                     
                     if (p1Val === null || p1Val === undefined || isNaN(p1Val)) return; 
                     
                     let cT = ro["Singkatan"]; if (!cT) cT = generateSmartAcronym(n, null, tA); if (cT) tA.add(cT); 
-                    const eI = ro["ID"] ? String(ro["ID"]).trim() : null, sB = ro["Barcode"] ? String(ro["Barcode"]).trim().toUpperCase() : ''; 
+                    const eI = ro["ID"] ? String(ro["ID"]).trim() : null;
                     
-                    if (sB !== '') { 
-                        const collision = db.find(x => !x.deleted && String(x.b) === sB && String(x.id) !== String(eI)); 
+                    let sB = ro["Barcode Satuan"] || ro["Barcode"] ? String(ro["Barcode Satuan"] || ro["Barcode"]).trim().toUpperCase() : ''; 
+                    let sB2 = ro["Barcode Grosir"] ? String(ro["Barcode Grosir"]).trim().toUpperCase() : ''; 
+                    let iq = parseInt(ro["Isi Grosir"]) || 0;
+
+                    if (sB !== '' && sB2 === sB) sB2 = ''; 
+                    if (sB2 !== '' && iq < 2) sB2 = ''; 
+
+                    if (sB !== '' || sB2 !== '') { 
+                        const collision = db.find(x => !x.deleted && 
+                            ((sB !== '' && (String(x.b) === sB || String(x.b2) === sB)) || 
+                             (sB2 !== '' && (String(x.b) === sB2 || String(x.b2) === sB2))) && 
+                            String(x.id) !== String(eI)
+                        ); 
                         if (collision) { skippedCount++; return; } 
                     } 
                     
                     const iF = ro["Favorit"] === "Ya" || ro["Favorit"] === "TRUE", eD = parseBulanTahunExcel(ro["Expired"]); 
-                    let u1 = ro["Satuan Ecer"] || ro["Satuan"] || "", u2 = ro["Satuan Grosir"] || ro["Grosir"] || "", iq = parseInt(ro["Isi Grosir"]) || 0, eIdx = db.findIndex(x => (eI && String(x.id) === String(eI)) || (x.n.toLowerCase() === n.toLowerCase())); 
+                    let u1 = ro["Satuan"] || ro["Satuan Ecer"] || "", u2 = ro["Satuan Grosir"] || ro["Grosir"] || "";
+                    let eIdx = db.findIndex(x => (eI && String(x.id) === String(eI)) || (x.n.toLowerCase() === n.toLowerCase())); 
                     
                     if (eIdx > -1) { 
-                        db[eIdx] = { ...db[eIdx], b: sB, p1: p1Val, p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; 
+                        db[eIdx] = { ...db[eIdx], b: sB, b2: sB2, p1: p1Val, p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; 
                         s.put(db[eIdx]); 
                     } else { 
-                        const nI = { id: eI || generateUniqueId(), b: sB, n: n, p1: p1Val, p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; 
+                        const nI = { id: eI || generateUniqueId(), b: sB, b2: sB2, n: n, p1: p1Val, p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; 
                         db.push(nI); s.put(nI); 
                     } 
                 }); 
@@ -1554,7 +1684,7 @@
                     updateMaps(); clearSearch(); renderCartUI(); applyFiltersAndRender();
                     
                     if (skippedCount > 0) {
-                        showAlert(`Import Selesai!<br><br><span style="color:var(--warning);">⚠️ ${skippedCount} data diabaikan karena barcode kembar.</span>`, "Info Import", "var(--warning)");
+                        showAlert(`Import Selesai!<br><br><span style="color:var(--warning);">⚠️ ${skippedCount} baris diabaikan karena barcode kembar.</span>`, "Info Import", "var(--warning)");
                     } else {
                         tampilkanToast("Import Selesai!"); 
                     }
@@ -1569,7 +1699,7 @@
         }
         
         let isClosingScan = false;
-            async function openScanner(mode) { 
+        async function openScanner(mode) { 
             if(isStartingScan || isScanning || isClosingScan) return; 
             isStartingScan = true; 
             scanMode = mode; 
@@ -1582,46 +1712,29 @@
             
             try { 
                 const scanConfig = { 
-                    fps: 10, // KEMBALI KE 10 FPS (Paling stabil untuk HP mid-range, tidak bikin panas)
-                    disableFlip: false, // TETAP FALSE agar bisa baca barcode vertikal/terbalik
-                    
-                    // [SOLUSI CERDAS]: Kotak Pindai Raksasa. 
-                    // Luasnya 95% layar. Sangat mudah menangkap botol miring, 
-                    // TAPI tetap membatasi memori agar HP tidak Crash/Freeze!
+                    fps: 10,
+                    disableFlip: false, 
                     qrbox: function(viewfinderWidth, viewFinderHeight) {
                         let boxWidth = Math.floor(viewfinderWidth * 0.95);
                         let boxHeight = Math.floor(viewFinderHeight * 0.60);
                         return { width: boxWidth, height: boxHeight };
                     },
-                    
-                    experimentalFeatures: {
-                        useBarCodeDetectorIfSupported: true // Akselerasi Hardware Bawaan HP
-                    },
+                    experimentalFeatures: { useBarCodeDetectorIfSupported: true },
                     formatsToSupport: [ 
-                        Html5QrcodeSupportedFormats.EAN_13, 
-                        Html5QrcodeSupportedFormats.EAN_8, 
-                        Html5QrcodeSupportedFormats.UPC_A, 
-                        Html5QrcodeSupportedFormats.UPC_E, 
-                        Html5QrcodeSupportedFormats.CODE_128, 
-                        Html5QrcodeSupportedFormats.QR_CODE 
+                        Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8, 
+                        Html5QrcodeSupportedFormats.UPC_A, Html5QrcodeSupportedFormats.UPC_E, 
+                        Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.QR_CODE 
                     ] 
                 };
                 
-                // [SOLUSI AMAN]: Bebaskan HP memilih resolusi aslinya sendiri tanpa dipaksa.
-                const videoConstraints = { 
-                    facingMode: "environment"
-                };
-
-                await html5QrCode.start( videoConstraints, scanConfig, async (text) => { 
+                await html5QrCode.start( { facingMode: "environment" }, scanConfig, async (text) => { 
                     playBeep(); 
                     await closeScanner(); 
                     let scannedText = text.trim().toUpperCase(); 
                     
-                    if (scanMode === 'cart') { 
-                        const ex = db.find(i => !i.deleted && String(i.b) === scannedText); 
-                        if (ex) modifyCartItem(ex.id, 1); else tampilkanToast("Barcode tidak terdaftar!", "var(--danger)"); 
-                    } else if (scanMode === 'search') { 
-                        const ex = db.find(i => !i.deleted && String(i.b) === scannedText); 
+                    if (scanMode === 'cart') handlePhysicalScanner(scannedText);
+                    else if (scanMode === 'search') { 
+                        const ex = db.find(i => !i.deleted && (String(i.b) === scannedText || String(i.b2) === scannedText)); 
                         if (ex) { 
                             $('q').value = scannedText; $('q-x').style.display = 'flex'; 
                             window.scrollTo({ top: 0, behavior: 'instant' }); 
@@ -1629,33 +1742,25 @@
                         } else { 
                             showMod(); $('i-b').value = scannedText; 
                         } 
-                    } else $('i-b').value = scannedText; 
+                    } 
+                    else if (scanMode === 'input-grosir') $('i-b2').value = scannedText; 
+                    else $('i-b').value = scannedText; 
                 }); 
                 isScanning = true; 
+                isStartingScan = false; 
             } catch (e) { 
+                isStartingScan = false; 
+                isScanning = false;
                 await closeScanner(); 
                 
                 let errMsg = "Kamera Error. Coba muat ulang aplikasi.";
-                if (e) {
-                    if (e.name === "NotAllowedError" || (e.message && e.message.includes("Permission denied"))) {
-                        errMsg = "Izin ditolak! Izinkan akses kamera di pengaturan browser Anda.";
-                    } else if (e.name === "NotFoundError" || e.name === "OverconstrainedError") {
-                        errMsg = "Kamera HP gagal merespon browser. Coba tutup aplikasi lain/muat ulang.";
-                    } else if (e.name === "NotSupportedError") {
-                        errMsg = "Browser tidak mendukung. Pastikan Anda menggunakan Chrome & HTTPS.";
-                    } else {
-                        errMsg = "Kamera Error: " + (e.message || e.name || "Tidak diketahui");
-                    }
+                if (e && (e.name === "NotAllowedError" || (e.message && e.message.includes("Permission denied")))) {
+                    errMsg = "Izin ditolak! Izinkan akses kamera di pengaturan browser Anda.";
                 }
-                
                 showAlert(errMsg, "Error", "var(--danger)"); 
-                console.error("Detail Error Scanner:", e); 
-            } finally { 
-                isStartingScan = false; 
             } 
         }
  
-
         async function closeScanner() { 
             if(isClosingScan) return;
             isClosingScan = true;
@@ -1700,7 +1805,6 @@
             }
         }
 
-        // [LOGIKA POP-UP OFFLINE LEDGER]
         function showOfflineLedger(text) {
             $('offline-ledger-view').value = text;
             $('offline-ledger-modal').style.display = 'flex';
@@ -1745,7 +1849,7 @@
             } catch(err) {}
         }
 
-        /* --- INIT APP UTAMA --- */
+        /* --- INIT APP --- */
         let isDbReady = false, pendingLaunchFile = null; 
         async function initApp() { 
             try { 
@@ -1773,6 +1877,37 @@
         function processQueuedFile(file) { showLoading("Mengimpor data dari file...<br>Mohon tunggu.", "var(--warning)"); setTimeout(() => { importData({ target: { files: [file] } }); setTimeout(hideLoading, 1500); }, 300); }
         if ('launchQueue' in window) { window.launchQueue.setConsumer((launchParams) => { if (launchParams.files && launchParams.files.length > 0) launchParams.files[0].getFile().then(file => { if (isDbReady) processQueuedFile(file); else pendingLaunchFile = file; }); }); }
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js') .then((registration) => { registration.addEventListener('updatefound', () => { const newWorker = registration.installing; newWorker.addEventListener('statechange', () => { if (newWorker.state === 'installed' && navigator.serviceWorker.controller) showConfirm("Versi terbaru aplikasi telah tersedia! Perbarui sekarang.", "Update Sistem", "#87CEFA", () => { window.location.reload(); }, "REFRESH"); }); }); }).catch(console.error); }); }
+
+        // --- ANTI HARDWARE BACK BUTTON TRAP ---
+        function pushModalHistory() {
+            if (!history.state || !history.state.modalOpen) {
+                history.pushState({ modalOpen: true }, '');
+            }
+        }
+
+        window.addEventListener('popstate', (e) => {
+            const modalsOpen = document.querySelectorAll('.modal[style*="display: flex"], .modal[style*="display: block"], #scanner-wrap[style*="display: block"]');
+            if (modalsOpen.length > 0) {
+                hideMod(); 
+                hidePicker(); 
+                closeCustomAlert(); 
+                closePinModal(); 
+                closePricePopup(new Event(''), true); 
+                closeSyncModal(); 
+                closeOfflineLedger();
+                if (isScanning) closeScanner();
+            }
+        });
+
+        const originalShowMod = showMod;
+        showMod = function(id = null) { pushModalHistory(); originalShowMod(id); };
+
+        const originalOpenScanner = openScanner;
+        openScanner = async function(mode) { pushModalHistory(); await originalOpenScanner(mode); };
+
+        const originalOpenSyncModal = openSyncModal;
+        openSyncModal = function() { pushModalHistory(); originalOpenSyncModal(); };
+
     </script>
 </body>
 </html>
