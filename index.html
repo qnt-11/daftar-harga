@@ -127,7 +127,7 @@
         .cp-btn.reset { border-color: var(--danger); color: var(--danger); }
         .cp-btn.reset:active { background: rgba(255, 59, 48, 0.15); }
         
-        .cp-list { flex: 1; overflow-y: auto; padding: 0 16px 15px; overscroll-behavior: contain; -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%); mask-image: linear-gradient(to bottom, black 85%, transparent 100%); transition: mask-image 0.3s, -webkit-mask-image 0.3s; overflow-x: hidden; }
+        .cp-list { flex: 1; overflow-y: auto; padding: 0 16px 60px; overscroll-behavior: contain; -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%); mask-image: linear-gradient(to bottom, black 85%, transparent 100%); transition: mask-image 0.3s, -webkit-mask-image 0.3s; overflow-x: hidden; }
         .cp-item-wrap { position: relative; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .cp-trash-bg { position: absolute; right: 0; top: 0; bottom: 0; width: 80px; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--danger); cursor: pointer; }
         .cp-item-front { position: relative; background: var(--wa-bg); transition: transform 0.2s ease; z-index: 2; padding: 14px 0; display: flex; justify-content: space-between; align-items: center; width: 100%; }
@@ -175,7 +175,7 @@
         #s-btn-tabs { width: 44px; height: 44px; margin-left: auto; margin-right: 12px !important; flex-shrink: 0; align-items: flex-end; }
         #s-btn-search { display: none; width: 46px; height: 46px; background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; margin-right: 0; }
 
-        /* --- DAFTAR BARANG --- */
+        /* --- DAFTAR BARANG (FLEXIBLE CARD) --- */
         .list { position: relative; padding-bottom: 50px; padding-top: 12px; width: 100%; overflow-x: hidden; } 
         body.is-scrolling .render-container { pointer-events: none; }
         .render-container { position: absolute; top: 12px; left: 0; width: 100%; padding-left: 16px; padding-right: 16px; will-change: transform; transform: translateZ(0); }
@@ -183,10 +183,10 @@
         .card { 
             position: relative; display: flex; align-items: flex-start; padding: 15px 18px 15px 18px; 
             padding-right: 90px; background: var(--wa-card); border: 1px solid var(--border-color); 
-            border-radius: 12px; height: auto; min-height: 90px; overflow: hidden; 
+            border-radius: 12px; height: auto; overflow: hidden; 
             box-sizing: border-box; touch-action: pan-y;
             content-visibility: auto; 
-            contain-intrinsic-size: 90px; 
+            contain-intrinsic-size: 75px; 
             contain: content; 
         }
 
@@ -230,20 +230,18 @@
         .modal-box input, .modal-box textarea { width: 100%; padding: 12px 14px; background: var(--wa-bg); border: 1px solid var(--border-color); color: var(--text-light); font-size: 14px; font-family: 'Montserrat', sans-serif; font-weight: 600; outline: none; border-radius: 8px; transition: border-color 0.2s; margin-bottom: 2px;}
         .modal-box input:focus, .modal-box textarea:focus { border-color: var(--mono-main); }
         
+        /* FORM GRID 70:30 & HYBRID INPUT CSS */
         .form-grid { display: flex; gap: 10px; margin-top: 14px; align-items: flex-start;}
-        .form-grid .col-price { flex: 6; }
+        .form-grid .col-price { flex: 7; }
         .form-grid .col-price label { margin-top: 0; }
-        .form-grid .col-unit { flex: 4; }
+        .form-grid .col-unit { flex: 3; }
         .form-grid .col-unit label { margin-top: 0; }
         
-        .custom-select-btn { width: 100%; padding: 0 12px; height: 45px; background: var(--wa-bg); border: 1px solid var(--border-color); color: var(--text-light); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 600; cursor: pointer; transition: border-color 0.2s; }
-        .custom-select-btn:active { border-color: var(--mono-main); }
-        .acc-content { padding: 12px; background: #111; border: 1px solid var(--border-color); border-radius: 8px; margin-top: 8px; animation: slideDown 0.2s ease-out; }
-        
-        .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
-        .chip { padding: 8px 12px; background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; color: var(--text-light); transition: 0.2s; text-align: center; flex: 1 1 calc(33.333% - 8px); min-width: 60px;}
-        .chip:active { background: var(--mono-main); color: #000; border-color: var(--mono-main); transform: scale(0.95); }
-        
+        .quick-chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; width: 100%; }
+        .q-chip { padding: 6px 12px; background: #222; border: 1px solid var(--border-color); border-radius: 6px; font-size: 11px; font-weight: 700; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: 0.2s; }
+        .q-chip:active { background: var(--mono-main); color: #000; transform: scale(0.95); }
+        .q-chip-del { color: var(--danger); border-color: rgba(255,59,48,0.3); }
+
         #wrap-iq { display: none; margin-top: 14px; animation: slideDown 0.2s ease-out; }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -403,7 +401,7 @@
             <label>Nama Barang</label>
             <input type="text" id="i-n" autocomplete="off" style="text-transform: capitalize;">
             
-            <label>Kode Barcode Satuan</label>
+            <label>BC Satuan</label>
             <div class="barcode-row">
                 <input type="text" id="i-b" autocomplete="off" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\-\s]/g, '').toUpperCase()">
                 <button type="button" onclick="openScanner('input')">
@@ -411,7 +409,7 @@
                 </button>
             </div>
 
-            <label>Kode Barcode Grosir</label>
+            <label>BC Grosir</label>
             <div class="barcode-row">
                 <input type="text" id="i-b2" placeholder="Opsional" autocomplete="off" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\-\s]/g, '').toUpperCase()">
                 <button type="button" onclick="openScanner('input-grosir')">
@@ -422,7 +420,7 @@
             <label>Singkatan / Kode Cepat</label>
             <input type="text" id="i-t" placeholder="Otomatis jika kosong" autocomplete="off" style="text-transform: lowercase;">
             
-            <label>Kedaluwarsa (Bulan Tahun)</label>
+            <label>Expired (Bulan & Tahun)</label>
             <input type="text" id="i-exp" placeholder="- Tidak Ada -" readonly onclick="openPicker('i-exp', 'date')" style="cursor: pointer; caret-color: transparent;">
             
             <div class="form-grid">
@@ -431,70 +429,37 @@
                     <input type="tel" id="i-p1" pattern="[0-9]*" placeholder="0" oninput="formatRp(this)">
                 </div>
                 <div class="col-unit">
-                    <label>Pilih Satuan</label>
-                    <div class="custom-select-btn" onclick="toggleAcc('acc-u1')"><span id="lbl-u1">kosong</span> ▾</div>
+                    <label>Satuan</label>
+                    <input type="text" id="i-u1" placeholder="Ketik" autocomplete="off" oninput="this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1)">
                 </div>
+            </div>
+            <div class="quick-chip-row">
+                <div class="q-chip" onclick="$('i-u1').value='Pcs'">Pcs</div>
+                <div class="q-chip" onclick="$('i-u1').value='Bks'">Bks</div>
+                <div class="q-chip" onclick="$('i-u1').value='Renceng'">Renceng</div>                
+                <div class="q-chip q-chip-del" onclick="$('i-u1').value=''">Kosong</div>
             </div>
             
-            <div id="acc-u1" class="acc-content hidden">
-                <div class="chip-group">
-                    <div class="chip" onclick="setUnit(1, 'Pcs')">Pcs</div>
-                    <div class="chip" onclick="setUnit(1, 'Bungkus')">Bungkus</div>
-                    <div class="chip" onclick="setUnit(1, 'Renceng')">Renceng</div>
-                    <div class="chip" onclick="setUnit(1, 'Botol')">Botol</div>
-                    <div class="chip" onclick="setUnit(1, 'Sachet')">Sachet</div>
-                    <div class="chip" onclick="setUnit(1, 'Kotak')">Kotak</div>
-                    <div class="chip" onclick="setUnit(1, 'Biji')">Biji</div>
-                    <div class="chip" onclick="setUnit(1, 'Cup')">Cup</div>
-                    <div class="chip" onclick="setUnit(1, 'Pack')">Pack</div>
-                    <div class="chip" onclick="setUnit(1, 'Strip')">Strip</div>
-                    <div class="chip" onclick="setUnit(1, 'Tablet')">Tablet</div>
-                    <div class="chip" onclick="setUnit(1, 'Kaleng')">Kaleng</div>
-                    <div class="chip" onclick="setUnit(1, 'Pasang')">Pasang</div>
-                    <div class="chip" onclick="setUnit(1, 'Gulung')">Gulung</div>
-                    <div class="chip" onclick="setUnit(1, 'Kg')">Kg</div>
-                    <div class="chip" onclick="setUnit(1, 'Liter')">Liter</div>
-                    <div class="chip" onclick="setUnit(1, 'Tube')">Tube</div>
-                    <div class="chip" onclick="setUnit(1, 'Roll')">Roll</div>
-                    <div class="chip" onclick="setUnit(1, 'Lembar')">Lembar</div>
-                    <div class="chip" style="color: #a0a0a0; border-color: #333;" onclick="setUnit(1, '')">kosong</div>
-                </div>
-            </div>
-            <input type="hidden" id="i-u1">
-
             <div class="form-grid">
                 <div class="col-price">
                     <label>Harga Grosir</label>
                     <input type="tel" id="i-p2" pattern="[0-9]*" placeholder="0" oninput="formatRp(this)">
                 </div>
                 <div class="col-unit">
-                    <label>Pilih Grosir</label>
-                    <div class="custom-select-btn" onclick="toggleAcc('acc-u2')"><span id="lbl-u2">kosong</span> ▾</div>
+                    <label>Grosir</label>
+                    <input type="text" id="i-u2" placeholder="Ketik" autocomplete="off" oninput="this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1); toggleIsiGrosir();">
                 </div>
             </div>
-            
-            <div id="acc-u2" class="acc-content hidden">
-                <div class="chip-group">
-                    <div class="chip" onclick="setUnit(2, 'Dus')">Dus</div>
-                    <div class="chip" onclick="setUnit(2, 'Karton')">Karton</div>
-                    <div class="chip" onclick="setUnit(2, 'Slop')">Slop</div>
-                    <div class="chip" onclick="setUnit(2, 'Bal')">Bal</div>
-                    <div class="chip" onclick="setUnit(2, 'Pack')">Pack</div>
-                    <div class="chip" onclick="setUnit(2, 'Box')">Box</div>
-                    <div class="chip" onclick="setUnit(2, 'Toples')">Toples</div>
-                    <div class="chip" onclick="setUnit(2, 'Lusin')">Lusin</div>
-                    <div class="chip" onclick="setUnit(2, 'Pres')">Pres</div>
-                    <div class="chip" onclick="setUnit(2, 'Renceng')">Renceng</div>
-                    <div class="chip" onclick="setUnit(2, 'Rim')">Rim</div>
-                    <div class="chip" onclick="setUnit(2, 'Sak')">Sak</div>
-                    <div class="chip" style="color: #a0a0a0; border-color: #333;" onclick="setUnit(2, '')">kosong</div>
-                </div>
+            <div class="quick-chip-row">
+                <div class="q-chip" onclick="$('i-u2').value='Slop'; toggleIsiGrosir();">Slop</div>
+                <div class="q-chip" onclick="$('i-u2').value='Dus'; toggleIsiGrosir();">Dus</div>
+                <div class="q-chip" onclick="$('i-u2').value='Karton'; toggleIsiGrosir();">Karton</div>
+                <div class="q-chip q-chip-del" onclick="$('i-u2').value=''; toggleIsiGrosir();">Kosong</div>
             </div>
-            <input type="hidden" id="i-u2">
 
             <div id="wrap-iq">
                 <label id="label-iq">Isi per ...</label>
-                <input type="tel" id="i-iq" pattern="[0-9]*" placeholder="Contoh: 10">
+                <input type="tel" id="i-iq" pattern="[0-9]*" placeholder="0">
             </div>
 
             <div class="modal-btns">
@@ -526,12 +491,12 @@
             </p>
             
             <div style="position: relative; text-align: left;">
-                <div class="custom-select-btn" onclick="toggleSyncDropdown(event)" style="background: #111; padding: 0;">
+                <div class="custom-select-btn" onclick="toggleSyncDropdown(event)" style="background: #111; padding: 0; width: 100%; height: 45px; border: 1px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; cursor: pointer;">
                     <span id="sync-selected-text" style="color: #888; padding-left: 15px; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 600;">-- Pilih Mode --</span>
                     <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-muted);">▼</span>
                 </div>
                 
-                <div id="sync-custom-options" class="acc-content hidden" style="position: absolute; top: 40px; left: 0; right: 0; padding: 0; display: flex; flex-direction: column; background: #151515; border: 1px solid var(--border-color); box-shadow: 0 10px 25px rgba(0,0,0,0.8);">
+                <div id="sync-custom-options" class="hidden" style="position: absolute; top: 40px; left: 0; right: 0; padding: 0; display: flex; flex-direction: column; background: #151515; border: 1px solid var(--border-color); box-shadow: 0 10px 25px rgba(0,0,0,0.8); z-index: 4100; border-radius: 8px; margin-top: 8px;">
                     <div class="dropdown-item" onclick="selectSyncOption('delta', event)" style="border-bottom: 1px solid rgba(255,255,255,0.05); color: white; padding: 12px 15px;">Load Pembaruan (Cepat)</div>
                     <div class="dropdown-item" onclick="selectSyncOption('force', event)" style="color: var(--danger); padding: 12px 15px;">Load Semua Data (Darurat)</div>
                 </div>
@@ -610,14 +575,14 @@
     </div>
 
     <div id="toast-notification" class="hidden"><span id="toast-message"></span></div>
+
     <script>
         // --- KONFIGURASI & VARIABEL GLOBAL ---
         const $ = (id) => document.getElementById(id);
-        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbz9FCLqYM7Ub6fZxkbrbhmevUiDCSknPUloT7Qj6jWg76fvTNiUWaOU-NPJYHTsqQFu/exec";
+        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbyUU4m1eYgOrDOcZ36sjOnQxz-DnQi16gYzQxHP1m1s728VhFX0fEOqJFy_pGU0_PGQ/exec";
         const NamaBln = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         const NamaBlnPendek = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 
-        // KEAMANAN PIN: Mudah diubah tanpa mencari ke tengah kode
         const APP_SECURE_PIN = localStorage.getItem('APP_PIN') || '170823';
 
         let db = [], idb, worker, workerResult = null, filteredData = [], listOffsets = [];
@@ -631,7 +596,7 @@
 
         const TemaNotifikasi = { 
             "Error": "var(--danger)", "Gagal": "var(--danger)", "Hapus": "var(--danger)", 
-            "Peringatan": "var(--warning)", "Optimasi Sistem": "#FFA500", "Sistem Bersih": "#FFA500", 
+            "Peringatan": "var(--warning)", "Peringatan Sinkronisasi": "var(--warning)", "Optimasi Sistem": "#FFA500", "Sistem Bersih": "#FFA500", 
             "Backup": "#87CEFA", "Sinkronisasi": "#87CEFA", "Sukses": "var(--mono-main)", "Info": "var(--mono-main)", "Info Offline": "var(--warning)", "Info Import": "var(--warning)" 
         };
 
@@ -946,7 +911,11 @@
                     if (elemSub) elemSub.innerText = `Rp ${fmt(subTotal)}`;
                     
                     const elemLabel = $('qty-label-' + k);
-                    if (elemLabel) elemLabel.innerText = `${q} ${escapeHTML(item.u1 || 'Satuan')}`;
+                    if (elemLabel) {
+                        let unitName = (item.u1 || '').trim();
+                        unitName = unitName ? (unitName.charAt(0).toUpperCase() + unitName.slice(1)) : 'Satuan';
+                        elemLabel.innerText = `${q} ${escapeHTML(unitName)}`;
+                    }
                 }
             });
             $('cp-grand-total').innerText = `Rp ${fmt(grandTotal)}`;
@@ -977,7 +946,12 @@
                 keys.forEach(id => {
                     const item = db.find(x => String(x.id) === id);
                     if (!item || item.deleted) { delete cartState[id]; hasDeletedItems = true; return; } 
-                    const q = cartState[id].q, p1 = item.p1, p2 = item.p2, iq = item.iq, unitName = item.u1 || 'Satuan'; 
+                    const q = cartState[id].q, p1 = item.p1, p2 = item.p2, iq = item.iq;
+                    
+                    // AUTO-CAPITALIZE KERANJANG
+                    let unitName = (item.u1 || '').trim();
+                    unitName = unitName ? (unitName.charAt(0).toUpperCase() + unitName.slice(1)) : 'Satuan';
+
                     let subTotal = (p2 > 0 && iq > 1 && q >= iq) ? Math.round((q * p2) / iq) : Math.round(q * p1);
                     grandTotal += subTotal;
                     
@@ -1219,31 +1193,12 @@
         function showAlert(msg, title = "Info", color = null) { const c = applyModalColor(title, color); $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); $('alert-btns').innerHTML = `<button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" onclick="closeCustomAlert()">OKE</button>`; $('custom-alert').style.display = 'flex'; document.body.classList.add('modal-open'); }
         function showConfirm(msg, title, color, callbackOk, confirmText = "OKE", callbackCancel = null) { const c = applyModalColor(title, color); $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); $('alert-btns').innerHTML = `<button class="btn-main btn-cancel" id="confirm-cancel-btn">BATAL</button><button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" id="confirm-ok-btn">${confirmText}</button>`; $('confirm-ok-btn').onclick = () => { closeCustomAlert(); callbackOk(); }; $('confirm-cancel-btn').onclick = () => { closeCustomAlert(); if(callbackCancel) callbackCancel(); }; $('custom-alert').style.display = 'flex'; document.body.classList.add('modal-open'); }
         
-        function toggleAcc(id) { 
-            const el = $(id); 
-            if(id === 'acc-u1') $('acc-u2').classList.add('hidden');
-            if(id === 'acc-u2') $('acc-u1').classList.add('hidden');
-            if(el.classList.contains('hidden')) { el.classList.remove('hidden'); } else { el.classList.add('hidden'); } 
-        }
-        
-        function setUnit(type, val) { 
-            $(`i-u${type}`).value = val; 
-            const lbl = $(`lbl-u${type}`);
-            if (val === "") {
-                lbl.innerText = "kosong";
-                lbl.style.color = "#a0a0a0";
-            } else {
-                lbl.innerText = val;
-                lbl.style.color = "#ffffff";
-            }
-            $(`acc-u${type}`).classList.add('hidden'); if (type === 2) toggleIsiGrosir(); 
-        }
         function toggleIsiGrosir() { const val = $('i-u2').value; if (val) { $('label-iq').innerText = `Isi per ${val}`; $('wrap-iq').style.display = 'block'; } else { $('wrap-iq').style.display = 'none'; $('i-iq').value = ''; } }
 
         function showMod(id = null) { 
             activeId = id; 
             const b = $('i-b'), b2 = $('i-b2'), n = $('i-n'), p1 = $('i-p1'), p2 = $('i-p2'), exp = $('i-exp'), t = $('i-t'), u1 = $('i-u1'), u2 = $('i-u2'), iq = $('i-iq'); 
-            $('mod-box').style.borderColor = "var(--border-color)"; $('acc-u1').classList.add('hidden'); $('acc-u2').classList.add('hidden');
+            $('mod-box').style.borderColor = "var(--border-color)";
             
             if (id) { 
                 const it = db.find(x => String(x.id) === String(id)); if(!it) return; 
@@ -1253,25 +1208,41 @@
                 n.value = it.n || ''; p1.value = fmt(it.p1); p2.value = it.p2 ? fmt(it.p2) : ''; 
                 exp.dataset.rawDate = it.exp || ''; exp.value = it.exp ? formatBulanTahun(it.exp) : ''; t.value = it.t || ''; 
                 u1.value = it.u1 || ''; 
-                const lbl1 = $('lbl-u1'); if (u1.value === "") { lbl1.innerText = "kosong"; lbl1.style.color = "#a0a0a0"; } else { lbl1.innerText = u1.value; lbl1.style.color = "#ffffff"; }
                 u2.value = it.u2 || '';
-                const lbl2 = $('lbl-u2'); if (u2.value === "") { lbl2.innerText = "kosong"; lbl2.style.color = "#a0a0a0"; } else { lbl2.innerText = u2.value; lbl2.style.color = "#ffffff"; }
                 iq.value = it.iq || ''; 
             } else { 
                 $('m-tit').innerText = "Tambah Barang"; 
                 b.value = b2.value = n.value = p1.value = p2.value = exp.dataset.rawDate = exp.value = t.value = u1.value = u2.value = iq.value = ''; 
-                const lbl1 = $('lbl-u1'); lbl1.innerText = "kosong"; lbl1.style.color = "#a0a0a0";
-                const lbl2 = $('lbl-u2'); lbl2.innerText = "kosong"; lbl2.style.color = "#a0a0a0";
             } 
             toggleIsiGrosir(); $('mod').style.display = 'flex'; document.body.classList.add('modal-open'); setTimeout(() => $('i-n').focus(), 100); 
         }
+
         function hideMod() { activeId = null; $('mod').style.display = 'none'; checkModalOpen(); }
         function deleteAllDataPrompt() { if (db.filter(i => !i.deleted).length === 0) return showAlert("Data sudah kosong!", "Info"); $('dropdown-menu').classList.add('hidden'); $('pin-input').value = ''; $('pin-modal').style.display = 'flex'; document.body.classList.add('modal-open'); setTimeout(() => $('pin-input').focus(), 100); }
         function closePinModal() { $('pin-modal').style.display = 'none'; checkModalOpen(); }
         
         function verifyPinAndExecute() { if ($('pin-input').value === APP_SECURE_PIN) { closePinModal(); executeDeleteAll(); } else tampilkanToast("PIN Salah!", "var(--danger)"); }
         
-        function openPicker(id, m) { Picker.targetId = id; const el = $(id); if (!el) return; let val = el.dataset.rawDate || el.value; if (!val) { Picker.sel = new Date(); Picker.tempYear = Picker.sel.getFullYear(); Picker.tempMonth = Picker.sel.getMonth(); } else { const p = val.split('-'); Picker.tempYear = parseInt(p[0], 10); Picker.tempMonth = parseInt(p[1], 10) - 1; } renderKalenderGrid(); $('custom-picker').style.display = 'flex'; document.body.classList.add('modal-open'); }
+        function openPicker(id, m) { 
+            Picker.targetId = id; const el = $(id); if (!el) return; 
+            let val = el.dataset.rawDate || el.value; 
+            if (!val) { 
+                Picker.sel = new Date(); Picker.tempYear = Picker.sel.getFullYear(); Picker.tempMonth = Picker.sel.getMonth(); 
+            } else { 
+                const p = val.split('-'); 
+                Picker.tempYear = parseInt(p[0], 10); 
+                Picker.tempMonth = parseInt(p[1], 10) - 1; 
+
+                // INJEKSI SELF-HEALING ANTI-NaN
+                if (isNaN(Picker.tempYear) || isNaN(Picker.tempMonth)) {
+                    const now = new Date();
+                    Picker.tempYear = now.getFullYear();
+                    Picker.tempMonth = now.getMonth();
+                }
+            } 
+            renderKalenderGrid(); $('custom-picker').style.display = 'flex'; document.body.classList.add('modal-open'); 
+        }
+
         function hidePicker() { $('custom-picker').style.display = 'none'; checkModalOpen(); }
         function clearPickerDate() { const el = $(Picker.targetId); if(el) el.dataset.rawDate = el.value = ''; hidePicker(); }
         function renderKalenderGrid() { $('cp-year').innerText = Picker.tempYear; $('cp-grid').innerHTML = NamaBlnPendek.map((bln, i) => `<div class="month-item ${i === Picker.tempMonth ? 'active' : ''}" onclick="cpSelectMonth(${i})">${bln}</div>`).join(''); }
@@ -1279,7 +1250,16 @@
         function cpSelectMonth(m) { Picker.tempMonth = m; renderKalenderGrid(); }
         function setPickerDate() { const el = $(Picker.targetId); if(el) { el.dataset.rawDate = `${Picker.tempYear}-${String(Picker.tempMonth + 1).padStart(2, '0')}-01`; el.value = `${NamaBln[Picker.tempMonth]} ${Picker.tempYear}`; } hidePicker(); }
         function setTab(t) { tab = t; ['all', 'fav', 'exp'].forEach(x => $(`t-${x}`).className = t === x ? 'tab active' : 'tab'); window.scrollTo({ top: 0, behavior: 'instant' }); applyFiltersAndRender(); }
-        function computeDVS() { listOffsets = [0]; let cur = 0; for (let i = 0; i < filteredData.length; i++) { cur += filteredData[i]._cHeight || (tab === 'exp' ? 85 : 90); listOffsets.push(cur); } $('list').style.height = (cur + 150) + 'px'; }
+        
+        function computeDVS() { 
+            listOffsets = [0]; let cur = 0; 
+            for (let i = 0; i < filteredData.length; i++) { 
+                cur += filteredData[i]._cHeight || (tab === 'exp' ? 85 : 75); 
+                listOffsets.push(cur); 
+            } 
+            $('list').style.height = (cur + 150) + 'px'; 
+        }
+        
         function getDVSStartIndex(st) { let l = 0, h = listOffsets.length - 1; while (l <= h) { let m = Math.floor((l + h) / 2); if (listOffsets[m] === st) return m; if (listOffsets[m] < st) l = m + 1; else h = m - 1; } return h > 0 ? h : 0; }
         
         function applyFiltersAndRender(silentB = null) {
@@ -1311,42 +1291,58 @@
         function renderVirtualList(isScrolling = false) {
             const rend = $('render-container'), empty = $('empty-message-container'); if (isScrolling && swipedCardElem) swipedCardElem = null; 
             if (filteredData.length === 0) { $('list').style.height = '0px'; rend.innerHTML = ''; empty.innerHTML = `<div class="empty-msg">${tab === 'fav' ? "Belum ada favorit" : (tab === 'exp' ? "Tidak ada barang expired" : "Belum ada data")}</div>`; empty.classList.remove('hidden'); return; }
-            empty.classList.add('hidden'); let sy = window.scrollY, listTop = $('list').offsetTop || 188, offsetBuffer = $('sticky-roof-group').offsetHeight || 135, st = Math.max(0, sy - (listTop - offsetBuffer)), start = getDVSStartIndex(st), visH = window.innerHeight, end = start, curVisH = 0; start = Math.max(0, start - 15); while(end < filteredData.length && curVisH < visH + 1200) { curVisH += (filteredData[end]._cHeight || (tab === 'exp' ? 85 : 90)); end++; }
+            let sy = window.scrollY, listTop = $('list').offsetTop || 188, offsetBuffer = $('sticky-roof-group').offsetHeight || 135, st = Math.max(0, sy - (listTop - offsetBuffer)), start = getDVSStartIndex(st), visH = window.innerHeight, end = start, curVisH = 0; start = Math.max(0, start - 15); 
+            
+            while(end < filteredData.length && curVisH < visH + 1200) { curVisH += (filteredData[end]._cHeight || (tab === 'exp' ? 85 : 75)); end++; }
             if (isScrolling && start === lastStartIndex && end === lastEndIndex) return; lastStartIndex = start; lastEndIndex = end;
             rend.style.transform = `translateY(${listOffsets[start]}px)`; let html = ''; const today = Date.now(), sq = $('q').value.trim(); 
+            empty.classList.add('hidden');
+            
             for (let i = start; i < end; i++) {
                 const it = filteredData[i]; let diff = 999, expT = ''; if (it.exp) { let expDate = new Date(it.exp); expDate = new Date(expDate.getFullYear(), expDate.getMonth() + 1, 0); const utcExp = expDate.getTime(); if (!isNaN(utcExp)) { diff = Math.floor((utcExp - today) / 86400000); expT = formatBulanTahun(it.exp); } }
                 const safeName = escapeHTML(it.n), safeAcronym = escapeHTML(it.t || ''), dn = highlightMatch(safeName, sq);
                 
-                let barcodeDisplay = '- Tanpa Barcode -';
+                // SMART LABELS & AUTO-CAPITALIZE
+                const safeU1 = (it.u1 || '').trim();
+                const safeU2 = (it.u2 || '').trim();
+                const unit1 = safeU1 ? escapeHTML(safeU1.charAt(0).toUpperCase() + safeU1.slice(1)) : 'Satuan';
+                const unit2 = safeU2 ? escapeHTML(safeU2.charAt(0).toUpperCase() + safeU2.slice(1)) : 'Grosir';
+
+                // DYNAMIC BARCODE UI
+                let barcodeDisplay = '';
                 const safeB1 = it.b ? escapeHTML(it.b) : '';
                 const safeB2 = it.b2 ? escapeHTML(it.b2) : '';
+                
                 if (safeB1 && safeB2) {
-                    barcodeDisplay = `Satuan: ${safeB1} | Grosir: ${safeB2}`;
+                    barcodeDisplay = `<div class="card-barcode">Satuan: ${safeB1}</div><div class="card-barcode">Grosir: ${safeB2}</div>`;
                 } else if (safeB1) {
-                    barcodeDisplay = `Satuan: ${safeB1}`;
+                    barcodeDisplay = `<div class="card-barcode">Satuan: ${safeB1}</div>`;
                 } else if (safeB2) {
-                    barcodeDisplay = `Grosir: ${safeB2}`;
+                    barcodeDisplay = `<div class="card-barcode">Grosir: ${safeB2}</div>`;
                 }
 
                 if (tab === 'exp') {
                     const c = diff <= 30 ? 'var(--danger)' : (diff <= 90 ? '#FFA500' : (diff <= 180 ? '#FFD700' : 'var(--mono-main)')); html += `<div class="card card-exp-mode" id="c-${it.id}" style="will-change: transform;"><div class="info" style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:10px;"><div class="name" style="margin:0; flex:1; min-width:0;"><span>${dn}</span> <span class="card-badge">${safeAcronym}</span></div><div style="font-size:13px; font-weight:800; color:${c}; flex-shrink: 0;">${expT}</div></div></div>`;
                 } else {
-                    let exH = it.exp ? `<div class="card-exp ${diff < 0 ? 'danger' : (diff <= 90 ? 'warning' : '')}"><span>${diff < 0 ? '🚨' : (diff <= 90 ? '⚠️' : '📅')}</span> ${diff < 0 ? 'Kedaluwarsa!' : (diff <= 90 ? `Exp dlm ${diff} hari` : `Exp: ${expT}`)}</div>` : '', rightSideUI = '', swipeAttributes = '', trashBgHtml = '';
+                    let exH = it.exp ? `<div class="card-exp ${diff < 0 ? 'danger' : (diff <= 90 ? 'warning' : '')}"><span>${diff < 0 ? '🚨' : (diff <= 90 ? '⚠️' : '📅')}</span> ${diff < 0 ? 'Expired!' : (diff <= 90 ? `Exp dlm ${diff} hari` : `Exp: ${expT}`)}</div>` : '', rightSideUI = '', swipeAttributes = '', trashBgHtml = '';
                     if (!isCartMode) {
                         swipeAttributes = `ontouchstart="handleMainTouchStart(event)" ontouchmove="handleMainTouchMove(event, this)" ontouchend="handleMainTouchEnd(event, this, '${it.id}')"`;
                         trashBgHtml = `<div class="trash-trigger" onclick="del('${it.id}')" style="position:absolute; right:0; top:0; bottom:0; width:80px; background:transparent; display:flex; justify-content:center; align-items:center; color:var(--danger); z-index:1; cursor:pointer;"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></div>`;
                         rightSideUI = `<div class="action-btns-absolute"><button class="card-action-btn action-fav" data-id="${it.id}" style="color:${it.f?'var(--mono-main)':'var(--text-muted)'};"><svg pointer-events="none" viewBox="0 0 24 24" width="18" height="18" fill="${it.f?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button><button class="card-action-btn btn-edit-icon action-edit" data-id="${it.id}"><svg pointer-events="none" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button></div>`;
                     } else rightSideUI = `<div style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: auto;"><button class="btn-add-cart calc-add" data-id="${it.id}">+</button></div>`;
                     
-                    html += `<div style="position:relative; margin-bottom:12px;">${trashBgHtml}<div class="card" id="c-${it.id}" style="margin-bottom:0; z-index:2; will-change: transform;" ${swipeAttributes}><div class="info"><div class="name"><span>${dn}</span> <span class="card-badge">${safeAcronym}</span></div>${it.p1?`<div class="card-price-ecer">Satuan: Rp ${fmt(it.p1)}</div>`:''}${it.p2?`<div class="card-price-grosir">Grosir: Rp ${fmt(it.p2)}</div>`:''}<div class="card-barcode">${barcodeDisplay}</div>${exH}</div>${rightSideUI}</div></div>`;
+                    html += `<div style="position:relative; margin-bottom:12px;">${trashBgHtml}<div class="card" id="c-${it.id}" style="margin-bottom:0; z-index:2; will-change: transform;" ${swipeAttributes}><div class="info"><div class="name"><span>${dn}</span> <span class="card-badge">${safeAcronym}</span></div>${it.p1?`<div class="card-price-ecer">${unit1}: Rp ${fmt(it.p1)}</div>`:''}${it.p2?`<div class="card-price-grosir">${unit2}: Rp ${fmt(it.p2)}</div>`:''}${barcodeDisplay}${exH}</div>${rightSideUI}</div></div>`;
                 }
             }
             rend.innerHTML = html;
             requestAnimationFrame(() => {
                 let hc = false; const dom = rend.children;
                 for (let i = 0; i < dom.length; i++) {
-                    const h = dom[i].offsetHeight + 12, idx = start + i; if (filteredData[idx] && filteredData[idx]._cHeight !== h) { filteredData[idx]._cHeight = h; hc = true; }
+                    const h = dom[i].offsetHeight + 12, idx = start + i; 
+                    // DVS SHOCK ABSORBER (Toleransi 1 Pixel Anti-Glitch)
+                    if (filteredData[idx] && Math.abs((filteredData[idx]._cHeight || 0) - h) > 1) { 
+                        filteredData[idx]._cHeight = h; hc = true; 
+                    }
                 }
                 if (hc) computeDVS();
             });
@@ -1547,6 +1543,7 @@
                 
                 const chunkSize = 500;
                 let currentIndex = 0;
+                let rejectedCloudCount = 0; // PELINDUNG CLOUD FIREWALL
 
                 function processNextChunk() {
                     const chunk = dataCloud.slice(currentIndex, currentIndex + chunkSize);
@@ -1561,7 +1558,13 @@
                         renderCartUI(); 
                         applyFiltersAndRender(); 
                         isApiLoading = false; hideLoading(); 
-                        tampilkanToast(forceSync ? "Berhasil memuat ulang semua data!" : `Berhasil update ${dataCloud.length} data!`, "var(--mono-main)"); 
+                        
+                        // LAPORAN FIREWALL
+                        if (rejectedCloudCount > 0) {
+                            showAlert(`Update Selesai!<br><br><span style="color:var(--warning);">⚠️ ${rejectedCloudCount} data ditolak dari Cloud (Format rusak / Harga 0).</span>`, "Peringatan Sinkronisasi", "var(--warning)");
+                        } else {
+                            tampilkanToast(forceSync ? "Berhasil memuat ulang semua data!" : `Berhasil update ${dataCloud.length} data!`, "var(--mono-main)"); 
+                        }
                         return;
                     }
 
@@ -1570,6 +1573,12 @@
                     if (forceSync && currentIndex === 0) store.clear(); 
                     
                     chunk.forEach(itemCloud => { 
+                        // --- CLOUD FIREWALL (Menangkal Harga 0 & Data Rusak) ---
+                        if (!itemCloud.deleted && (!itemCloud.n || !itemCloud.p1 || isNaN(itemCloud.p1) || itemCloud.p1 === 0)) {
+                            rejectedCloudCount++;
+                            return; // Buang data beracun
+                        }
+
                         if (forceSync) {
                             tempMap.set(String(itemCloud.id), itemCloud); store.put(itemCloud);
                         } else {
@@ -1641,12 +1650,17 @@
                 tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'), tA = new Set(), ts = Date.now(); 
                 
                 let skippedCount = 0;
+                let failedCount = 0;
 
                 jD.forEach(ro => { 
-                    const n = prop(ro["Nama Barang"] || ro["Nama"]); if(!n) return; 
+                    const n = prop(ro["Nama Barang"] || ro["Nama"]); 
                     const p1Val = parseExcelPrice(ro["Harga Satuan"] || ro["Eceran"] || ro["Harga Eceran"]); 
                     
-                    if (p1Val === null || p1Val === undefined || isNaN(p1Val)) return; 
+                    // --- EXCEL GARBAGE REJECTOR ---
+                    if (!n || p1Val === null || p1Val === undefined || isNaN(p1Val) || p1Val === 0) { 
+                        failedCount++; 
+                        return; // Buang baris hancur
+                    } 
                     
                     let cT = ro["Singkatan"]; if (!cT) cT = generateSmartAcronym(n, null, tA); if (cT) tA.add(cT); 
                     const eI = ro["ID"] ? String(ro["ID"]).trim() : null;
@@ -1683,8 +1697,9 @@
                     worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
                     updateMaps(); clearSearch(); renderCartUI(); applyFiltersAndRender();
                     
-                    if (skippedCount > 0) {
-                        showAlert(`Import Selesai!<br><br><span style="color:var(--warning);">⚠️ ${skippedCount} baris diabaikan karena barcode kembar.</span>`, "Info Import", "var(--warning)");
+                    // --- REKAP LAPORAN IMPORT ---
+                    if (skippedCount > 0 || failedCount > 0) {
+                        showAlert(`Import Selesai!<br><br><span style="color:var(--warning);">⚠️ ${skippedCount} diabaikan (Barcode kembar).<br>❌ ${failedCount} gagal (Format harga rusak / 0).</span>`, "Info Import", "var(--warning)");
                     } else {
                         tampilkanToast("Import Selesai!"); 
                     }
