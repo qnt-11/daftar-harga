@@ -47,21 +47,39 @@
       "short_name": "Scan",
       "description": "Buka kamera untuk scan barang",
       "url": "./index.html?action=scan",
-      "icons": [{"src": "icon-scan.png", "sizes": "192x192", "type": "image/png"}]
+      "icons": [
+        {
+          "src": "icon-scan.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Keranjang",
       "short_name": "Keranjang",
       "description": "Lihat total belanjaan",
       "url": "./index.html?action=cart",
-      "icons": [{"src": "icon-cart.png", "sizes": "192x192", "type": "image/png"}]
+      "icons": [
+        {
+          "src": "icon-cart.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Tambah Barang Baru",
       "short_name": "Input Barang",
       "description": "Input barang ke dalam sistem",
       "url": "./index.html?action=add_item",
-      "icons": [{"src": "icon-add.png", "sizes": "192x192", "type": "image/png"}]
+      "icons": [
+        {
+          "src": "icon-add.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ],
   "screenshots": [
