@@ -5,29 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#000000">
     <title>Mode Darurat - DAFTAR HARGA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; touch-action: manipulation; }
         body { margin: 0; padding: 15px; background-color: #000000; color: #ffffff; font-family: 'Montserrat', sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .status-card { background-color: #151515; border: 1px solid #333333; border-radius: 12px; padding: 15px; width: 100%; max-width: 400px; text-align: center; margin-bottom: 15px; }
-        .status-card h2 { margin: 0 0 5px 0; font-size: 16px; color: #ff3b30; }
+        
+        .status-card { background-color: #151515; border: 1px solid #333333; border-radius: 12px; padding: 15px; width: 100%; max-width: 400px; text-align: center; margin-bottom: 15px; transition: all 0.3s ease; }
+        .status-card h2 { margin: 0 0 5px 0; font-size: 16px; color: #ff3b30; transition: color 0.3s ease; }
         .status-card p { margin: 0; font-size: 11px; color: #a0a0a0; line-height: 1.4; }
+        
         .ledger-container { width: 100%; max-width: 400px; margin-bottom: 15px; }
         .ledger-container label { display: block; font-size: 11px; color: #87CEFA; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; }
-        textarea { width: 100%; height: 120px; background-color: #111; border: 1px solid #333; border-radius: 12px; padding: 12px; color: #fff; font-size: 13px; font-family: inherit; resize: none; outline: none; }
+        textarea { width: 100%; height: 120px; background-color: #111; border: 1px solid #333; border-radius: 12px; padding: 12px; color: #fff; font-size: 13px; font-family: inherit; resize: none; outline: none; transition: border-color 0.2s; }
         textarea:focus { border-color: #87CEFA; }
+        
         .calc-container { width: 100%; max-width: 400px; background-color: #151515; border: 1px solid #333; border-radius: 16px; padding: 15px; }
         .calc-display { width: 100%; background: #000; border: 1px solid #333; border-radius: 8px; padding: 15px; font-size: 24px; text-align: right; color: #fff; margin-bottom: 15px; font-weight: 700; overflow-x: auto; white-space: nowrap; }
         .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .calc-btn { background-color: #222; color: #fff; border: 1px solid #444; border-radius: 8px; padding: 15px 0; font-size: 18px; font-weight: 700; cursor: pointer; outline: none; }
+        .calc-btn { background-color: #222; color: #fff; border: 1px solid #444; border-radius: 8px; padding: 15px 0; font-size: 18px; font-weight: 700; cursor: pointer; outline: none; transition: transform 0.1s, background-color 0.2s; }
         .calc-btn:active { transform: scale(0.95); background-color: #444; }
         .calc-btn.op { background-color: #ff9500; border-color: #cc7700; }
         .calc-btn.clear { background-color: #ff3b30; border-color: #cc2f26; }
-        button.reload-btn { background-color: #fff; color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 12px; font-weight: 800; width: 100%; margin-top: 10px; cursor: pointer; }
+        
+        button.reload-btn { background-color: #fff; color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 12px; font-weight: 800; width: 100%; margin-top: 10px; cursor: pointer; transition: transform 0.1s; outline: none; }
+        button.reload-btn:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
 
-    <div class="status-card">
+    <div class="status-card" id="status-card">
         <h2 id="status-title">⚠️ Sedang Offline</h2>
         <p id="status-desc">Koneksi terputus. Gunakan kalkulator & buku catatan darurat di bawah. Sistem otomatis memuat ulang saat sinyal kembali.</p>
         <button id="retry-btn" class="reload-btn" onclick="triggerReload('Mencoba...')">Coba Muat Ulang</button>
@@ -45,37 +51,95 @@
             <button class="calc-btn op" onclick="calcOp('/')">÷</button>
             <button class="calc-btn op" onclick="calcOp('*')">×</button>
             <button class="calc-btn clear" onclick="calcBack()"><small>DEL</small></button>
+            
             <button class="calc-btn" onclick="calcNum('7')">7</button>
             <button class="calc-btn" onclick="calcNum('8')">8</button>
             <button class="calc-btn" onclick="calcNum('9')">9</button>
             <button class="calc-btn op" onclick="calcOp('-')">-</button>
+            
             <button class="calc-btn" onclick="calcNum('4')">4</button>
             <button class="calc-btn" onclick="calcNum('5')">5</button>
             <button class="calc-btn" onclick="calcNum('6')">6</button>
             <button class="calc-btn op" onclick="calcOp('+')">+</button>
+            
             <button class="calc-btn" onclick="calcNum('1')">1</button>
             <button class="calc-btn" onclick="calcNum('2')">2</button>
             <button class="calc-btn" onclick="calcNum('3')">3</button>
             <button class="calc-btn op" onclick="calcCalculate()" style="grid-row: span 2; background-color: #3CB371; border-color: #2e8b57;">=</button>
+            
             <button class="calc-btn" onclick="calcNum('0')" style="grid-column: span 2;">0</button>
             <button class="calc-btn" onclick="calcNum('.')">,</button>
         </div>
     </div>
 
     <script>
-        const btn = document.getElementById('retry-btn'), title = document.getElementById('status-title'), desc = document.getElementById('status-desc');
-        function triggerReload(text) { btn.innerText = text; btn.disabled = true; window.location.reload(); setTimeout(() => { btn.innerText = "Coba Muat Ulang"; btn.disabled = false; }, 3000); }
-        window.addEventListener('online', () => { title.innerText = "✅ Sinyal Ditemukan!"; title.style.color = "#3CB371"; desc.innerText = "Internet kembali. Memuat ulang..."; triggerReload("Memuat Ulang..."); });
+        const btn = document.getElementById('retry-btn');
+        const title = document.getElementById('status-title');
+        const desc = document.getElementById('status-desc');
+        const statusCard = document.getElementById('status-card');
 
-        const ledger = document.getElementById('offline-ledger'), DB_NAME = 'KasirOfflineDB', STORE_NAME = 'CatatanDarurat'; let db;
+        function triggerReload(text) { 
+            btn.innerText = text; 
+            btn.disabled = true; 
+            window.location.reload(); 
+            setTimeout(() => { 
+                btn.innerText = "Coba Muat Ulang"; 
+                btn.disabled = false; 
+            }, 3000); 
+        }
+
+        window.addEventListener('online', () => { 
+            title.innerText = "✅ Sinyal Ditemukan!"; 
+            title.style.color = "#3CB371"; 
+            statusCard.style.borderColor = "#3CB371";
+            desc.innerText = "Internet kembali. Memuat ulang aplikasi kasir utama..."; 
+            
+            const currentText = document.getElementById('offline-ledger').value;
+            if (currentText && currentText.trim() !== '') {
+                try {
+                    const tx = db.transaction([STORE_NAME], 'readwrite');
+                    tx.objectStore(STORE_NAME).put({ id: 1, text: currentText });
+                } catch (e) {
+                    localStorage.setItem('DB_WA_OFFLINE_LEDGER', currentText);
+                }
+            }
+            
+            triggerReload("Memuat Ulang..."); 
+        });
+
+        const ledger = document.getElementById('offline-ledger');
+        const DB_NAME = 'KasirOfflineDB';
+        const STORE_NAME = 'CatatanDarurat'; 
+        let db;
+        
         const requestDB = indexedDB.open(DB_NAME, 1);
-        requestDB.onupgradeneeded = function(e) { db = e.target.result; if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME, { keyPath: 'id' }); };
-        requestDB.onsuccess = function(e) { db = e.target.result; loadLedger(); };
-        requestDB.onerror = function() { const t = localStorage.getItem('DB_WA_OFFLINE_LEDGER'); if (t) ledger.value = t; };
+        requestDB.onupgradeneeded = function(e) { 
+            db = e.target.result; 
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME, { keyPath: 'id' }); 
+            }
+        };
+        requestDB.onsuccess = function(e) { 
+            db = e.target.result; 
+            loadLedger(); 
+        };
+        requestDB.onerror = function() { 
+            const t = localStorage.getItem('DB_WA_OFFLINE_LEDGER'); 
+            if (t) ledger.value = t; 
+        };
 
         function loadLedger() {
-            const tx = db.transaction([STORE_NAME], 'readonly'), store = tx.objectStore(STORE_NAME), req = store.get(1);
-            req.onsuccess = function() { if (req.result) ledger.value = req.result.text; };
+            try {
+                const tx = db.transaction([STORE_NAME], 'readonly');
+                const store = tx.objectStore(STORE_NAME);
+                const req = store.get(1);
+                req.onsuccess = function() { 
+                    if (req.result) ledger.value = req.result.text; 
+                };
+            } catch (error) {
+                const t = localStorage.getItem('DB_WA_OFFLINE_LEDGER'); 
+                if (t) ledger.value = t; 
+            }
         }
 
         let saveTimeout;
@@ -83,34 +147,81 @@
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
                 if (db) {
-                    const tx = db.transaction([STORE_NAME], 'readwrite');
-                    tx.objectStore(STORE_NAME).put({ id: 1, text: ledger.value });
-                } else { localStorage.setItem('DB_WA_OFFLINE_LEDGER', ledger.value); }
+                    try {
+                        const tx = db.transaction([STORE_NAME], 'readwrite');
+                        tx.objectStore(STORE_NAME).put({ id: 1, text: ledger.value });
+                    } catch (e) {
+                        localStorage.setItem('DB_WA_OFFLINE_LEDGER', ledger.value);
+                    }
+                } else { 
+                    localStorage.setItem('DB_WA_OFFLINE_LEDGER', ledger.value); 
+                }
             }, 500); 
         }
 
-        const display = document.getElementById('calc-display'); let calcVal = '0';
+        const display = document.getElementById('calc-display'); 
+        let calcVal = '0';
+        let isResultDisplayed = false; 
+
         function updateDisplay() {
             let parts = calcVal.split(/([\+\-\*\/])/);
             let str = parts.map(p => {
                 if (p.match(/[\+\-\*\/]/) || p.includes('e')) return p; 
-                let numParts = p.split('.'); numParts[0] = numParts[0].replace(/\B(?=(\d{3})+(?!\d))/g, "."); 
+                let numParts = p.split('.'); 
+                numParts[0] = numParts[0].replace(/\B(?=(\d{3})+(?!\d))/g, "."); 
                 return numParts.join(','); 
             }).join('');
             display.innerText = str.replace(/\*/g, '×').replace(/\//g, '÷');
         }
-        function calcNum(n) { const p = calcVal.split(/[\+\-\*\/]/), curr = p[p.length - 1]; if (n === '.' && curr.includes('.')) return; if (curr === '0' && n !== '.') calcVal = calcVal.slice(0, -1) + n; else calcVal += n; updateDisplay(); }
-        function calcOp(op) { if (calcVal.match(/[\+\-\*\/]$/)) calcVal = calcVal.slice(0, -1) + op; else calcVal += op; updateDisplay(); }
-        function calcClear() { calcVal = '0'; updateDisplay(); }
-        function calcBack() { calcVal = calcVal.length > 1 ? calcVal.slice(0, -1) : '0'; updateDisplay(); }
+
+        function calcNum(n) { 
+            if (isResultDisplayed) {
+                calcVal = '0';
+                isResultDisplayed = false;
+            }
+            const p = calcVal.split(/[\+\-\*\/]/);
+            const curr = p[p.length - 1]; 
+            if (n === '.' && curr.includes('.')) return; 
+            if (curr === '0' && n !== '.') calcVal = calcVal.slice(0, -1) + n; 
+            else calcVal += n; 
+            updateDisplay(); 
+        }
+
+        function calcOp(op) { 
+            isResultDisplayed = false; 
+            if (calcVal.match(/[\+\-\*\/]$/)) calcVal = calcVal.slice(0, -1) + op; 
+            else calcVal += op; 
+            updateDisplay(); 
+        }
+
+        function calcClear() { 
+            calcVal = '0'; 
+            isResultDisplayed = false;
+            updateDisplay(); 
+        }
+
+        function calcBack() { 
+            if (isResultDisplayed) {
+                calcClear();
+                return;
+            }
+            calcVal = calcVal.length > 1 ? calcVal.slice(0, -1) : '0'; 
+            updateDisplay(); 
+        }
+
         function calcCalculate() {
             try {
-                let safeVal = calcVal.match(/[\+\-\*\/]$/) ? calcVal.slice(0, -1) : calcVal;
+                let safeVal = calcVal.replace(/[\+\-\*\/\.]$/, '');
                 let result = new Function('return ' + safeVal)();
                 if (!isFinite(result) || isNaN(result) || result === Infinity || result === -Infinity) result = 0; 
                 if (result % 1 !== 0) result = parseFloat(result.toFixed(4)); 
-                calcVal = String(result); updateDisplay();
-            } catch (e) { display.innerText = "Error"; setTimeout(calcClear, 1000); }
+                calcVal = String(result); 
+                isResultDisplayed = true; 
+                updateDisplay();
+            } catch (e) { 
+                display.innerText = "Error"; 
+                setTimeout(calcClear, 1000); 
+            }
         }
     </script>
 </body>
