@@ -2,7 +2,7 @@
 // SERVICE WORKER (PWA KASIR ENTERPRISE)
 // ======================================
 
-const APP_VERSION = '1.0.3'; // Naikkan angka ini jika Anda mengubah isi file index.html
+const APP_VERSION = '1.0.4'; // Naikkan angka ini jika Anda mengubah isi file index.html
 const CACHE_CORE = 'core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
 const CACHE_CDN = 'cdn-v1'; 
