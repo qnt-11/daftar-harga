@@ -1,15 +1,14 @@
-// ======================================
+// ==========================================
 // SERVICE WORKER (PWA KASIR ENTERPRISE)
-// ======================================
+// ==========================================
 
-const APP_VERSION = '1.0.5'; // Naikkan angka ini jika Anda mengubah isi file index.html
+const APP_VERSION = '11.4'; // Naikkan angka ini jika Anda mengubah isi file index.html
 const CACHE_CORE = 'core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
 const CACHE_CDN = 'cdn-v1'; 
 
 const MAX_DYNAMIC_ITEMS = 50; 
 const MAX_CDN_ITEMS = 20;
-const NETWORK_TIMEOUT = 8000; // Waktu tunggu internet (8 detik) sebelum beralih ke mode offline
 
 // Daftar file pondasi yang WAJIB diunduh saat instalasi pertama agar aplikasi bisa jalan tanpa internet
 const coreUrls = [
@@ -70,22 +69,6 @@ async function manageStorage() {
   }
 }
 
-// Fungsi untuk memberikan batas waktu koneksi internet
-function fetchWithTimeout(request, timeout = 5000) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-  return fetch(request, { signal: controller.signal })
-    .then(res => {
-      clearTimeout(timeoutId); 
-      return res;
-    })
-    .catch(err => {
-      if (err.name === 'AbortError') throw new Error('TIMEOUT');
-      throw err; 
-    });
-}
-
 // ==========================================
 // SIKLUS HIDUP SERVICE WORKER
 // ==========================================
@@ -135,40 +118,43 @@ self.addEventListener('fetch', event => {
   // BYPASS: Jangan ikut campur jika itu API Google Sheets atau bukan permintaan GET
   if (req.method !== 'GET' || url.hostname.includes('script.google') || !url.protocol.startsWith('http')) return;
 
-  // STRATEGI 1: Network-First (Utamakan Internet) khusus untuk file HTML
+  // STRATEGI 1: Stale-While-Revalidate untuk File Utama (Ultra-Fast Load)
+  // Perubahan Logika QA: Merender UI seketika (0 detik) dari memori tanpa menunggu koneksi lambat.
   if (req.mode === 'navigate' || url.pathname === '/' || url.pathname.includes('index.html')) {
     event.respondWith(
-      fetchWithTimeout(req, NETWORK_TIMEOUT)
-        .then(res => {
-          if (!res.ok) throw new Error('Server Error');
-          const resClone = res.clone();
-          
-          // Bersihkan URL dari parameter tambahan (bloatware) sebelum disimpan
-          const cleanUrl = req.url.split('?')[0]; 
-          event.waitUntil(caches.open(CACHE_CORE).then(cache => cache.put(cleanUrl, resClone))); 
-          
-          return res;
-        })
-        .catch(async () => {
-          const cache = await caches.open(CACHE_CORE);
-          const cleanReqUrl = req.url.split('?')[0];
-          
-          // Buka dari memori HP jika internet mati
-          const cachedIndex = await cache.match(cleanReqUrl) || 
-                              await cache.match('./index.html') || 
-                              await cache.match('./');
-          if (cachedIndex) return cachedIndex; 
-          
-          // Tampilkan halaman darurat jika file utama belum ada di memori
-          const offlinePage = await cache.match('./offline.html');
-          if (offlinePage) return offlinePage;
+      caches.open(CACHE_CORE).then(async cache => {
+        const cleanReqUrl = req.url.split('?')[0];
+        const cachedRes = await cache.match(cleanReqUrl) || 
+                          await cache.match('./index.html') || 
+                          await cache.match('./');
 
-          // Halaman darurat tingkat akhir
-          return new Response(
-            `<!DOCTYPE html><html><body style="background:#000;color:#f00;text-align:center;padding:50px;font-family:sans-serif;"><h2>⚠️ Sedang Offline</h2><p>Aplikasi belum tersimpan di memori HP. Hubungkan ke internet untuk membuka pertama kali.</p></body></html>`,
-            { headers: { 'Content-Type': 'text/html' } }
-          );
-        })
+        const networkFetch = fetch(req).then(res => {
+          if (res.ok) {
+            cache.put(cleanReqUrl, res.clone());
+          }
+          return res;
+        }).catch(() => null);
+
+        // Jika ada di cache, langsung berikan (0 detik loading). Biarkan networkFetch jalan di belakang.
+        if (cachedRes) {
+            event.waitUntil(networkFetch); 
+            return cachedRes;
+        }
+
+        // Jika belum ada di cache (misal akses pertama kali), tunggu networkFetch selesai
+        const res = await networkFetch;
+        if (res) return res;
+
+        // Tampilkan halaman darurat jika file utama belum ada di memori dan jaringan mati
+        const offlinePage = await cache.match('./offline.html');
+        if (offlinePage) return offlinePage;
+
+        // Halaman darurat tingkat akhir (Failsafe)
+        return new Response(
+          `<!DOCTYPE html><html><body style="background:#000;color:#f00;text-align:center;padding:50px;font-family:sans-serif;"><h2>⚠️ Sedang Offline</h2><p>Aplikasi belum tersimpan di memori HP. Hubungkan ke internet untuk membuka pertama kali.</p></body></html>`,
+          { headers: { 'Content-Type': 'text/html' } }
+        );
+      })
     );
     return;
   }
@@ -209,7 +195,7 @@ self.addEventListener('fetch', event => {
           event.waitUntil(caches.open(CACHE_DYNAMIC).then(async cache => {
             const cleanUrl = req.url.split('?')[0];
             try {
-              // SABUK PENGAMAN KEDUA: Cegah Crash jika memori HP pengguna benar-benar 0 Bytes
+              // SABUK PENGAMAN KEDUA: Cegah Crash jika memori HP pengguna benar-benar penuh
               await cache.put(cleanUrl, resClone); 
               await trimCache(CACHE_DYNAMIC, MAX_DYNAMIC_ITEMS); 
             } catch (err) {
