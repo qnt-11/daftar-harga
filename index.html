@@ -35,37 +35,10 @@
         }
 
         /* --- PENGATURAN DASAR --- */
-        html { 
-            overscroll-behavior: none; 
-            background-color: #000000;
-        }
+        html { overscroll-behavior: none; background-color: #000000; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-        
-        body { 
-            margin: 0; 
-            background: var(--wa-bg); 
-            color: var(--text-light); 
-            font-family: 'Montserrat', sans-serif; 
-            font-weight: 500; 
-            overflow-x: hidden; 
-            width: 100%; 
-            min-height: 100vh;
-            position: relative; 
-            color-scheme: dark; 
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            top: -2px; 
-            left: 0;
-            right: 0;
-            height: 4px; 
-            background-color: #000000;
-            z-index: 999999; 
-            pointer-events: none; 
-        }
-        
+        body { margin: 0; background: var(--wa-bg); color: var(--text-light); font-family: 'Montserrat', sans-serif; font-weight: 500; overflow-x: hidden; width: 100%; min-height: 100vh; position: relative; color-scheme: dark; }
+        body::before { content: ""; position: fixed; top: -2px; left: 0; right: 0; height: 4px; background-color: #000000; z-index: 999999; pointer-events: none; }
         .hidden { display: none !important; }
         .audiowide-regular { font-family: "Audiowide", sans-serif !important; font-weight: 400 !important; }
         body.modal-open { overflow: hidden !important; touch-action: none; }
@@ -85,25 +58,14 @@
         #toast-notification   { z-index: 6000; }
 
         /* --- HEADER & TOMBOL --- */
-        .header { 
-            padding: calc(15px + env(safe-area-inset-top, 0px)) 20px 15px 20px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            background: var(--wa-header); 
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); 
-            margin-bottom: 15px; 
-            border-top: none !important;
-            border-bottom: none !important;
-        }
-
+        .header { padding: calc(15px + env(safe-area-inset-top, 0px)) 20px 15px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--wa-header); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); margin-bottom: 15px; border-top: none !important; border-bottom: none !important; }
         .header-left { display: flex; flex-direction: column; justify-content: center; }
         .header h1 { font-size: 18px; margin: 0; color: var(--text-light); }
         .header-date-location { font-size: 10px; color: var(--text-muted); margin-top: 2px; font-weight: 600; letter-spacing: 0.5px; }
-        
         .top-btns { display: flex; gap: 10px; color: var(--text-light); align-items: center; }
         .icon-btn { cursor: pointer; background: none; border: none; padding: 6px; color: inherit; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; position: relative; width: 44px; height: 44px; outline: none; }
         .icon-btn:active { transform: scale(0.9); opacity: 0.8; }
         .header-upload-btn { display: flex; flex-direction: column; gap: 2px; color: #87CEFA; padding: 0; }
-        
         .dropdown-wrapper { position: relative; display: flex; align-items: center; }
         .dropdown-content { position: absolute; top: 48px; right: 0; background: rgba(21, 21, 21, 0.98); backdrop-filter: blur(8px); min-width: 180px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.9); overflow: hidden; border: 1px solid var(--border-color); border-top: 1px solid rgba(255,255,255,0.15); border-left: 1px solid rgba(255,255,255,0.05); }
         .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 15px 16px; color: var(--text-light); font-size: 13px; font-weight: 500; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); min-height: 44px; }
@@ -118,7 +80,6 @@
         /* --- SEARCH & TABS --- */
         .sticky-roof-group { position: sticky; top: 0; display: flex; flex-direction: column; background: var(--wa-bg); }
         .sticky-roof-group::after { content: ''; position: absolute; bottom: -15px; left: 0; right: 0; height: 15px; background: linear-gradient(to bottom, var(--wa-bg) 0%, transparent 100%); pointer-events: none; }
-
         #cart-panel-container { display: none; max-height: var(--cart-h); height: auto; flex-direction: column; transition: max-height 0.3s ease; }
         .cp-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px 8px 16px; background: transparent; border-bottom: none; flex-shrink: 0; border-top: none !important; }
         .cp-title-box { display: flex; flex-direction: column; }
@@ -126,7 +87,6 @@
         .cp-btn:active { transform: scale(0.95); background: var(--highlight-bg); }
         .cp-btn.reset { border-color: var(--danger); color: var(--danger); }
         .cp-btn.reset:active { background: rgba(255, 59, 48, 0.15); }
-        
         .cp-list { flex: 1; overflow-y: auto; padding: 0 16px 60px; overscroll-behavior: contain; -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%); mask-image: linear-gradient(to bottom, black 85%, transparent 100%); transition: mask-image 0.3s, -webkit-mask-image 0.3s; overflow-x: hidden; }
         .cp-item-wrap { position: relative; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .cp-trash-bg { position: absolute; right: 0; top: 0; bottom: 0; width: 80px; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--danger); cursor: pointer; }
@@ -136,42 +96,34 @@
         .cpi-calc { font-size: 12px; color: var(--text-muted); font-weight: 600; }
         .cpi-total { font-size: 15px; font-weight: 800; color: var(--mono-main); text-align: right; }
         .cpi-empty { text-align: center; color: #555; font-size: 12px; font-weight: 600; padding: 30px 0; }
-        
         .qty-input-manual { width: 48px; text-align: center; background: var(--wa-card); border: 1px solid var(--border-color); color: var(--mono-main); font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 16px; border-radius: 8px; padding: 8px 0; outline: none; margin-left: 15px; }
         .qty-input-manual:focus { border-color: var(--mono-main); }
-
         .search-area { display: flex; flex-direction: column; gap: 6px; padding: 8px 16px 12px 16px; position: relative; }
         .search-row-1 { display: flex; width: 100%; gap: 10px; align-items: center; }
         .search-box { flex: 1; display: flex; align-items: center; height: 46px; background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 0 12px; position: relative; }
         .search-box input { width: 100%; background: transparent; border: none; padding: 14px 44px 14px 5px; color: var(--text-light); font-size: 16px; font-family: 'Montserrat', sans-serif; font-weight: 600; outline: none; }
         .search-icon { width: 20px; height: 20px; color: var(--text-muted); pointer-events: none; margin-right: 8px; flex-shrink: 0; }
         .q-clear { position: absolute; right: 2px; top: 2px; bottom: 2px; display: none; width: 44px; cursor: pointer; align-items: center; justify-content: center; }
-        
         .search-summary-wrap { width: 100%; text-align: left; }
         .search-summary { font-size: 10px; color: var(--mono-main); font-weight: 600; letter-spacing: 0.5px; margin-left: 5px; }
         .highlight { background-color: var(--highlight-bg); color: #ffffff; border-radius: 3px; padding: 0 2px; }
-
         .search-dropdown-box { position: absolute; top: 100%; left: 0; right: 0; margin-top: 8px; background: rgba(21, 21, 21, 0.98); border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 15px 35px rgba(0,0,0,0.9); overflow: hidden; }
         .sd-title { font-size: 10px; color: var(--text-muted); padding: 12px 16px 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
         .sd-title span.clear-btn { color: var(--danger); cursor: pointer; font-size: 9px; padding: 12px; margin: -12px; display: flex; align-items: center; justify-content: center; }
         .sd-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; min-height: 44px; color: var(--text-light); font-size: 13px; font-weight: 600; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .sd-item:active { background-color: rgba(255,255,255,0.15); }
-
         .tabs-row { display: flex; align-items: center; padding: 5px 12px 15px 12px; gap: 6px; position: relative; width: 100%; overflow: hidden; }
         .tab { padding: 8px 12px; border-radius: 8px; background: var(--wa-card); border: 1px solid var(--border-color); font-size: 10.5px; color: var(--text-muted); cursor: pointer; font-weight: 700; font-family: 'Montserrat', sans-serif; text-transform: uppercase; transition: 0.2s; outline: none; min-height: 40px; display: flex; align-items: center; justify-content: center; white-space: nowrap; }
         .tab.active { background: rgba(255, 255, 255, 0.15); color: var(--mono-main); border-color: var(--mono-main); box-shadow: 0 0 8px rgba(255, 255, 255, 0.1); }
-        
         #t-cart { padding: 10px 14px; margin-left: 0; }
         #t-cart svg { color: var(--text-muted); transition: color 0.2s; }
         #t-cart.active svg { color: var(--mono-main); }
-
         .sort-btn { flex-shrink: 0; color: var(--text-muted); cursor: pointer; display: flex; flex-direction: column; gap: 4px; outline: none; padding: 0; background: transparent; border: none; align-items: center; justify-content: center; }
         .sort-btn span { display: block; height: 2px; background: currentColor; border-radius: 2px; transition: background 0.2s; }
         .sort-btn span:nth-child(1) { width: 18px; }
         .sort-btn span:nth-child(2) { width: 12px; }
         .sort-btn span:nth-child(3) { width: 6px; }
         .sort-btn.active span { background: var(--mono-main); color: var(--mono-main); }
-        
         #s-btn-tabs { width: 44px; height: 44px; margin-left: auto; margin-right: 12px !important; flex-shrink: 0; align-items: flex-end; }
         #s-btn-search { display: none; width: 46px; height: 46px; background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; margin-right: 0; }
 
@@ -179,19 +131,8 @@
         .list { position: relative; padding-bottom: 50px; padding-top: 12px; width: 100%; overflow-x: hidden; } 
         body.is-scrolling .render-container { pointer-events: none; }
         .render-container { position: absolute; top: 12px; left: 0; width: 100%; padding-left: 16px; padding-right: 16px; will-change: transform; transform: translateZ(0); }
-        
-        .card { 
-            position: relative; display: flex; align-items: flex-start; padding: 15px 18px 15px 18px; 
-            padding-right: 90px; background: var(--wa-card); border: 1px solid var(--border-color); 
-            border-radius: 12px; height: auto; overflow: hidden; 
-            box-sizing: border-box; touch-action: pan-y;
-            content-visibility: auto; 
-            contain-intrinsic-size: 75px; 
-            contain: content; 
-        }
-
+        .card { position: relative; display: flex; align-items: flex-start; padding: 15px 18px 15px 18px; padding-right: 90px; background: var(--wa-card); border: 1px solid var(--border-color); border-radius: 12px; height: auto; overflow: hidden; box-sizing: border-box; touch-action: pan-y; content-visibility: auto; contain-intrinsic-size: 75px; contain: content; }
         .card-exp-mode { height: auto !important; min-height: 70px !important; padding-bottom: 15px !important; align-items: center !important; padding-right: 18px !important; }
-        
         .info { flex: 1; min-width: 0; pointer-events: none; }
         .name { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--text-light); display: flex; align-items: center; }
         .name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -202,19 +143,15 @@
         .card-exp { font-size: 11px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 4px;}
         .card-exp.warning { color: var(--warning); }
         .card-exp.danger { color: var(--danger); }
-        
         .action-btns-absolute { position: absolute; bottom: 8px; right: 8px; display: flex; gap: 2px; }
         .card-action-btn { width: 44px; height: 44px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0.85; border-radius: 8px; outline: none; transition: background-color 0.15s ease, opacity 0.15s ease; }
         .card-action-btn:active { background: rgba(255,255,255,0.1); opacity: 1; }
         .btn-edit-icon { color: var(--mono-main); }
-
         .btn-add-cart { width: 40px; height: 40px; background: #000000; color: #ffffff; border: 2px solid var(--border-color); border-radius: 12px; font-size: 24px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8); outline: none; transition: transform 0.2s, border-color 0.2s; }
         .btn-add-cart:active { transform: scale(0.9); border-color: var(--mono-sec); }
-
         .empty-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; color: #555555; font-size: 12px; font-weight: 600; text-align: center; letter-spacing: 0.5px; pointer-events: none; }
         .scroll-letter { position: fixed; right: 20px; top: 50%; color: rgba(255, 255, 255, 0.7); font-size: 30px; font-weight: 800; opacity: 0; pointer-events: none; text-shadow: 0px 4px 15px rgba(0, 0, 0, 1), 0px 0px 5px rgba(0, 0, 0, 0.8); transform: translateY(-50%) scale(0.7); transition: opacity 0.2s ease, transform 0.2s ease-out; }
         .scroll-letter.show { opacity: 1; transform: translateY(-50%) scale(1); }
-
         .fab { position: fixed; bottom: calc(30px + env(safe-area-inset-bottom, 0px)); right: 20px; background: #000000; width: 60px; height: 60px; border-radius: 18px; display: flex; justify-content: center; align-items: center; border: 2px solid var(--border-color); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8); z-index: 800; cursor: pointer; transition: transform 0.2s, border-color 0.2s; outline: none; }
         .fab:active { transform: scale(0.9); border-color: var(--mono-sec); }
 
@@ -224,27 +161,22 @@
         #pin-modal { align-items: flex-start; padding-top: 15vh; overflow-y: auto; }
         #pin-box { margin: 0 auto; }
         @keyframes popInBouncy { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-        
         .modal-box label { display: block; font-size: 10px; color: #888888; margin-bottom: 6px; margin-top: 14px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
         .modal-box label:first-child { margin-top: 0; }
         .modal-box input, .modal-box textarea { width: 100%; padding: 12px 14px; background: var(--wa-bg); border: 1px solid var(--border-color); color: var(--text-light); font-size: 14px; font-family: 'Montserrat', sans-serif; font-weight: 600; outline: none; border-radius: 8px; transition: border-color 0.2s; margin-bottom: 2px;}
         .modal-box input:focus, .modal-box textarea:focus { border-color: var(--mono-main); }
         
-        /* FORM GRID 70:30 & HYBRID INPUT CSS */
         .form-grid { display: flex; gap: 10px; margin-top: 14px; align-items: flex-start;}
         .form-grid .col-price { flex: 7; }
         .form-grid .col-price label { margin-top: 0; }
         .form-grid .col-unit { flex: 3; }
         .form-grid .col-unit label { margin-top: 0; }
-        
         .quick-chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; width: 100%; }
         .q-chip { padding: 6px 12px; background: #222; border: 1px solid var(--border-color); border-radius: 6px; font-size: 11px; font-weight: 700; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: 0.2s; }
         .q-chip:active { background: var(--mono-main); color: #000; transform: scale(0.95); }
         .q-chip-del { color: var(--danger); border-color: rgba(255,59,48,0.3); }
-
         #wrap-iq { display: none; margin-top: 14px; animation: slideDown 0.2s ease-out; }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
         .barcode-row { display: flex; gap: 8px; align-items: center; }
         .modal-box input[id^="i-b"] { flex: 1; margin: 0; }
         .modal-box button[onclick*="openScanner"] { background: var(--wa-bg); border: 1px solid var(--border-color); border-radius: 8px; height: 44px; width: 46px; transition: all 0.2s ease; outline:none; display:flex; justify-content:center; align-items:center; }
@@ -275,23 +207,10 @@
         #reader { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
         #reader video { object-fit: cover; width: 100%; height: 100%; }
         #qr-shaded-region { display: none !important; } 
-
         .scanner-overlay { position: absolute; inset: 0; pointer-events: none; display: flex; justify-content: center; align-items: center; }
-        
-        .scanner-box { 
-            width: 260px; 
-            height: 180px; 
-            border: 2px solid #ffffff; 
-            border-radius: 16px; 
-            position: relative; 
-            overflow: hidden; 
-            box-shadow: 0 0 0 4000px rgba(0,0,0,0.85); 
-            transform: translateY(-15vh);
-        }
-        
+        .scanner-box { width: 260px; height: 180px; border: 2px solid #ffffff; border-radius: 16px; position: relative; overflow: hidden; box-shadow: 0 0 0 4000px rgba(0,0,0,0.85); transform: translateY(-15vh); }
         .scanner-laser { width: 100%; height: 2px; background: red; position: absolute; box-shadow: 0 0 15px 2px red; animation: scan-anim 2s infinite ease-in-out; }
         @keyframes scan-anim { 0% { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
-        
         .scan-stop { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); background: #000000; color: var(--danger); border: 1px solid var(--danger); padding: 15px 40px; border-radius: 12px; font-weight: 700; font-family: 'Montserrat', sans-serif; cursor: pointer; min-height: 48px; pointer-events: auto; letter-spacing: 1px; outline:none;}
         .btn-torch { position: absolute; top: 40px; right: 20px; width: 46px; height: 46px; border-radius: 23px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.3); color: #ffffff; display: flex; justify-content: center; align-items: center; cursor: pointer; pointer-events: auto; backdrop-filter: blur(5px); transition: all 0.2s ease; outline: none; }
         .btn-torch:active { transform: scale(0.9); }
@@ -303,10 +222,7 @@
         body.mode-kasir #cart-panel-container { display: flex; }
         body.mode-kasir #s-btn-search { display: flex; }
         body.mode-kasir.search-focus { --cart-h: 15vh; }
-        
-        body.mode-kasir .sticky-roof-group { 
-            padding-top: env(safe-area-inset-top, 0px); 
-        }
+        body.mode-kasir .sticky-roof-group { padding-top: env(safe-area-inset-top, 0px); }
     </style>
 </head>
 <body>
@@ -523,7 +439,7 @@
     <div id="pin-modal" class="modal" onclick="if(event.target===this) closePinModal()">
         <div class="modal-box" id="pin-box" style="text-align: center; border-color: var(--danger);">
             <h3 style="margin-top:0; font-size:15px; color: var(--danger);">Otorisasi Dibutuhkan</h3>
-            <p style="font-size:11px; color:#888; margin-bottom:20px;">Masukkan PIN hapus massal.</p>
+            <p style="font-size:11px; color:#888; margin-bottom:20px;">Masukkan PIN!</p>
             <input type="password" id="pin-input" inputmode="numeric" placeholder="••••••" style="text-align:center; letter-spacing:5px;">
             <div class="modal-btns" style="margin-top: 15px;">
                 <button class="btn-main btn-cancel" onclick="closePinModal()">BATAL</button>
@@ -579,7 +495,7 @@
     <script>
         // --- KONFIGURASI & VARIABEL GLOBAL ---
         const $ = (id) => document.getElementById(id);
-        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbyUU4m1eYgOrDOcZ36sjOnQxz-DnQi16gYzQxHP1m1s728VhFX0fEOqJFy_pGU0_PGQ/exec";
+        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbyHQ_gtR4K84-LMM_7OCM6XIL1x9W8BlidWV5KkQxKlUkZD0pho2JzbbYN1WG7Wh41d/exec";
         const NamaBln = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         const NamaBlnPendek = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 
@@ -617,7 +533,6 @@
             }, 300);
         }
 
-        /* --- UI HELPERS GLOBAL FOCUS --- */
         document.addEventListener('focus', function(e) {
             if (e.target.tagName && e.target.tagName.toLowerCase() === 'input' && e.target.closest('.modal-box')) {
                 setTimeout(() => {
@@ -626,7 +541,6 @@
             }
         }, true);
 
-        /* --- WAKELOCK & DEBOUNCE --- */
         let wakeLock = null;
         let isRequestingWakeLock = false; 
         async function requestWakeLock() {
@@ -667,7 +581,6 @@
             }
         });
 
-        /* --- UI HELPERS --- */
         function tampilkanToast(msg, color="var(--mono-main)") { 
             const t = $('toast-notification'); 
             $('toast-message').innerText = msg; 
@@ -682,7 +595,6 @@
             }, 3000); 
         }
 
-        /* --- DATABASE HELPERS --- */
         function initDB() { 
             return new Promise((resolve, reject) => { 
                 const req = indexedDB.open('HargaDB_Pro', 1); 
@@ -757,7 +669,6 @@
             return tryAcr + c; 
         }
 
-        /* --- GLOBAL AUDIO ENGINE --- */
         let globalAudioCtx = null; 
         function playBeep() { 
             try { 
@@ -810,12 +721,78 @@
             return pt.length === 3 ? `${pt[0].length === 4 ? pt[0] : pt[2]}-${String(pt[1]).padStart(2, '0')}-${String(pt[0].length === 4 ? pt[2] : pt[0]).padStart(2, '0')}` : ''; 
         }
 
+                // --- 🛡️ SMART PARSER & NORMALIZER 🛡️ ---
         function parseExcelPrice(val) { 
-            if (!val) return null; 
-            let num = Number(val); 
-            if (!isNaN(num)) return Math.floor(num); 
-            let s = String(val).trim().replace(/Rp\s?/gi, ''); 
-            return parseInt(/^\d{1,3}(,\d{3})*(\.\d+)?$/.test(s) ? s.replace(/,/g, '').split('.')[0] : /^\d{1,3}(\.\d{3})*(,\d+)?$/.test(s) ? s.replace(/\./g, '').split(',')[0] : s.split(',')[0].split('.')[0].replace(/\D/g, ''), 10) || 0; 
+            if (val === undefined || val === null || val === '') return 0; 
+            if (typeof val === 'number') return Math.floor(val);
+            
+            let str = String(val).replace(/[\u200B-\u200D\uFEFF]/g, '').trim(); 
+            if (str === '-' || str.toUpperCase() === 'NULL' || str === '0') return 0; 
+            
+            let cleanStr = str.replace(/Rp\s?/gi, '').trim(); 
+            // Deteksi format Indonesia (4.500 atau 4.500,00) -> ubah koma jadi titik
+            if (/^[0-9]{1,3}(\.[0-9]{3})*(,[0-9]+)?$/.test(cleanStr)) { 
+                cleanStr = cleanStr.replace(/\./g, '').replace(',', '.'); 
+            } 
+            // Deteksi format US (4,500 atau 4,500.00) -> hapus koma
+            else if (/^[0-9]{1,3}(,[0-9]{3})*(\.[0-9]+)?$/.test(cleanStr)) { 
+                cleanStr = cleanStr.replace(/,/g, ''); 
+            } 
+            // Deteksi format desimal tanpa ribuan (4500,50)
+            else if (/^[0-9]+,[0-9]+$/.test(cleanStr)) { 
+                cleanStr = cleanStr.replace(',', '.'); 
+            } 
+            
+            let num = parseFloat(cleanStr); 
+            return isNaN(num) ? 0 : Math.floor(num); 
+        }
+
+        // FUNGSI BARU: Penerjemah Otomatis Kolom Excel / Cloud
+        function normalizeItemData(rawObj) {
+            let norm = {}; let keys = Object.keys(rawObj);
+            
+            // Pencari data berdasarkan kemiripan nama kolom (Failsafe)
+            const findVal = (keywords) => {
+                for (let k of keys) {
+                    let cleanKey = k.replace(/[\u200B-\u200D\uFEFF\s_]/g, '').toUpperCase();
+                    if (keywords.some(kw => cleanKey.includes(kw))) return rawObj[k];
+                } return undefined;
+            };
+
+            norm.n = prop(rawObj.n !== undefined ? rawObj.n : findVal(['NAMABARANG', 'NAMA', 'ITEM', 'PRODUK']));
+            if (!norm.n) return null; // Nama barang wajib ada
+            
+            norm.p1 = parseExcelPrice(rawObj.p1 !== undefined ? rawObj.p1 : findVal(['HARGASATUAN', 'HARGAECER', 'HARGA', 'ECERAN']));
+            norm.p2 = parseExcelPrice(rawObj.p2 !== undefined ? rawObj.p2 : findVal(['HARGAGROSIR', 'GROSIR']));
+            
+            let rawB1 = rawObj.b !== undefined ? rawObj.b : findVal(['BARCODESATUAN', 'BARCODE1', 'BARCODE']);
+            let rawB2 = rawObj.b2 !== undefined ? rawObj.b2 : findVal(['BARCODEGROSIR', 'BARCODE2']);
+            norm.b = String(rawB1 || "").replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toUpperCase();
+            norm.b2 = String(rawB2 || "").replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toUpperCase();
+            if (norm.b === '-' || norm.b === '0') norm.b = '';
+            if (norm.b2 === '-' || norm.b2 === '0') norm.b2 = '';
+            
+            norm.u1 = rawObj.u1 !== undefined ? rawObj.u1 : findVal(['SATUANECER', 'SATUAN']);
+            norm.u2 = rawObj.u2 !== undefined ? rawObj.u2 : findVal(['SATUANGROSIR', 'UNITGROSIR']);
+            
+            let rawIq = rawObj.iq !== undefined ? rawObj.iq : findVal(['ISIGROSIR', 'ISI']);
+            norm.iq = parseInt(String(rawIq || "0").replace(/[^0-9]/g, ''), 10) || 0;
+            
+            let rawFav = rawObj.f !== undefined ? rawObj.f : findVal(['FAVORIT', 'FAV']);
+            norm.f = String(rawFav).trim().toUpperCase() === 'TRUE' || String(rawFav) === '1' || String(rawFav).trim().toUpperCase() === 'YA' || rawFav === true;
+            
+            let rawExp = rawObj.exp !== undefined ? rawObj.exp : findVal(['EXPIRED', 'KEDALUWARSA', 'EXP']);
+            norm.exp = parseBulanTahunExcel(rawExp);
+            
+            norm.t = rawObj.t !== undefined ? rawObj.t : findVal(['SINGKATAN', 'KODECEPAT', 'KODE']);
+            let rawId = rawObj.id !== undefined ? rawObj.id : findVal(['IDBARANG', 'ID']);
+            norm.id = rawId ? String(rawId).replace(/[\u200B-\u200D\uFEFF]/g, '').trim() : null;
+            
+            let rawDel = rawObj.deleted !== undefined ? rawObj.deleted : findVal(['DELETED', 'HAPUS']);
+            norm.deleted = String(rawDel).trim().toUpperCase() === 'TRUE' || rawDel === true;
+            norm.updatedAt = rawObj.updatedAt || Date.now();
+            
+            return norm;
         }
 
         function fmt(n) { return n ? new Intl.NumberFormat('id-ID').format(n) : "0"; }
@@ -861,7 +838,6 @@
             return isOpen || isScannerOpen;
         }
 
-        /* --- CART LOGIC --- */
         function toggleCartMode() {
             window.scrollTo({ top: 0, behavior: 'instant' }); 
             isCartMode = !isCartMode;
@@ -903,8 +879,10 @@
             Object.keys(cartState).forEach(k => {
                 const item = db.find(x => String(x.id) === k);
                 if (item && !item.deleted) {
-                    const q = cartState[k].q, p1 = item.p1, p2 = item.p2, iq = item.iq;
-                    let subTotal = (p2 > 0 && iq > 1 && q >= iq) ? Math.round((q * p2) / iq) : Math.round(q * p1);
+                    const q = cartState[k].q, p1 = item.p1, p2 = item.p2;
+                    const iq = Math.max(1, item.iq || 1);
+                    
+                    let subTotal = (p2 > 0 && item.iq > 1 && q >= item.iq) ? Math.round((q * p2) / iq) : Math.round(q * p1);
                     grandTotal += subTotal;
                     
                     const elemSub = $('sub-' + k); 
@@ -946,13 +924,14 @@
                 keys.forEach(id => {
                     const item = db.find(x => String(x.id) === id);
                     if (!item || item.deleted) { delete cartState[id]; hasDeletedItems = true; return; } 
-                    const q = cartState[id].q, p1 = item.p1, p2 = item.p2, iq = item.iq;
+                    const q = cartState[id].q, p1 = item.p1, p2 = item.p2;
                     
-                    // AUTO-CAPITALIZE KERANJANG
+                    const iq = Math.max(1, item.iq || 1);
+                    
                     let unitName = (item.u1 || '').trim();
                     unitName = unitName ? (unitName.charAt(0).toUpperCase() + unitName.slice(1)) : 'Satuan';
 
-                    let subTotal = (p2 > 0 && iq > 1 && q >= iq) ? Math.round((q * p2) / iq) : Math.round(q * p1);
+                    let subTotal = (p2 > 0 && item.iq > 1 && q >= item.iq) ? Math.round((q * p2) / iq) : Math.round(q * p1);
                     grandTotal += subTotal;
                     
                     html += `<div class="cp-item-wrap"><div class="cp-trash-bg" onclick="deleteCartItem('${id}')"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></div><div class="cp-item-front" ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event, this)" ontouchend="handleTouchEnd(event, this, '${id}')"><div class="cpi-info"><div class="cpi-name">${escapeHTML(item.n)}</div><div class="cpi-calc" id="qty-label-${id}">${q} ${escapeHTML(unitName)}</div></div><div style="display:flex; align-items:center; gap: 12px; pointer-events: auto;"><div class="cpi-total" id="sub-${id}">Rp ${fmt(subTotal)}</div><input class="qty-input-manual" type="text" inputmode="decimal" value="${q}" onfocus="this.dataset.oldVal = this.value; this.value=''" oninput="let v = this.value.replace(/[^0-9.,]/g, ''); this.value = v; updateCartQtyManual('${id}', this.value);" onblur="handleBlurQty('${id}', this)"></div></div></div>`;
@@ -968,7 +947,6 @@
             showConfirm("Kosongkan semua keranjang?", "Reset", "var(--danger)", () => { cartState = {}; saveCartMem(); renderCartUI(); applyFiltersAndRender(); });
         }
 
-        /* --- SWIPE LOGIC --- */
         let startX, startY;
         function handleTouchStart(e) { startX = e.touches[0].clientX; startY = e.touches[0].clientY; e.currentTarget.style.transition = 'none'; }
         function handleTouchMove(e, elem) {
@@ -1006,7 +984,6 @@
             mainStartX = mainStartY = null;
         }
 
-        /* --- EVENTS & LISTENER --- */
         $('q').addEventListener('focus', () => { if (isCartMode) document.body.classList.add('search-focus'); });
         $('q').addEventListener('blur', () => { setTimeout(() => document.body.classList.remove('search-focus'), 100); });
 
@@ -1022,28 +999,46 @@
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') { 
-                hideMod(); hidePicker(); closeCustomAlert(); closePinModal(); closePricePopup(e, true); closeSyncModal(); closeOfflineLedger();
-                if (isScanning) closeScanner(); return; 
+                if (activeModals.length > 0) {
+                    const topModal = activeModals.pop();
+                    closeModalById(topModal);
+                } else if (isScanning) {
+                    closeScanner();
+                }
+                return; 
             }
             
             const isAnyModalOpen = document.body.classList.contains('modal-open');
-            const isModOpen = $('mod') && $('mod').style.display === 'flex';
+            const isModOpen = activeModals.includes('mod');
             if (isScanning || (isAnyModalOpen && !isModOpen)) return;
             
             const t = Date.now(), timeDiff = t - lastKeyTime; lastKeyTime = t;
-            if (timeDiff > 50) physicalInputBuffer = ""; 
-            const isInputFocused = (document.activeElement && document.activeElement.tagName.toLowerCase() === 'input');
+            
+            if (timeDiff > 150) physicalInputBuffer = ""; 
+            
+            const isInputFocused = (document.activeElement && 
+                                   (document.activeElement.tagName.toLowerCase() === 'input' || 
+                                    document.activeElement.tagName.toLowerCase() === 'textarea'));
             
             if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey && e.key.match(/[a-zA-Z0-9\-\s.,]/)) {
+                
                 physicalInputBuffer += e.key; 
-                if (physicalInputBuffer.length >= 2 && timeDiff <= 50 && isInputFocused) document.activeElement.blur(); 
+                
+                if (physicalInputBuffer.length >= 2 && timeDiff <= 150 && isInputFocused) {
+                    document.activeElement.blur(); 
+                }
                 
                 if (!isInputFocused) {
                     inputBuffer += e.key; clearTimeout(bufferTimer);
                     bufferTimer = setTimeout(() => { 
-                        if (inputBuffer.length > 0) { $('q').value = inputBuffer; $('q-x').style.display = 'flex'; window.scrollTo({ top: 0, behavior: 'instant' }); handleSearchLogic(inputBuffer); } 
+                        if (inputBuffer.length > 0) { 
+                            $('q').value = inputBuffer; 
+                            $('q-x').style.display = 'flex'; 
+                            window.scrollTo({ top: 0, behavior: 'instant' }); 
+                            handleSearchLogic(inputBuffer); 
+                        } 
                         inputBuffer = ''; 
-                    }, 150); 
+                    }, 200); 
                 }
             } else if (e.key === 'Enter') {
                 if (physicalInputBuffer.length >= 2) { 
@@ -1103,12 +1098,21 @@
                     $('pp-price-grosir').innerText = textGrosir; 
                     $('pp-barcode').innerText = barcode; 
                     $('price-popup').style.display = 'flex'; 
-                    document.body.classList.add('modal-open'); 
+                    document.body.classList.add('modal-open');
+                    trackModal('price'); 
                 }
             } else tampilkanToast("Barcode tidak ditemukan!", "var(--danger)"); 
         }
         
-        function closePricePopup(e, force = false) { if (force || e.target === $('price-popup')) { $('price-popup').style.display = 'none'; checkModalOpen(); $('q').value = ''; clearSearch(); } }
+        function closePricePopup(e, force = false) { 
+            if (force || e.target === $('price-popup')) { 
+                untrackModal('price');
+                $('price-popup').style.display = 'none'; 
+                checkModalOpen(); 
+                $('q').value = ''; 
+                clearSearch(); 
+            } 
+        }
         
         function handleSearchLogic(query) { 
             const q = query.trim(), qL = q.toLowerCase();
@@ -1120,7 +1124,6 @@
             }
         }
 
-        /* --- NATIVE SEARCH WORKER (OFFLINE SAFE) --- */
         const searchInput = $('q'), searchDropdown = $('search-dropdown'), sdContent = $('sd-content');
         
         const workerScript = `
@@ -1188,10 +1191,36 @@
         });
 
         function toggleMenu(e) { e.stopPropagation(); $('dropdown-menu').classList.toggle('hidden'); }
-        function closeCustomAlert() { $('custom-alert').style.display = 'none'; checkModalOpen(); $('alert-box').style.borderColor = "var(--border-color)"; $('alert-title').style.color = "var(--text-light)"; }
+        
+        function closeCustomAlert() { 
+            untrackModal('alert');
+            $('custom-alert').style.display = 'none'; 
+            checkModalOpen(); 
+            $('alert-box').style.borderColor = "var(--border-color)"; 
+            $('alert-title').style.color = "var(--text-light)"; 
+        }
+        
         function applyModalColor(title, customColor) { const c = customColor || TemaNotifikasi[title] || "var(--mono-main)"; $('alert-title').innerText = title; $('alert-title').style.color = c; $('alert-box').style.borderColor = c; return c; }
-        function showAlert(msg, title = "Info", color = null) { const c = applyModalColor(title, color); $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); $('alert-btns').innerHTML = `<button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" onclick="closeCustomAlert()">OKE</button>`; $('custom-alert').style.display = 'flex'; document.body.classList.add('modal-open'); }
-        function showConfirm(msg, title, color, callbackOk, confirmText = "OKE", callbackCancel = null) { const c = applyModalColor(title, color); $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); $('alert-btns').innerHTML = `<button class="btn-main btn-cancel" id="confirm-cancel-btn">BATAL</button><button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" id="confirm-ok-btn">${confirmText}</button>`; $('confirm-ok-btn').onclick = () => { closeCustomAlert(); callbackOk(); }; $('confirm-cancel-btn').onclick = () => { closeCustomAlert(); if(callbackCancel) callbackCancel(); }; $('custom-alert').style.display = 'flex'; document.body.classList.add('modal-open'); }
+        
+        function showAlert(msg, title = "Info", color = null) { 
+            const c = applyModalColor(title, color); 
+            $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); 
+            $('alert-btns').innerHTML = `<button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" onclick="closeCustomAlert()">OKE</button>`; 
+            $('custom-alert').style.display = 'flex'; 
+            document.body.classList.add('modal-open'); 
+            trackModal('alert');
+        }
+        
+        function showConfirm(msg, title, color, callbackOk, confirmText = "OKE", callbackCancel = null) { 
+            const c = applyModalColor(title, color); 
+            $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); 
+            $('alert-btns').innerHTML = `<button class="btn-main btn-cancel" id="confirm-cancel-btn">BATAL</button><button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" id="confirm-ok-btn">${confirmText}</button>`; 
+            $('confirm-ok-btn').onclick = () => { closeCustomAlert(); callbackOk(); }; 
+            $('confirm-cancel-btn').onclick = () => { closeCustomAlert(); if(callbackCancel) callbackCancel(); }; 
+            $('custom-alert').style.display = 'flex'; 
+            document.body.classList.add('modal-open'); 
+            trackModal('alert');
+        }
         
         function toggleIsiGrosir() { const val = $('i-u2').value; if (val) { $('label-iq').innerText = `Isi per ${val}`; $('wrap-iq').style.display = 'block'; } else { $('wrap-iq').style.display = 'none'; $('i-iq').value = ''; } }
 
@@ -1215,11 +1244,31 @@
                 b.value = b2.value = n.value = p1.value = p2.value = exp.dataset.rawDate = exp.value = t.value = u1.value = u2.value = iq.value = ''; 
             } 
             toggleIsiGrosir(); $('mod').style.display = 'flex'; document.body.classList.add('modal-open'); setTimeout(() => $('i-n').focus(), 100); 
+            trackModal('mod');
         }
 
-        function hideMod() { activeId = null; $('mod').style.display = 'none'; checkModalOpen(); }
-        function deleteAllDataPrompt() { if (db.filter(i => !i.deleted).length === 0) return showAlert("Data sudah kosong!", "Info"); $('dropdown-menu').classList.add('hidden'); $('pin-input').value = ''; $('pin-modal').style.display = 'flex'; document.body.classList.add('modal-open'); setTimeout(() => $('pin-input').focus(), 100); }
-        function closePinModal() { $('pin-modal').style.display = 'none'; checkModalOpen(); }
+        function hideMod() { 
+            untrackModal('mod');
+            activeId = null; 
+            $('mod').style.display = 'none'; 
+            checkModalOpen(); 
+        }
+
+        function deleteAllDataPrompt() { 
+            if (db.filter(i => !i.deleted).length === 0) return showAlert("Data sudah kosong!", "Info"); 
+            $('dropdown-menu').classList.add('hidden'); 
+            $('pin-input').value = ''; 
+            $('pin-modal').style.display = 'flex'; 
+            document.body.classList.add('modal-open'); 
+            setTimeout(() => $('pin-input').focus(), 100); 
+            trackModal('pin');
+        }
+        
+        function closePinModal() { 
+            untrackModal('pin');
+            $('pin-modal').style.display = 'none'; 
+            checkModalOpen(); 
+        }
         
         function verifyPinAndExecute() { if ($('pin-input').value === APP_SECURE_PIN) { closePinModal(); executeDeleteAll(); } else tampilkanToast("PIN Salah!", "var(--danger)"); }
         
@@ -1233,7 +1282,6 @@
                 Picker.tempYear = parseInt(p[0], 10); 
                 Picker.tempMonth = parseInt(p[1], 10) - 1; 
 
-                // INJEKSI SELF-HEALING ANTI-NaN
                 if (isNaN(Picker.tempYear) || isNaN(Picker.tempMonth)) {
                     const now = new Date();
                     Picker.tempYear = now.getFullYear();
@@ -1241,9 +1289,10 @@
                 }
             } 
             renderKalenderGrid(); $('custom-picker').style.display = 'flex'; document.body.classList.add('modal-open'); 
+            trackModal('picker');
         }
 
-        function hidePicker() { $('custom-picker').style.display = 'none'; checkModalOpen(); }
+        function hidePicker() { untrackModal('picker'); $('custom-picker').style.display = 'none'; checkModalOpen(); }
         function clearPickerDate() { const el = $(Picker.targetId); if(el) el.dataset.rawDate = el.value = ''; hidePicker(); }
         function renderKalenderGrid() { $('cp-year').innerText = Picker.tempYear; $('cp-grid').innerHTML = NamaBlnPendek.map((bln, i) => `<div class="month-item ${i === Picker.tempMonth ? 'active' : ''}" onclick="cpSelectMonth(${i})">${bln}</div>`).join(''); }
         function cpChangeYear(arah) { Picker.tempYear += arah; renderKalenderGrid(); }
@@ -1302,29 +1351,27 @@
                 const it = filteredData[i]; let diff = 999, expT = ''; if (it.exp) { let expDate = new Date(it.exp); expDate = new Date(expDate.getFullYear(), expDate.getMonth() + 1, 0); const utcExp = expDate.getTime(); if (!isNaN(utcExp)) { diff = Math.floor((utcExp - today) / 86400000); expT = formatBulanTahun(it.exp); } }
                 const safeName = escapeHTML(it.n), safeAcronym = escapeHTML(it.t || ''), dn = highlightMatch(safeName, sq);
                 
-                // SMART LABELS & AUTO-CAPITALIZE
                 const safeU1 = (it.u1 || '').trim();
                 const safeU2 = (it.u2 || '').trim();
                 const unit1 = safeU1 ? escapeHTML(safeU1.charAt(0).toUpperCase() + safeU1.slice(1)) : 'Satuan';
                 const unit2 = safeU2 ? escapeHTML(safeU2.charAt(0).toUpperCase() + safeU2.slice(1)) : 'Grosir';
 
-                // DYNAMIC BARCODE UI
                 let barcodeDisplay = '';
                 const safeB1 = it.b ? escapeHTML(it.b) : '';
                 const safeB2 = it.b2 ? escapeHTML(it.b2) : '';
                 
                 if (safeB1 && safeB2) {
-                    barcodeDisplay = `<div class="card-barcode">Satuan: ${safeB1}</div><div class="card-barcode">Grosir: ${safeB2}</div>`;
+                    barcodeDisplay = `<div class="card-barcode">Bc Satuan:${safeB1}</div><div class="card-barcode">Bc Grosir:${safeB2}</div>`;
                 } else if (safeB1) {
-                    barcodeDisplay = `<div class="card-barcode">Satuan: ${safeB1}</div>`;
+                    barcodeDisplay = `<div class="card-barcode">Bc Satuan: ${safeB1}</div>`;
                 } else if (safeB2) {
-                    barcodeDisplay = `<div class="card-barcode">Grosir: ${safeB2}</div>`;
+                    barcodeDisplay = `<div class="card-barcode">Bc Grosir: ${safeB2}</div>`;
                 }
 
                 if (tab === 'exp') {
                     const c = diff <= 30 ? 'var(--danger)' : (diff <= 90 ? '#FFA500' : (diff <= 180 ? '#FFD700' : 'var(--mono-main)')); html += `<div class="card card-exp-mode" id="c-${it.id}" style="will-change: transform;"><div class="info" style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:10px;"><div class="name" style="margin:0; flex:1; min-width:0;"><span>${dn}</span> <span class="card-badge">${safeAcronym}</span></div><div style="font-size:13px; font-weight:800; color:${c}; flex-shrink: 0;">${expT}</div></div></div>`;
                 } else {
-                    let exH = it.exp ? `<div class="card-exp ${diff < 0 ? 'danger' : (diff <= 90 ? 'warning' : '')}"><span>${diff < 0 ? '🚨' : (diff <= 90 ? '⚠️' : '📅')}</span> ${diff < 0 ? 'Expired!' : (diff <= 90 ? `Exp dlm ${diff} hari` : `Exp: ${expT}`)}</div>` : '', rightSideUI = '', swipeAttributes = '', trashBgHtml = '';
+                    let exH = it.exp ? `<div class="card-exp ${diff < 0 ? 'danger' : (diff <= 90 ? 'warning' : '')}"><span>${diff < 0 ? '🚨' : (diff <= 90 ? '⚠️' : '📅')}</span> ${diff < 0 ? 'Expired!' : (diff <= 90 ? `Exp dalam ${diff} hari` : `Exp: ${expT}`)}</div>` : '', rightSideUI = '', swipeAttributes = '', trashBgHtml = '';
                     if (!isCartMode) {
                         swipeAttributes = `ontouchstart="handleMainTouchStart(event)" ontouchmove="handleMainTouchMove(event, this)" ontouchend="handleMainTouchEnd(event, this, '${it.id}')"`;
                         trashBgHtml = `<div class="trash-trigger" onclick="del('${it.id}')" style="position:absolute; right:0; top:0; bottom:0; width:80px; background:transparent; display:flex; justify-content:center; align-items:center; color:var(--danger); z-index:1; cursor:pointer;"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></div>`;
@@ -1339,7 +1386,6 @@
                 let hc = false; const dom = rend.children;
                 for (let i = 0; i < dom.length; i++) {
                     const h = dom[i].offsetHeight + 12, idx = start + i; 
-                    // DVS SHOCK ABSORBER (Toleransi 1 Pixel Anti-Glitch)
                     if (filteredData[idx] && Math.abs((filteredData[idx]._cHeight || 0) - h) > 1) { 
                         filteredData[idx]._cHeight = h; hc = true; 
                     }
@@ -1428,7 +1474,8 @@
         }
 
         async function executeDeleteAll() { 
-            $('pin-modal').style.display = 'none'; checkModalOpen(); tampilkanToast("Menghapus...", "var(--danger)"); $('list').style.pointerEvents = 'none'; 
+            closePinModal(); 
+            tampilkanToast("Menghapus...", "var(--danger)"); $('list').style.pointerEvents = 'none'; 
             try { 
                 const tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'), ts = Date.now(); 
                 db.forEach(i => { if (!i.deleted) { i.deleted = true; i.updatedAt = ts; s.put(i); } }); 
@@ -1447,7 +1494,7 @@
 
         function optimizeData() { 
             $('dropdown-menu').classList.add('hidden'); 
-            showConfirm("Bersihkan memori sampah?", "Optimasi Sistem", "#FFA500", () => { 
+            showConfirm("Bersihkan memori?", "Optimasi Sistem", "#FFA500", () => { 
                 tampilkanToast("Mengoptimalkan...", "#FFA500"); 
                 recentSearches = []; 
                 trendingSearches = {}; 
@@ -1459,43 +1506,110 @@
                 tx.oncomplete = () => { 
                     db = aDb; worker.postMessage({ type: 'init', db: db }); 
                     updateMaps(); clearSearch(); 
-                    setTimeout(() => showAlert(`BERHASIL!!!<br>Sampah: ${c} Data dibersihkan.`, "Sistem Bersih", "#FFA500"), 500); 
+                    setTimeout(() => showAlert(`Optimasi Sistem<br>Sampah: ${c} Data dibersihkan.`, "PEMBERITAHUAN!", "#FFA500"), 500); 
                 }; 
             }); 
         }
 
-        function showLoading(msg, color="#87CEFA") { $('loading-text').innerHTML = msg; $('loading-spinner').style.borderTopColor = color; $('loading-title').style.color = $('loading-box').style.borderColor = color; $('loading-modal').style.display = 'flex'; document.body.classList.add('modal-open'); }
-        function hideLoading() { $('loading-modal').style.display = 'none'; checkModalOpen(); }
+        function showLoading(msg, color="#87CEFA") { 
+            $('loading-text').innerHTML = msg; 
+            $('loading-spinner').style.borderTopColor = color; 
+            $('loading-title').style.color = $('loading-box').style.borderColor = color; 
+            $('loading-modal').style.display = 'flex'; 
+            document.body.classList.add('modal-open'); 
+        }
+        function hideLoading() { 
+            $('loading-modal').style.display = 'none'; 
+            checkModalOpen(); 
+        }
         
         function backupToCloud() { 
-            if (db.length === 0) return; 
-            if (isApiLoading) return;
+            if (db.length === 0 || isApiLoading) return;
 
-            showConfirm("<b>Peringatan Keamanan!</b>\n\nTindakan ini akan mengunggah dan MENIMPA seluruh data yang ada di Cloud dengan data dari HP Anda saat ini.\n\nLanjutkan?", "Informasi", "#87CEFA", () => { 
+            showConfirm("<b>Peringatan Keamanan!</b>\n\nUntuk mencegah data tertimpa, aplikasi akan otomatis menarik data terbaru dari Cloud secara senyap sebelum diunggah.\n\nLanjutkan?", "Informasi", "#87CEFA", () => { 
                 isApiLoading = true;
-                showLoading("Mengunggah data ke Cloud...<br>Mohon tunggu sebentar.", "#87CEFA"); 
-                fetchWithTimeout(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backup', data: db }) }, 30000) 
+                showLoading("Menyinkronkan & Mengunggah Data...<br>Mohon tunggu sebentar.", "#87CEFA"); 
+                
+                const lastSyncTime = parseInt(localStorage.getItem('DB_LAST_SYNC')) || 0;
+                
+                fetchWithTimeout(CLOUD_URL + "?action=load&lastSync=" + lastSyncTime + "&t=" + Date.now(), {}, 30000) 
+                .then(r => r.json()) 
+                .then(dataResponse => { 
+                    const dataCloud = dataResponse.data || [];
+                    const serverTime = dataResponse.serverTime || Date.now(); 
+                    localStorage.setItem('DB_LAST_SYNC', serverTime.toString()); 
+                    
+                    if (dataCloud.length > 0) {
+                        let tempMap = new Map();
+                        db.forEach(item => tempMap.set(String(item.id), item));
+                        
+                        dataCloud.forEach(rawItem => { 
+                            let itemCloud = { ...rawItem };
+                            itemCloud.deleted = String(itemCloud.deleted).trim().toUpperCase() === 'TRUE' || itemCloud.deleted === true;
+                            itemCloud.f = String(itemCloud.f).trim().toUpperCase() === 'TRUE' || itemCloud.f === true;
+
+                            itemCloud.p1 = parseExcelPrice(itemCloud.p1) || 0;
+                            itemCloud.p2 = parseExcelPrice(itemCloud.p2) || null;
+                            itemCloud.iq = parseInt(String(itemCloud.iq || 0).replace(/[^0-9]/g, ''), 10) || 0;
+                            
+                            if(!itemCloud.id) itemCloud.id = generateUniqueId();
+                            itemCloud.n = itemCloud.n || "";
+                            
+                            itemCloud.b = String(itemCloud.b || "").replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toUpperCase();
+                            if (itemCloud.b === '-' || itemCloud.b === '0') itemCloud.b = '';
+                            
+                            itemCloud.b2 = String(itemCloud.b2 || "").replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toUpperCase();
+                            if (itemCloud.b2 === '-' || itemCloud.b2 === '0') itemCloud.b2 = '';
+
+                            const existing = tempMap.get(String(itemCloud.id));
+                            if (existing) { 
+                                if ((itemCloud.updatedAt || 0) >= (existing.updatedAt || 0)) { 
+                                    if (itemCloud.deleted) tempMap.delete(String(itemCloud.id)); 
+                                    else tempMap.set(String(itemCloud.id), itemCloud); 
+                                } 
+                            } else if (!itemCloud.deleted) { 
+                                tempMap.set(String(itemCloud.id), itemCloud); 
+                            } 
+                        }); 
+                        
+                        db = Array.from(tempMap.values());
+                        updateMaps();
+                        worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
+                        
+                        if (isCartMode) renderCartUI();
+                        applyFiltersAndRender();
+                    }
+                    
+                    return fetchWithTimeout(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backup', data: db }) }, 30000);
+                })
                 .then(() => { 
                     isApiLoading = false;
                     hideLoading(); 
-                    tampilkanToast("Berhasil Upload!", "var(--mono-main)"); 
+                    tampilkanToast("Berhasil Upload & Sinkronisasi!", "var(--mono-main)"); 
+                    
+                    const tx = idb.transaction('items', 'readwrite');
+                    const store = tx.objectStore('items');
+                    store.clear();
+                    db.forEach(item => store.put(item));
                 }) 
                 .catch(() => { 
                     isApiLoading = false;
                     hideLoading(); 
                     showAlert("Koneksi lambat atau Gagal / Timeout. Silakan coba lagi.", "Error"); 
                 }); 
-            }, "LANJUTKAN"); 
+            }, "UPLOAD"); 
         }
 
-        function openSyncModal() { $('dropdown-menu').classList.add('hidden'); $('sync-type').value = ''; $('sync-selected-text').innerText = '-- Pilih Mode --'; $('sync-selected-text').style.color = '#888'; $('sync-custom-options').classList.add('hidden'); handleSyncChange(); $('sync-modal').style.display = 'flex'; document.body.classList.add('modal-open'); }
+        function openSyncModal() { 
+            $('dropdown-menu').classList.add('hidden'); $('sync-type').value = ''; $('sync-selected-text').innerText = '-- Pilih Mode --'; $('sync-selected-text').style.color = '#888'; $('sync-custom-options').classList.add('hidden'); handleSyncChange(); 
+            $('sync-modal').style.display = 'flex'; document.body.classList.add('modal-open'); 
+            trackModal('sync');
+        }
         function closeSyncModal() { 
+            untrackModal('sync');
             $('sync-modal').style.display = 'none'; 
             const btn = $('btn-sync-download');
-            if (btn) {
-                btn.disabled = false;
-                btn.innerText = "DOWNLOAD";
-            }
+            if (btn) { btn.disabled = false; btn.innerText = "DOWNLOAD"; }
             checkModalOpen(); 
         }
         function toggleSyncDropdown(e) { e.stopPropagation(); $('sync-custom-options').classList.toggle('hidden'); }
@@ -1505,17 +1619,13 @@
         function executeSyncBtn() { 
             const val = $('sync-type').value; 
             if (!val) { tampilkanToast("Silakan pilih mode sinkronisasi dulu!", "var(--warning)"); return; } 
-            
             const btn = $('btn-sync-download');
-            if (btn) {
-                btn.disabled = true;
-                btn.innerText = "MEMPROSES...";
-            }
-            
+            if (btn) { btn.disabled = true; btn.innerText = "MEMPROSES..."; }
             closeSyncModal(); 
             loadFromCloud(val === 'force'); 
         }
 
+        // --- 🛡️ PERBAIKAN 1000%: Fungsi loadFromCloud (Universal Schema) 🛡️ ---
         function loadFromCloud(forceSync = false) { 
             if (isApiLoading) return;
             isApiLoading = true;
@@ -1543,7 +1653,7 @@
                 
                 const chunkSize = 500;
                 let currentIndex = 0;
-                let rejectedCloudCount = 0; // PELINDUNG CLOUD FIREWALL
+                let rejectedCloudCount = 0; 
 
                 function processNextChunk() {
                     const chunk = dataCloud.slice(currentIndex, currentIndex + chunkSize);
@@ -1555,11 +1665,11 @@
                         workerResult = null;
                         $('q-x').style.display = 'none';
                         
-                        renderCartUI(); 
+                        if (isCartMode) renderCartUI(); 
                         applyFiltersAndRender(); 
+                        
                         isApiLoading = false; hideLoading(); 
                         
-                        // LAPORAN FIREWALL
                         if (rejectedCloudCount > 0) {
                             showAlert(`Update Selesai!<br><br><span style="color:var(--warning);">⚠️ ${rejectedCloudCount} data ditolak dari Cloud (Format rusak / Harga 0).</span>`, "Peringatan Sinkronisasi", "var(--warning)");
                         } else {
@@ -1572,24 +1682,26 @@
                     const store = tx.objectStore('items'); 
                     if (forceSync && currentIndex === 0) store.clear(); 
                     
-                    chunk.forEach(itemCloud => { 
-                        // --- CLOUD FIREWALL (Menangkal Harga 0 & Data Rusak) ---
-                        if (!itemCloud.deleted && (!itemCloud.n || !itemCloud.p1 || isNaN(itemCloud.p1) || itemCloud.p1 === 0)) {
+                        chunk.forEach(rawItem => { 
+                        let norm = normalizeItemData(rawItem);
+                        
+                        // Validasi harga ketat agar yang kosong ditolak
+                        if (!norm || norm.p1 === 0) {
                             rejectedCloudCount++;
-                            return; // Buang data beracun
+                            return; 
                         }
 
                         if (forceSync) {
-                            tempMap.set(String(itemCloud.id), itemCloud); store.put(itemCloud);
+                            tempMap.set(String(norm.id), norm); store.put(norm);
                         } else {
-                            const existing = tempMap.get(String(itemCloud.id));
+                            const existing = tempMap.get(String(norm.id));
                             if (existing) { 
-                                if ((itemCloud.updatedAt || 0) >= (existing.updatedAt || 0)) { 
-                                    if (itemCloud.deleted) { store.delete(itemCloud.id); tempMap.delete(String(itemCloud.id)); } 
-                                    else { tempMap.set(String(itemCloud.id), itemCloud); store.put(itemCloud); } 
+                                if ((norm.updatedAt || 0) >= (existing.updatedAt || 0)) { 
+                                    if (norm.deleted) { store.delete(norm.id); tempMap.delete(String(norm.id)); } 
+                                    else { tempMap.set(String(norm.id), norm); store.put(norm); } 
                                 } 
-                            } else if (!itemCloud.deleted) { 
-                                tempMap.set(String(itemCloud.id), itemCloud); store.put(itemCloud); 
+                            } else if (!norm.deleted) { 
+                                tempMap.set(String(norm.id), norm); store.put(norm); 
                             } 
                         }
                     }); 
@@ -1615,96 +1727,162 @@
                 showAlert("Koneksi Gagal / Server Sibuk. Pastikan internet menyala.", "Error"); 
             }); 
         }
-        
-        function exportData() { 
+  
+            function exportData() { 
             const data = db.filter(i => !i.deleted).map(i => ({ 
-                "ID": i.id, 
-                "Barcode Satuan": i.b, 
-                "Barcode Grosir": i.b2 || "", 
-                "Nama Barang": i.n, 
-                "Harga Satuan": i.p1, 
-                "Satuan": i.u1 || "", 
-                "Harga Grosir": i.p2, 
-                "Satuan Grosir": i.u2 || "", 
-                "Isi Grosir": i.iq || "", 
-                "Singkatan": i.t, 
-                "Favorit": i.f ? "Ya" : "Tidak", 
-                "Expired": i.exp || "" 
+                "ID BARANG": i.id, 
+                "BARCODE SATUAN": i.b || "", 
+                "BARCODE GROSIR": i.b2 || "", 
+                "NAMA BARANG": i.n, 
+                "HARGA SATUAN": i.p1, 
+                "SATUAN ECER": i.u1 || "", 
+                "HARGA GROSIR": i.p2 || "", 
+                "SATUAN GROSIR": i.u2 || "", 
+                "ISI GROSIR": i.iq || "", 
+                "SINGKATAN": i.t || "", 
+                "FAVORIT": i.f ? "TRUE" : "FALSE", 
+                "KEDALUWARSA": i.exp || "" 
             })); 
             const wb = XLSX.utils.book_new(); 
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Data"); 
             XLSX.writeFile(wb, "Data_Harga.xlsx"); 
         }
-        
-        function importData(e) { 
-            const f = e.target.files[0]; if(!f) return; 
-            
-            if (f.size > 2 * 1024 * 1024) {
-                return showAlert("Gagal! Ukuran file terlalu besar (Maks 2MB). Pastikan Anda memilih file Excel yang benar.", "Error");
-            }
 
+        function importData(e) { 
+            if (isApiLoading) { tampilkanToast("Proses import sedang berjalan...", "var(--warning)"); return; }
+            const f = e.target.files[0]; if(!f) return; 
+            if (f.size > 2 * 1024 * 1024) { if (e.target) e.target.value = ''; return showAlert("Gagal! Ukuran file maksimal 2MB.", "Error"); }
+            
+            isApiLoading = true; showLoading("Membaca File Excel...<br>Mohon tunggu.", "#3CB371");
             const r = new FileReader(); 
             r.onload = (ev) => { 
-                const w = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'}), 
-                jD = XLSX.utils.sheet_to_json(w.Sheets[w.SheetNames[0]], { raw: false, defval: "" }), 
-                tx = idb.transaction('items', 'readwrite'), s = tx.objectStore('items'), tA = new Set(), ts = Date.now(); 
-                
-                let skippedCount = 0;
-                let failedCount = 0;
+                try {
+                    const w = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'});
+                    // Membaca file langsung sebagai objek JSON berdasarkan header baris pertama
+                    const rows = XLSX.utils.sheet_to_json(w.Sheets[w.SheetNames[0]], { defval: "" });
+                    if (rows.length === 0) throw new Error("Excel Kosong");
 
-                jD.forEach(ro => { 
-                    const n = prop(ro["Nama Barang"] || ro["Nama"]); 
-                    const p1Val = parseExcelPrice(ro["Harga Satuan"] || ro["Eceran"] || ro["Harga Eceran"]); 
-                    
-                    // --- EXCEL GARBAGE REJECTOR ---
-                    if (!n || p1Val === null || p1Val === undefined || isNaN(p1Val) || p1Val === 0) { 
-                        failedCount++; 
-                        return; // Buang baris hancur
-                    } 
-                    
-                    let cT = ro["Singkatan"]; if (!cT) cT = generateSmartAcronym(n, null, tA); if (cT) tA.add(cT); 
-                    const eI = ro["ID"] ? String(ro["ID"]).trim() : null;
-                    
-                    let sB = ro["Barcode Satuan"] || ro["Barcode"] ? String(ro["Barcode Satuan"] || ro["Barcode"]).trim().toUpperCase() : ''; 
-                    let sB2 = ro["Barcode Grosir"] ? String(ro["Barcode Grosir"]).trim().toUpperCase() : ''; 
-                    let iq = parseInt(ro["Isi Grosir"]) || 0;
+                    const tx = idb.transaction('items', 'readwrite');
+                    const s = tx.objectStore('items');
+                    const tA = new Set(); const ts = Date.now(); 
+                    let skippedCount = 0; let failedCount = 0;
 
-                    if (sB !== '' && sB2 === sB) sB2 = ''; 
-                    if (sB2 !== '' && iq < 2) sB2 = ''; 
+                    rows.forEach(rawObj => {
+                        // Terjemahkan lewat Adaptor Normalisasi
+                        const norm = normalizeItemData(rawObj);
+                        
+                        if (!norm || norm.p1 === 0) { failedCount++; return; }
 
-                    if (sB !== '' || sB2 !== '') { 
-                        const collision = db.find(x => !x.deleted && 
-                            ((sB !== '' && (String(x.b) === sB || String(x.b2) === sB)) || 
-                             (sB2 !== '' && (String(x.b) === sB2 || String(x.b2) === sB2))) && 
-                            String(x.id) !== String(eI)
-                        ); 
-                        if (collision) { skippedCount++; return; } 
-                    } 
-                    
-                    const iF = ro["Favorit"] === "Ya" || ro["Favorit"] === "TRUE", eD = parseBulanTahunExcel(ro["Expired"]); 
-                    let u1 = ro["Satuan"] || ro["Satuan Ecer"] || "", u2 = ro["Satuan Grosir"] || ro["Grosir"] || "";
-                    let eIdx = db.findIndex(x => (eI && String(x.id) === String(eI)) || (x.n.toLowerCase() === n.toLowerCase())); 
-                    
-                    if (eIdx > -1) { 
-                        db[eIdx] = { ...db[eIdx], b: sB, b2: sB2, p1: p1Val, p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; 
-                        s.put(db[eIdx]); 
-                    } else { 
-                        const nI = { id: eI || generateUniqueId(), b: sB, b2: sB2, n: n, p1: p1Val, p2: parseExcelPrice(ro["Grosir"]||ro["Harga Grosir"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; 
-                        db.push(nI); s.put(nI); 
-                    } 
-                }); 
-                tx.oncomplete = () => { 
-                    worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
-                    updateMaps(); clearSearch(); renderCartUI(); applyFiltersAndRender();
-                    
-                    // --- REKAP LAPORAN IMPORT ---
-                    if (skippedCount > 0 || failedCount > 0) {
-                        showAlert(`Import Selesai!<br><br><span style="color:var(--warning);">⚠️ ${skippedCount} diabaikan (Barcode kembar).<br>❌ ${failedCount} gagal (Format harga rusak / 0).</span>`, "Info Import", "var(--warning)");
-                    } else {
-                        tampilkanToast("Import Selesai!"); 
-                    }
-                }; 
+                        if (!norm.t) { norm.t = generateSmartAcronym(norm.n, null, tA); if(norm.t) tA.add(norm.t); }
+                        if (norm.b !== '' && norm.b2 === norm.b) norm.b2 = ''; 
+                        if (norm.b2 !== '' && norm.iq < 2) norm.b2 = ''; 
+
+                        if (!norm.id) norm.id = "auto_" + btoa(unescape(encodeURIComponent(norm.n + norm.b))).replace(/[^a-zA-Z0-9]/g, '').substring(0, 10);
+
+                        // Cek Barcode Bentrok
+                        if (norm.b !== '' || norm.b2 !== '') { 
+                            const collision = db.find(x => !x.deleted && ((norm.b !== '' && (String(x.b) === norm.b || String(x.b2) === norm.b)) || (norm.b2 !== '' && (String(x.b) === norm.b2 || String(x.b2) === norm.b2))) && String(x.id) !== String(norm.id)); 
+                            if (collision) { skippedCount++; return; } 
+                        } 
+                        
+                        let eIdx = db.findIndex(x => (norm.id && String(x.id) === String(norm.id)) || (x.n.toLowerCase() === norm.n.toLowerCase())); 
+                        if (eIdx > -1) { 
+                            db[eIdx] = { ...db[eIdx], ...norm, updatedAt: ts, deleted: false }; 
+                            s.put(db[eIdx]); 
+                        } else { 
+                            norm.updatedAt = ts; norm.deleted = false;
+                            db.push(norm); s.put(norm); 
+                        }
+                    });
+
+                    tx.oncomplete = () => { 
+                        worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
+                        updateMaps(); clearSearch(); renderCartUI(); applyFiltersAndRender();
+                        isApiLoading = false; hideLoading(); if (e && e.target) e.target.value = ''; 
+                        if (skippedCount > 0 || failedCount > 0) { 
+                            showAlert(`Import Selesai!<br><br><span style="color:var(--warning);">⚠️ ${skippedCount} diabaikan (Barcode kembar).<br>❌ ${failedCount} baris rusak/tanpa harga.</span>`, "Info Import", "var(--warning)"); 
+                        } else { 
+                            tampilkanToast("Import Selesai!"); 
+                        }
+                    }; 
+                    tx.onerror = () => { isApiLoading = false; hideLoading(); if (e && e.target) e.target.value = ''; showAlert("Gagal menyimpan ke Database HP. Coba lagi.", "Error"); }
+                } catch (err) { isApiLoading = false; hideLoading(); if (e && e.target) e.target.value = ''; showAlert("Format File Excel tidak valid atau rusak!", "Error"); }
             }; 
+            r.onerror = () => { isApiLoading = false; hideLoading(); if (e && e.target) e.target.value = ''; showAlert("Gagal membaca file dari HP Anda!", "Error"); }
+            r.readAsArrayBuffer(f); 
+        }
+  
+                        let sB2 = String(ro["BARCODE GROSIR"] || "").replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toUpperCase(); 
+                        
+                        if (sB === '-' || sB === '0') sB = '';
+                        if (sB2 === '-' || sB2 === '0') sB2 = '';
+
+                        let iq = parseInt(String(ro["ISI GROSIR"] || "0").replace(/[^0-9]/g, ''), 10) || 0;
+
+                        if (sB !== '' && sB2 === sB) sB2 = ''; 
+                        if (sB2 !== '' && iq < 2) sB2 = ''; 
+                        
+                        let eI = ro["ID"] ? String(ro["ID"]).replace(/[\u200B-\u200D\uFEFF]/g, '').trim() : null;
+                        if (!eI) {
+                            let signature = "auto_" + btoa(unescape(encodeURIComponent(n + sB))).replace(/[^a-zA-Z0-9]/g, '').substring(0, 10);
+                            eI = signature;
+                        }
+
+                        if (sB !== '' || sB2 !== '') { 
+                            const collision = db.find(x => !x.deleted && 
+                                ((sB !== '' && (String(x.b) === sB || String(x.b2) === sB)) || 
+                                 (sB2 !== '' && (String(x.b) === sB2 || String(x.b2) === sB2))) && 
+                                String(x.id) !== String(eI)
+                            ); 
+                            if (collision) { skippedCount++; continue; } 
+                        } 
+                        
+                        const rawFav = String(ro["FAVORIT"] || "").replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toUpperCase();
+                        const iF = rawFav === "TRUE" || rawFav === "YA" || rawFav === "1"; 
+                        const eD = parseBulanTahunExcel(ro["EXPIRED"]); 
+                        let u1 = ro["SATUAN"] || ro["SATUAN ECER"] || "", u2 = ro["SATUAN GROSIR"] || "";
+                        let eIdx = db.findIndex(x => (eI && String(x.id) === String(eI)) || (x.n.toLowerCase() === n.toLowerCase())); 
+                        
+                        if (eIdx > -1) { 
+                            db[eIdx] = { ...db[eIdx], b: sB, b2: sB2, p1: p1Val, p2: parseExcelPrice(ro["HARGA GROSIR"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; 
+                            s.put(db[eIdx]); 
+                        } else { 
+                            const nI = { id: eI, b: sB, b2: sB2, n: n, p1: p1Val, p2: parseExcelPrice(ro["HARGA GROSIR"]), t: cT, f: iF, exp: eD, u1: u1, u2: u2, iq: iq, updatedAt: ts, deleted: false }; 
+                            db.push(nI); s.put(nI); 
+                        } 
+                    } 
+
+                    tx.oncomplete = () => { 
+                        worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
+                        updateMaps(); clearSearch(); renderCartUI(); applyFiltersAndRender();
+                        
+                        isApiLoading = false;
+                        hideLoading();
+                        if (e && e.target) e.target.value = ''; 
+                        
+                        if (skippedCount > 0 || failedCount > 0) {
+                            showAlert(`Import Selesai!<br><br><span style="color:var(--warning);">⚠️ ${skippedCount} diabaikan (Barcode kembar).<br>❌ ${failedCount} gagal (Format harga rusak / 0).</span>`, "Info Import", "var(--warning)");
+                        } else {
+                            tampilkanToast("Import Selesai!"); 
+                        }
+                    }; 
+                    tx.onerror = () => {
+                        isApiLoading = false; hideLoading();
+                        if (e && e.target) e.target.value = ''; 
+                        showAlert("Gagal menyimpan ke Database HP. Coba lagi.", "Error");
+                    }
+                } catch (err) {
+                    isApiLoading = false; hideLoading();
+                    if (e && e.target) e.target.value = ''; 
+                    showAlert("Format File Excel tidak valid atau rusak!", "Error");
+                }
+            }; 
+            
+            r.onerror = () => {
+                isApiLoading = false; hideLoading();
+                if (e && e.target) e.target.value = ''; 
+                showAlert("Gagal membaca file dari HP Anda!", "Error");
+            }
             r.readAsArrayBuffer(f); 
         }
         
@@ -1720,6 +1898,7 @@
             scanMode = mode; 
             $('scanner-wrap').style.display = 'block'; 
             document.body.classList.add('modal-open'); 
+            trackModal('scanner');
             
             if (!html5QrCode) html5QrCode = new Html5Qrcode("reader"); 
             torchState = false; 
@@ -1779,6 +1958,7 @@
         async function closeScanner() { 
             if(isClosingScan) return;
             isClosingScan = true;
+            untrackModal('scanner');
             $('scanner-wrap').style.display = 'none'; 
             checkModalOpen(); 
             if (torchState) toggleFlashlight(); 
@@ -1824,9 +2004,11 @@
             $('offline-ledger-view').value = text;
             $('offline-ledger-modal').style.display = 'flex';
             document.body.classList.add('modal-open');
+            trackModal('offline');
         }
         
         function closeOfflineLedger() {
+            untrackModal('offline');
             $('offline-ledger-modal').style.display = 'none';
             checkModalOpen();
         }
@@ -1893,35 +2075,36 @@
         if ('launchQueue' in window) { window.launchQueue.setConsumer((launchParams) => { if (launchParams.files && launchParams.files.length > 0) launchParams.files[0].getFile().then(file => { if (isDbReady) processQueuedFile(file); else pendingLaunchFile = file; }); }); }
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js') .then((registration) => { registration.addEventListener('updatefound', () => { const newWorker = registration.installing; newWorker.addEventListener('statechange', () => { if (newWorker.state === 'installed' && navigator.serviceWorker.controller) showConfirm("Versi terbaru aplikasi telah tersedia! Perbarui sekarang.", "Update Sistem", "#87CEFA", () => { window.location.reload(); }, "REFRESH"); }); }); }).catch(console.error); }); }
 
-        // --- ANTI HARDWARE BACK BUTTON TRAP ---
-        function pushModalHistory() {
-            if (!history.state || !history.state.modalOpen) {
-                history.pushState({ modalOpen: true }, '');
-            }
+        // --- SISTEM ANTREAN MODAL PINTAR (ANDROID BACK BUTTON TRAP) ---
+        let activeModals = [];
+        
+        function trackModal(id) {
+            activeModals.push(id);
+            history.pushState({ modalOpen: true }, '');
+        }
+        
+        function untrackModal(id) {
+            const idx = activeModals.lastIndexOf(id);
+            if (idx > -1) activeModals.splice(idx, 1);
         }
 
         window.addEventListener('popstate', (e) => {
-            const modalsOpen = document.querySelectorAll('.modal[style*="display: flex"], .modal[style*="display: block"], #scanner-wrap[style*="display: block"]');
-            if (modalsOpen.length > 0) {
-                hideMod(); 
-                hidePicker(); 
-                closeCustomAlert(); 
-                closePinModal(); 
-                closePricePopup(new Event(''), true); 
-                closeSyncModal(); 
-                closeOfflineLedger();
-                if (isScanning) closeScanner();
+            if (activeModals.length > 0) {
+                const topModal = activeModals.pop();
+                closeModalById(topModal);
             }
         });
-
-        const originalShowMod = showMod;
-        showMod = function(id = null) { pushModalHistory(); originalShowMod(id); };
-
-        const originalOpenScanner = openScanner;
-        openScanner = async function(mode) { pushModalHistory(); await originalOpenScanner(mode); };
-
-        const originalOpenSyncModal = openSyncModal;
-        openSyncModal = function() { pushModalHistory(); originalOpenSyncModal(); };
+        
+        function closeModalById(id) {
+            if (id === 'mod') { activeId = null; $('mod').style.display = 'none'; checkModalOpen(); }
+            else if (id === 'scanner') { isClosingScan = true; $('scanner-wrap').style.display = 'none'; checkModalOpen(); if(torchState) toggleFlashlight(); if(isScanning && html5QrCode){ html5QrCode.stop().catch(()=>{}); } isScanning=false; isClosingScan=false; requestWakeLock(); }
+            else if (id === 'picker') { $('custom-picker').style.display = 'none'; checkModalOpen(); }
+            else if (id === 'alert') { $('custom-alert').style.display = 'none'; checkModalOpen(); }
+            else if (id === 'pin') { $('pin-modal').style.display = 'none'; checkModalOpen(); }
+            else if (id === 'price') { $('price-popup').style.display = 'none'; checkModalOpen(); $('q').value=''; clearSearch(); }
+            else if (id === 'sync') { $('sync-modal').style.display = 'none'; checkModalOpen(); }
+            else if (id === 'offline') { $('offline-ledger-modal').style.display = 'none'; checkModalOpen(); }
+        }
 
     </script>
 </body>
