@@ -126,7 +126,7 @@
             
             <label>BC Satuan</label>
             <div class="barcode-row">
-                <input type="text" id="i-b" autocomplete="off" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\-\s]/g, '').toUpperCase()">
+                <input type="text" id="i-b" autocomplete="off" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\-\s.,+*/%@_]/g, '').toUpperCase()">
                 <button type="button" onclick="openScanner('input')">
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke="white" stroke-width="1.5"></rect><line x1="5" y1="12" x2="19" y2="12" stroke="red" stroke-width="2"></line></svg>
                 </button>
@@ -134,7 +134,7 @@
 
             <label>BC Grosir</label>
             <div class="barcode-row">
-                <input type="text" id="i-b2" placeholder="Opsional" autocomplete="off" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\-\s]/g, '').toUpperCase()">
+                <input type="text" id="i-b2" placeholder="Opsional" autocomplete="off" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\-\s.,+*/%@_]/g, '').toUpperCase()">
                 <button type="button" onclick="openScanner('input-grosir')">
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke="white" stroke-width="1.5"></rect><line x1="5" y1="12" x2="19" y2="12" stroke="red" stroke-width="2"></line></svg>
                 </button>
@@ -301,7 +301,7 @@
 
     <script>
         const $ = (id) => document.getElementById(id);
-        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbyHQ_gtR4K84-LMM_7OCM6XIL1x9W8BlidWV5KkQxKlUkZD0pho2JzbbYN1WG7Wh41d/exec";
+        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbwZvOliz_DRc9SZZUvWlz-cl5IoSkTr7G2Uq8DHb5V2MH5S9EnJHV2CCq8ibeyCc4wD/exec";
         const NamaBln = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         const NamaBlnPendek = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 
@@ -319,7 +319,7 @@
         const TemaNotifikasi = { 
             "Error": "var(--danger)", "Gagal": "var(--danger)", "Hapus": "var(--danger)", 
             "Peringatan": "var(--warning)", "Peringatan Sinkronisasi": "var(--warning)", "Optimasi Sistem": "#FFA500", "Sistem Bersih": "#FFA500", 
-            "Backup": "#87CEFA", "Sinkronisasi": "#87CEFA", "Sukses": "var(--mono-main)", "Info": "var(--mono-main)", "Info Offline": "var(--warning)", "Laporan Import": "var(--mono-main)" 
+            "Backup": "#87CEFA", "Sinkronisasi": "#87CEFA", "Sukses": "var(--mono-main)", "Info": "var(--mono-main)", "Info Offline": "var(--warning)", "Laporan Import": "var(--warning)" 
         };
 
         let isCartMode = false;
@@ -527,7 +527,6 @@
             return pt.length === 3 ? `${pt[0].length === 4 ? pt[0] : pt[2]}-${String(pt[1]).padStart(2, '0')}-${String(pt[0].length === 4 ? pt[2] : pt[0]).padStart(2, '0')}` : ''; 
         }
 
-        // [PERBAIKAN] Mesin Pembersih Format Uang (Ekstrak Angka Murni)
         function parseExcelPrice(val) { 
             if (val === undefined || val === null || val === '') return 0; 
             if (typeof val === 'number') return Math.floor(val);
@@ -535,60 +534,90 @@
             let str = String(val).replace(/[\u200B-\u200D\uFEFF]/g, '').trim(); 
             if (str === '-' || str.toUpperCase() === 'NULL' || str === '0') return 0; 
             
-            // 1. Jika ada akhiran desimal koma nol-nol (,00 atau .00), potong dulu
             let cleanStr = str.replace(/[,.]00$/g, '');
-            
-            // 2. Hancurkan semua karakter SELAIN angka 0-9 (Rp, titik, koma, spasi akan lenyap)
             cleanStr = cleanStr.replace(/[^0-9]/g, ''); 
-            
-            // 3. Ubah teks murni menjadi angka bulat (Integer)
             let num = parseInt(cleanStr, 10); 
-            
             return isNaN(num) ? 0 : num; 
         }
 
+        // [PERBAIKAN LOGIKA] Pemetaan Cerdas Dual-Priority & Anti-Pencurian Kolom
         function normalizeItemData(rawObj) {
             let norm = {}; let keys = Object.keys(rawObj);
-            const findVal = (keywords) => {
+            
+            const findVal = (exactArray, fuzzyArray = []) => {
+                // TAHAP 1: Exact Match (Prioritas Mutlak - Sama Persis 100%)
                 for (let k of keys) {
                     let cleanKey = k.replace(/[\u200B-\u200D\uFEFF\s_]/g, '').toUpperCase();
-                    if (keywords.some(kw => cleanKey.includes(kw))) return rawObj[k];
-                } return undefined;
+                    if (exactArray.includes(cleanKey)) return rawObj[k];
+                }
+                
+                // TAHAP 2: Fuzzy Match (Pencarian Longgar) + Pelindung Tabrakan
+                for (let k of keys) {
+                    let cleanKey = k.replace(/[\u200B-\u200D\uFEFF\s_]/g, '').toUpperCase();
+                    
+                    // Gawang Pertahanan: Cegah pencurian nilai Barcode atau Harga
+                    let isColBarcode = cleanKey.includes('BARCODE');
+                    let isColHarga = cleanKey.includes('HARGA');
+                    
+                    let searchBarcode = fuzzyArray.some(kw => kw.includes('BARCODE'));
+                    let searchHarga = fuzzyArray.some(kw => kw.includes('HARGA') || kw.includes('ECERAN') || kw.includes('GROSIR'));
+                    
+                    // Jika mesin sedang TIDAK mencari Barcode, abaikan kolom Barcode!
+                    if (isColBarcode && !searchBarcode) continue; 
+                    // Jika mesin sedang TIDAK mencari Harga, abaikan kolom Harga!
+                    if (isColHarga && !searchHarga) continue;
+
+                    if (fuzzyArray.some(kw => cleanKey.includes(kw))) return rawObj[k];
+                } 
+                return undefined;
             };
-            norm.n = prop(rawObj.n !== undefined ? rawObj.n : findVal(['NAMABARANG', 'NAMA', 'ITEM', 'PRODUK']));
+
+            norm.n = prop(rawObj.n !== undefined ? rawObj.n : findVal(['NAMABARANG'], ['NAMA', 'ITEM', 'PRODUK']));
             if (!norm.n) return null; 
-            norm.p1 = parseExcelPrice(rawObj.p1 !== undefined ? rawObj.p1 : findVal(['HARGASATUAN', 'HARGAECER', 'HARGA', 'ECERAN']));
-            norm.p2 = parseExcelPrice(rawObj.p2 !== undefined ? rawObj.p2 : findVal(['HARGAGROSIR', 'GROSIR']));
-            let rawB1 = rawObj.b !== undefined ? rawObj.b : findVal(['BARCODESATUAN', 'BARCODE1', 'BARCODE']);
-            let rawB2 = rawObj.b2 !== undefined ? rawObj.b2 : findVal(['BARCODEGROSIR', 'BARCODE2']);
+            
+            norm.p1 = parseExcelPrice(rawObj.p1 !== undefined ? rawObj.p1 : findVal(['HARGASATUAN'], ['HARGAECER', 'HARGA', 'ECERAN']));
+            norm.p2 = parseExcelPrice(rawObj.p2 !== undefined ? rawObj.p2 : findVal(['HARGAGROSIR'], ['GROSIR']));
+            
+            let rawB1 = rawObj.b !== undefined ? rawObj.b : findVal(['BARCODESATUAN'], ['BARCODE1', 'BARCODE']);
+            let rawB2 = rawObj.b2 !== undefined ? rawObj.b2 : findVal(['BARCODEGROSIR'], ['BARCODE2']);
             norm.b = String(rawB1 || "").replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toUpperCase();
             norm.b2 = String(rawB2 || "").replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toUpperCase();
             if (norm.b === '-' || norm.b === '0') norm.b = '';
             if (norm.b2 === '-' || norm.b2 === '0') norm.b2 = '';
             
-            let rawU1 = rawObj.u1 !== undefined ? rawObj.u1 : findVal(['SATUANECER', 'SATUAN', 'U1']);
-            let rawU2 = rawObj.u2 !== undefined ? rawObj.u2 : findVal(['SATUANGROSIR', 'UNITGROSIR', 'U2']);
+            let rawU1 = rawObj.u1 !== undefined ? rawObj.u1 : findVal(['SATUANECER'], ['SATUAN', 'U1']);
+            let rawU2 = rawObj.u2 !== undefined ? rawObj.u2 : findVal(['SATUANGROSIR'], ['UNITGROSIR', 'U2']);
             norm.u1 = rawU1 != null ? String(rawU1).trim() : '';
             norm.u2 = rawU2 != null ? String(rawU2).trim() : '';
             
-            let rawIq = rawObj.iq !== undefined ? rawObj.iq : findVal(['ISIGROSIR', 'ISI']);
+            let rawIq = rawObj.iq !== undefined ? rawObj.iq : findVal(['ISIGROSIR'], ['ISI']);
             norm.iq = parseInt(String(rawIq || "0").replace(/[^0-9]/g, ''), 10) || 0;
-            let rawFav = rawObj.f !== undefined ? rawObj.f : findVal(['FAVORIT', 'FAV']);
+            
+            let rawFav = rawObj.f !== undefined ? rawObj.f : findVal(['FAVORIT'], ['FAV']);
             norm.f = String(rawFav).trim().toUpperCase() === 'TRUE' || String(rawFav) === '1' || String(rawFav).trim().toUpperCase() === 'YA' || rawFav === true;
-            let rawExp = rawObj.exp !== undefined ? rawObj.exp : findVal(['EXPIRED', 'KEDALUWARSA', 'EXP']);
+            
+            let rawExp = rawObj.exp !== undefined ? rawObj.exp : findVal(['KEDALUWARSA'], ['EXPIRED', 'EXP']);
             norm.exp = parseBulanTahunExcel(rawExp);
-            norm.t = rawObj.t !== undefined ? rawObj.t : findVal(['SINGKATAN', 'KODECEPAT', 'KODE']);
-            let rawId = rawObj.id !== undefined ? rawObj.id : findVal(['IDBARANG', 'ID']);
+            
+            norm.t = rawObj.t !== undefined ? rawObj.t : findVal(['SINGKATAN'], ['KODECEPAT', 'KODE']);
+            
+            let rawId = rawObj.id !== undefined ? rawObj.id : findVal(['IDBARANG'], ['ID']);
             norm.id = rawId ? String(rawId).replace(/[\u200B-\u200D\uFEFF]/g, '').trim() : null;
-            let rawDel = rawObj.deleted !== undefined ? rawObj.deleted : findVal(['DELETED', 'HAPUS']);
+            
+            let rawDel = rawObj.deleted !== undefined ? rawObj.deleted : findVal(['DELETED'], ['HAPUS']);
             norm.deleted = String(rawDel).trim().toUpperCase() === 'TRUE' || rawDel === true;
+            
             norm.updatedAt = rawObj.updatedAt || Date.now();
             return norm;
         }
 
         function fmt(n) { return n ? new Intl.NumberFormat('id-ID').format(n) : "0"; }
         function escapeHTML(str) { return String(str).replace(/[&<>'"]/g, t => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[t] || t)); }
-        function prop(s) { return !s ? "" : String(s).replace(/<\/?[^>]+(>|$)/g, "").trim().split(/([\s/-])/).map(w => w && !/[\s/-]/.test(w) ? w.charAt(0).toUpperCase() + w.slice(1) : w).join('').replace(/\s+/g, ' '); }
+        
+        function prop(s) { 
+            return !s ? "" : String(s).trim().split(/([\s\-\/&()+,])/).map(w => w && !/[\s\-\/&()+,]/.test(w) ? w.charAt(0).toUpperCase() + w.slice(1) : w).join('').replace(/\s+/g, ' '); 
+        }
+        
         function highlightMatch(text, term) { 
             const safeText = escapeHTML(text || ""); 
             if (!term || String(term).trim() === '') return safeText; 
@@ -756,7 +785,6 @@
         $('q').addEventListener('blur', () => { setTimeout(() => document.body.classList.remove('search-focus'), 100); });
         $('q').addEventListener('keypress', function(e) { if(e.key === 'Enter') { $('search-dropdown').classList.add('hidden'); let valStr = this.value.trim(); recordSearchLog(valStr); this.blur(); handleSearchLogic(valStr); } });
 
-        // [PERBAIKAN] Logika Pendeteksi Scanner Fisik vs Ketikan Manusia
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') { if (activeModals.length > 0) { const topModal = activeModals.pop(); closeModalById(topModal); } else if (isScanning) { closeScanner(); } return; }
             const isAnyModalOpen = document.body.classList.contains('modal-open');
@@ -765,14 +793,12 @@
             
             const t = Date.now(), timeDiff = t - lastKeyTime; lastKeyTime = t;
             
-            // Batas waktu kita turunkan jadi 40ms agar ketikan cepat jari manusia tidak salah dideteksi.
             if (timeDiff > 40) physicalInputBuffer = ""; 
             
             const isInputFocused = (document.activeElement && (document.activeElement.tagName.toLowerCase() === 'input' || document.activeElement.tagName.toLowerCase() === 'textarea'));
             
             if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey && e.key.match(/[a-zA-Z0-9\-\s.,]/)) {
                 physicalInputBuffer += e.key; 
-                // Keyboard tidak akan menutup sendiri lagi saat user mengetik cepat di form.
                 if (!isInputFocused) {
                     inputBuffer += e.key; clearTimeout(bufferTimer);
                     bufferTimer = setTimeout(() => { 
@@ -898,8 +924,6 @@
         
         function showAlert(msg, title = "Info", color = null) { 
             const c = applyModalColor(title, color); 
-            // Pesan mungkin berisi tag HTML buatan kita seperti <b>, jadi tidak full escape untuk tag tersebut.
-            // Escape khusus untuk variabel luar sudah dilakukan sebelum dipanggil.
             $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); 
             $('alert-btns').innerHTML = `<button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" onclick="closeCustomAlert()">OKE</button>`; 
             $('custom-alert').style.display = 'flex'; 
@@ -993,7 +1017,9 @@
             
             for (let i = start; i < end; i++) {
                 const it = filteredData[i]; let diff = 999, expT = ''; if (it.exp) { let expDate = new Date(it.exp); expDate = new Date(expDate.getFullYear(), expDate.getMonth() + 1, 0); const utcExp = expDate.getTime(); if (!isNaN(utcExp)) { diff = Math.floor((utcExp - today) / 86400000); expT = formatBulanTahun(it.exp); } }
-                const safeName = escapeHTML(it.n), safeAcronym = escapeHTML(it.t || ''), dn = highlightMatch(safeName, sq);
+                
+                const dn = highlightMatch(it.n, sq);
+                const safeAcronym = escapeHTML(it.t || '');
                 const safeU1 = String(it.u1 || '').trim(); const safeU2 = String(it.u2 || '').trim();
                 const unit1 = safeU1 ? escapeHTML(safeU1.charAt(0).toUpperCase() + safeU1.slice(1)) : 'Satuan';
                 const unit2 = safeU2 ? escapeHTML(safeU2.charAt(0).toUpperCase() + safeU2.slice(1)) : 'Grosir';
@@ -1106,7 +1132,8 @@
                         if (wIdx > -1) workerResult[wIdx] = db[idx]; 
                     }
                 } else {
-                    const nIt = { id: generateUniqueId(), b, b2, n: cleanName, p1, p2, f: false, exp, t, u1, u2, iq, updatedAt: ts, deleted: false }; 
+                    let newId = "auto_" + btoa(unescape(encodeURIComponent(cleanName + "_" + b))).replace(/[^a-zA-Z0-9]/g, '');
+                    const nIt = { id: newId, b, b2, n: cleanName, p1, p2, f: false, exp, t, u1, u2, iq, updatedAt: ts, deleted: false }; 
                     db.push(nIt); 
                     await saveItemToIDB(nIt); 
                     
@@ -1228,6 +1255,9 @@
                     chunk.forEach(rawItem => { 
                         let norm = normalizeItemData(rawItem);
                         if (!norm || !norm.n) { rejectedCloudCount++; return; } 
+                        
+                        if (!norm.id) norm.id = "auto_" + btoa(unescape(encodeURIComponent(norm.n + "_" + norm.b))).replace(/[^a-zA-Z0-9]/g, '');
+
                         if (forceSync) {
                             if (!norm.deleted) { tempMap.set(String(norm.id), norm); store.put(norm); }
                         } else {
@@ -1257,17 +1287,46 @@
             if (f.size > 2 * 1024 * 1024) { if (e.target) e.target.value = ''; return showAlert("Gagal! Ukuran file maksimal 2MB.", "Error"); }
             isApiLoading = true; showLoading("Membaca File Excel...<br>Mohon tunggu.", "#3CB371");
             const r = new FileReader(); 
+            
             r.onload = (ev) => { 
                 setTimeout(() => {
                     try {
                         const w = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'});
                         let rawRows = XLSX.utils.sheet_to_json(w.Sheets[w.SheetNames[0]], { header: 1, defval: "" });
                         
+                        if (!rawRows || rawRows.length === 0) throw new Error("Data Kosong");
+
+                        // [Proteksi Mutlak 1] Mencegah error baris siluman (Ghost Rows) dan pemisah format kotor
+                        rawRows = rawRows.map(row => {
+                            if (row && Array.isArray(row) && row.length === 1 && typeof row[0] === 'string') {
+                                let text = row[0];
+                                let delimiter = text.includes(';') ? ';' : (text.includes(',') ? ',' : null);
+                                if (delimiter) {
+                                    let result = [], inQuotes = false, currentStr = '';
+                                    for (let i = 0; i < text.length; i++) {
+                                        let char = text[i];
+                                        if (char === '"') { inQuotes = !inQuotes; }
+                                        else if (char === delimiter && !inQuotes) {
+                                            result.push(currentStr.trim().replace(/^"|"$/g, ''));
+                                            currentStr = '';
+                                        } else { currentStr += char; }
+                                    }
+                                    result.push(currentStr.trim().replace(/^"|"$/g, ''));
+                                    return result;
+                                }
+                            }
+                            return Array.isArray(row) ? row : []; 
+                        });
+                        
                         let headerRowIndex = -1; let headerMap = {}; 
                         
-                        for (let i = 0; i < Math.min(rawRows.length, 20); i++) {
+                        // [Proteksi Mutlak 2] Memperluas pemindaian Header jika ada teks sampah di atas tabel
+                        for (let i = 0; i < Math.min(rawRows.length, 50); i++) {
+                            let row = rawRows[i];
+                            if (!row || row.length === 0) continue;
+                            
                             let hasNama = false; let hasHarga = false; let validColCount = 0;
-                            rawRows[i].forEach((colName, colIdx) => {
+                            row.forEach((colName, colIdx) => {
                                 if (colName !== undefined && colName !== null && String(colName).trim() !== "") {
                                     validColCount++;
                                     let clean = String(colName).replace(/[\u200B-\u200D\uFEFF\s_]/g, '').toUpperCase();
@@ -1279,18 +1338,34 @@
                             if (hasNama && hasHarga && validColCount >= 2) { headerRowIndex = i; break; } else { headerMap = {}; }
                         }
                         
-                        if (headerRowIndex === -1) { isApiLoading = false; hideLoading(); if (e && e.target) e.target.value = ''; return showAlert("Gagal! Judul kolom (NAMA BARANG & HARGA) tidak ditemukan.", "Error"); }
+                        if (headerRowIndex === -1) { 
+                            isApiLoading = false; hideLoading(); if (e && e.target) e.target.value = ''; 
+                            return showAlert("Gagal! Judul kolom (NAMA BARANG & HARGA) tidak ditemukan.", "Error"); 
+                        }
 
-                        const tA = new Set(); const ts = Date.now(); 
+                        const tA = new Set(); 
+                        let baseTs = Date.now(); // [Perbaikan Logika] Mencegah tabrakan sorting (Timestamp Collision)
                         let skippedCount = 0; let failedCount = 0; let processedItems = new Map(); 
                         let dbMapById = new Map(); let dbMapByName = new Map(); let dbMapByBarcode = new Map();
-                        db.forEach(x => { if(!x.deleted) { if(x.id) dbMapById.set(String(x.id), x); if(x.n) dbMapByName.set(String(x.n).toLowerCase(), x); if(x.b) dbMapByBarcode.set(String(x.b), x); if(x.b2) dbMapByBarcode.set(String(x.b2), x); } });
+                        
+                        db.forEach(x => { 
+                            if(!x.deleted) { 
+                                if(x.id) dbMapById.set(String(x.id), x); 
+                                if(x.n) dbMapByName.set(String(x.n).toLowerCase(), x); 
+                                if(x.b) dbMapByBarcode.set(String(x.b), x); 
+                                if(x.b2) dbMapByBarcode.set(String(x.b2), x); 
+                            } 
+                        });
 
                         let maxRows = Math.min(rawRows.length, 10000); 
                         for (let i = headerRowIndex + 1; i < maxRows; i++) {
                             let rowArr = rawRows[i];
-                            let isEmpty = true; for(let cell of rowArr) { if(cell !== "") { isEmpty = false; break; } }
+                            if (!rowArr || rowArr.length === 0) continue;
+                            
+                            // Deteksi murni baris kosong
+                            let isEmpty = true; for(let cell of rowArr) { if(cell !== undefined && cell !== null && String(cell).trim() !== "") { isEmpty = false; break; } }
                             if(isEmpty) continue;
+                            
                             let ro = {}; for (let colIdx in headerMap) { ro[headerMap[colIdx]] = rowArr[colIdx]; }
                             const norm = normalizeItemData(ro);
                             
@@ -1299,21 +1374,52 @@
                             if (!norm.t) { norm.t = generateSmartAcronym(norm.n, null, tA); if(norm.t) tA.add(norm.t); }
                             if (norm.b !== '' && norm.b2 === norm.b) norm.b2 = ''; 
                             if (norm.b2 !== '' && norm.iq < 2) norm.b2 = ''; 
-                            if (!norm.id) norm.id = "auto_" + btoa(unescape(encodeURIComponent(norm.n + norm.b))).replace(/[^a-zA-Z0-9]/g, '').substring(0, 10);
+                            
+                            // [PERBAIKAN KRITIS 1] Lindungi ID Barang dari Excel agar tidak tertimpa!
+                            if (!norm.id || norm.id === "undefined" || norm.id === "") {
+                                norm.id = "auto_" + btoa(unescape(encodeURIComponent(norm.n + "_" + norm.b))).replace(/[^a-zA-Z0-9]/g, '');
+                            }
 
+                            // [PERBAIKAN KRITIS 2] Mencegah barcode ganda antar baris di dalam file Excel yang sama
                             let isCollision = false;
-                            if (norm.b !== '') { let c = dbMapByBarcode.get(norm.b); if (c && String(c.id) !== String(norm.id)) isCollision = true; }
-                            if (!isCollision && norm.b2 !== '') { let c = dbMapByBarcode.get(norm.b2); if (c && String(c.id) !== String(norm.id)) isCollision = true; }
+                            if (norm.b !== '') { 
+                                let c = dbMapByBarcode.get(norm.b); 
+                                if (c && String(c.id) !== String(norm.id)) isCollision = true; 
+                            }
+                            if (!isCollision && norm.b2 !== '') { 
+                                let c = dbMapByBarcode.get(norm.b2); 
+                                if (c && String(c.id) !== String(norm.id)) isCollision = true; 
+                            }
                             if (isCollision) { skippedCount++; continue; } 
                             
+                            // Daftarkan barcode ke radar sementara
+                            if (norm.b !== '') dbMapByBarcode.set(norm.b, norm);
+                            if (norm.b2 !== '') dbMapByBarcode.set(norm.b2, norm);
+
+                            // Penjadwalan Waktu: Tambahkan +1 milidetik per baris agar sorting selalu berurutan
+                            let currentTs = baseTs + i;
+                            
+                            // Cek apakah barang sudah ada di database (Berdasarkan ID atau Nama persis)
                             let existingItem = dbMapById.get(String(norm.id)) || dbMapByName.get(String(norm.n).toLowerCase());
-                            if (existingItem) { processedItems.set(existingItem.id, { ...existingItem, ...norm, updatedAt: ts, deleted: false }); } 
-                            else { norm.updatedAt = ts; norm.deleted = false; processedItems.set(norm.id, norm); }
+                            
+                            if (existingItem) { 
+                                // Update barang yang sudah ada
+                                processedItems.set(existingItem.id, { ...existingItem, ...norm, updatedAt: currentTs, deleted: false }); 
+                            } else { 
+                                // Tambah barang baru
+                                norm.updatedAt = currentTs; 
+                                norm.deleted = false; 
+                                processedItems.set(norm.id, norm); 
+                            }
                         }
 
                         if(processedItems.size > 0) {
                             const tx = idb.transaction('items', 'readwrite'); const s = tx.objectStore('items');
-                            processedItems.forEach(item => { let eIdx = db.findIndex(x => String(x.id) === String(item.id)); if(eIdx > -1) db[eIdx] = item; else db.push(item); s.put(item); });
+                            processedItems.forEach(item => { 
+                                let eIdx = db.findIndex(x => String(x.id) === String(item.id)); 
+                                if(eIdx > -1) db[eIdx] = item; else db.push(item); 
+                                s.put(item); 
+                            });
                             tx.oncomplete = () => { 
                                 if(worker) worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
                                 updateMaps(); clearSearch(); renderCartUI(); applyFiltersAndRender();
@@ -1321,22 +1427,34 @@
                                 
                                 if (skippedCount > 0 || failedCount > 0) { 
                                     let msg = ``;
-                                    if (skippedCount > 0) msg += `⚠️ <b>${skippedCount}</b> data dilewati (Nama/Barcode duplikat).<br>`;
-                                    if (failedCount > 0) msg += `ℹ️ <b>${failedCount}</b> baris kosong dari Excel diabaikan.`;
-                                    showAlert(msg, "Laporan Import", "var(--mono-main)"); 
+                                    if (skippedCount > 0) msg += `⚠️ <b>${skippedCount}</b> data ditolak (Barcode Ganda).<br>`;
+                                    if (failedCount > 0) msg += `ℹ️ <b>${failedCount}</b> baris kosong diabaikan.<br>`;
+                                    msg += `<br><span style="color:var(--mono-main);">✅ Sukses memuat <b>${processedItems.size}</b> Data Valid.</span>`;
+                                    showAlert(msg, "Laporan Import", "var(--warning)"); 
                                 } else { 
                                     tampilkanToast("Import Selesai Total!", "var(--mono-main)"); 
                                 }
                             }; 
-                            tx.onerror = () => { isApiLoading = false; hideLoading(); if (e && e.target) e.target.value = ''; showAlert("Gagal menyimpan ke Database HP. Coba lagi.", "Error"); }
+                            tx.onerror = () => { 
+                                isApiLoading = false; hideLoading(); if (e && e.target) e.target.value = ''; 
+                                showAlert("Gagal menyimpan ke Database HP. Coba lagi.", "Error"); 
+                            }
                         } else {
                             isApiLoading = false; hideLoading(); if (e && e.target) e.target.value = ''; 
-                            showAlert(`Tidak ada data valid yang bisa dibaca.<br>ℹ️ ${failedCount} baris kosong/salah format dilewati.`, "Info Import", "var(--warning)"); 
+                            showAlert(`Tidak ada data valid yang bisa dibaca.<br>ℹ️ Baris kosong dilewati.`, "Info Import", "var(--warning)"); 
                         }
-                    } catch (err) { isApiLoading = false; hideLoading(); if (e && e.target) e.target.value = ''; showAlert("Format File Excel tidak valid atau rusak!", "Error"); }
+                    } catch (err) { 
+                        console.error("Critical Import Error: ", err); 
+                        isApiLoading = false; hideLoading(); if (e && e.target) e.target.value = ''; 
+                        showAlert("Format File Excel tidak valid atau rusak! Pastikan tabel benar.", "Error"); 
+                    }
                 }, 100); 
             }; 
-            r.onerror = () => { isApiLoading = false; hideLoading(); if (e && e.target) e.target.value = ''; showAlert("Gagal membaca file dari HP Anda!", "Error"); }
+            
+            r.onerror = () => { 
+                isApiLoading = false; hideLoading(); if (e && e.target) e.target.value = ''; 
+                showAlert("Gagal membaca file dari HP Anda!", "Error"); 
+            }
             r.readAsArrayBuffer(f); 
         }
         
