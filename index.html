@@ -370,7 +370,7 @@
 
     <script>
         const $ = (id) => document.getElementById(id);
-        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbxFIhX5t6lqOaj1M26QAUS5UUq59qn7ytbN8xjOdNxuBZq98LfN0Fzh397ckeAN2Awx/exec";
+        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbymZsP0Tv8HQHCfGoHwlZS9v23hcbt5yIo9lbDykf-jz5E8Avhar4at4b_V5JBRD3yx/exec";
         const NamaBln = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         const NamaBlnPendek = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 
@@ -1410,12 +1410,11 @@
                     return fetchWithTimeout(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backupHistory', data: historyData }) }, 30000);
                 })
                 .then(r => r.json())
-                .then(historyRes => {
+                                .then(historyRes => {
                     if (historyRes.status !== 'success') throw new Error(historyRes.message);
-
-                    localStorage.removeItem('DB_WA_HISTORY');
-                    
+   
                     isApiLoading = false; 
+
                     hideLoading(); 
                     tampilkanToast("Harga & Riwayat Struk Berhasil Diupload!", "var(--mono-main)"); 
                     
@@ -2066,9 +2065,11 @@
             text += `------------------------\n`;
             text += `Terimakasih\nAtas Kunjungan Anda\n\`\`\``;
 
-            let intentUrl = `[https://api.whatsapp.com/send?text=$](https://api.whatsapp.com/send?text=$){encodeURIComponent(text)}`;
+            // [PERBAIKAN SINTAKS]: Link WA murni
+            let intentUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
             let a = document.createElement('a');
             a.target = '_blank';
+       
             a.rel = 'noopener noreferrer';
             a.href = intentUrl;
             a.click();
