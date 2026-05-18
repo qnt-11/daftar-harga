@@ -88,7 +88,6 @@
             }, 3000); 
         }
 
-        // Mencegah Data Loss (Racing Condition) saat Reconnect
         window.addEventListener('online', () => { 
             title.innerText = "✅ Sinyal Ditemukan!"; 
             title.style.color = "#3CB371"; 
@@ -104,7 +103,6 @@
                         const tx = db.transaction([STORE_NAME], 'readwrite');
                         tx.objectStore(STORE_NAME).put({ id: 1, text: currentText });
                         
-                        // Menahan Reload SAMPAI data benar-benar 100% aman tersimpan di disk HP
                         tx.oncomplete = executeReload;
                         tx.onerror = executeReload;
                     } catch (e) {
@@ -147,7 +145,15 @@
                 const store = tx.objectStore(STORE_NAME);
                 const req = store.get(1);
                 req.onsuccess = function() { 
-                    if (req.result) ledger.value = req.result.text; 
+                    if (req.result && req.result.text) { 
+                        ledger.value = req.result.text; 
+                    } else {
+                        const fallbackText = localStorage.getItem('DB_WA_OFFLINE_LEDGER'); 
+                        if (fallbackText) {
+                            ledger.value = fallbackText;
+                            saveLedger(); 
+                        }
+                    }
                 };
             } catch (error) {
                 const t = localStorage.getItem('DB_WA_OFFLINE_LEDGER'); 
@@ -171,6 +177,15 @@
                 }
             }, 500); 
         }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') {
+                if (saveTimeout) clearTimeout(saveTimeout); 
+                if (ledger && ledger.value !== undefined) {
+                    localStorage.setItem('DB_WA_OFFLINE_LEDGER', ledger.value);
+                }
+            }
+        });
 
         // --- SISTEM KALKULATOR ---
         const display = document.getElementById('calc-display'); 
@@ -238,9 +253,8 @@
             }
         }
 
-        // --- DUKUNGAN KEYBOARD FISIK (BARU) ---
+        // --- DUKUNGAN KEYBOARD FISIK ---
         document.addEventListener('keydown', (e) => {
-            // Abaikan input keyboard jika pengguna sedang mengetik di dalam Buku Catatan
             if (document.activeElement.tagName === 'TEXTAREA') return;
 
             const key = e.key;
