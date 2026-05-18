@@ -156,7 +156,7 @@
                     <input type="text" id="i-u1" placeholder="Ketik" autocomplete="off" oninput="this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1)">
                 </div>
             </div>
-            <div class="quick-chip-row">
+            <div class="quick-chip-row" id="chip-row-u1">
                 <div class="q-chip" onclick="document.getElementById('i-u1').value='Pcs'">Pcs</div>
                 <div class="q-chip" onclick="document.getElementById('i-u1').value='Bks'">Bks</div>
                 <div class="q-chip" onclick="document.getElementById('i-u1').value='Renceng'">Renceng</div>                
@@ -173,7 +173,7 @@
                     <input type="text" id="i-u2" placeholder="Ketik" autocomplete="off" oninput="this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1); toggleIsiGrosir();">
                 </div>
             </div>
-            <div class="quick-chip-row">
+            <div class="quick-chip-row" id="chip-row-u2">
                 <div class="q-chip" onclick="document.getElementById('i-u2').value='Slop'; toggleIsiGrosir();">Slop</div>
                 <div class="q-chip" onclick="document.getElementById('i-u2').value='Dus'; toggleIsiGrosir();">Dus</div>
                 <div class="q-chip" onclick="document.getElementById('i-u2').value='Karton'; toggleIsiGrosir();">Karton</div>
@@ -308,6 +308,11 @@
         const APP_SECURE_PIN = localStorage.getItem('APP_PIN') || '170823';
 
         let db = [], idb, worker, workerResult = null, filteredData = [], listOffsets = [];
+        
+        // --- INJEKSI CACHE LAYOUT ANTI-LAG ---
+        let layoutCache = { listTop: 188, offsetBuffer: 135, lastUpdate: 0 };
+        function invalidateLayoutCache() { layoutCache.lastUpdate = 0; }
+        
         let lastStartIndex = -1, lastEndIndex = -1, currentSearchReqId = 0, inputBuffer = '', bufferTimer;
         let barcodeMap = new Map(), acronymMap = new Map(), physicalInputBuffer = "", lastKeyTime = 0;
         let tab = 'all', activeId = null, html5QrCode = null, isScanning = false, isStartingScan = false, sortAZ = false, scanMode = 'search'; 
@@ -540,31 +545,25 @@
             return isNaN(num) ? 0 : num; 
         }
 
-        // [PERBAIKAN LOGIKA] Pemetaan Cerdas Dual-Priority & Anti-Pencurian Kolom
         function normalizeItemData(rawObj) {
             let norm = {}; let keys = Object.keys(rawObj);
             
             const findVal = (exactArray, fuzzyArray = []) => {
-                // TAHAP 1: Exact Match (Prioritas Mutlak - Sama Persis 100%)
                 for (let k of keys) {
                     let cleanKey = k.replace(/[\u200B-\u200D\uFEFF\s_]/g, '').toUpperCase();
                     if (exactArray.includes(cleanKey)) return rawObj[k];
                 }
                 
-                // TAHAP 2: Fuzzy Match (Pencarian Longgar) + Pelindung Tabrakan
                 for (let k of keys) {
                     let cleanKey = k.replace(/[\u200B-\u200D\uFEFF\s_]/g, '').toUpperCase();
                     
-                    // Gawang Pertahanan: Cegah pencurian nilai Barcode atau Harga
                     let isColBarcode = cleanKey.includes('BARCODE');
                     let isColHarga = cleanKey.includes('HARGA');
                     
                     let searchBarcode = fuzzyArray.some(kw => kw.includes('BARCODE'));
                     let searchHarga = fuzzyArray.some(kw => kw.includes('HARGA') || kw.includes('ECERAN') || kw.includes('GROSIR'));
                     
-                    // Jika mesin sedang TIDAK mencari Barcode, abaikan kolom Barcode!
                     if (isColBarcode && !searchBarcode) continue; 
-                    // Jika mesin sedang TIDAK mencari Harga, abaikan kolom Harga!
                     if (isColHarga && !searchHarga) continue;
 
                     if (fuzzyArray.some(kw => cleanKey.includes(kw))) return rawObj[k];
@@ -779,6 +778,7 @@
             let diffX = mainStartX - e.changedTouches[0].clientX; elem.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
             if (isMainSwiping && diffX > 45) { elem.style.transform = `translateX(-80px)`; swipedCardElem = elem; } else { elem.style.transform = `translateX(0px)`; if (swipedCardElem === elem) swipedCardElem = null; }
             mainStartX = mainStartY = null;
+            setTimeout(() => { isMainSwiping = false; }, 50); // Reset after touch ends
         }
 
         $('q').addEventListener('focus', () => { if (isCartMode) document.body.classList.add('search-focus'); });
@@ -885,7 +885,14 @@
             } 
         };`;
         worker = new Worker(URL.createObjectURL(new Blob([workerScript], { type: 'application/javascript' })));
-        worker.onmessage = function(e) { if (e.data.type === 'result' && e.data.reqId === currentSearchReqId) { workerResult = e.data.data; applyFiltersAndRender(); } };
+        
+        worker.onmessage = function(e) { 
+            if (e.data.type === 'result' && e.data.reqId === currentSearchReqId) { 
+                workerResult = e.data.data; 
+                window.scrollTo({ top: 0, behavior: 'instant' }); 
+                applyFiltersAndRender(); 
+            } 
+        };
 
         function recordSearchLog(term) { 
             const c = term.trim(); if(!c) return; 
@@ -904,10 +911,19 @@
             } else searchDropdown.classList.add('hidden'); 
         }
         function executeQuickSearch(term) { searchInput.value = term; recordSearchLog(term); searchDropdown.classList.add('hidden'); $('q-x').style.display = 'flex'; window.scrollTo({ top: 0, behavior: 'instant' }); handleSearchLogic(term); }
+        
         const handleSearchInput = debounce(() => { 
-            const val = searchInput.value.trim(); window.scrollTo({ top: 0, behavior: 'instant' }); 
-            if (val) handleSearchLogic(val); else { workerResult = null; applyFiltersAndRender(); } showSearchSuggestions(); 
+            const val = searchInput.value.trim(); 
+            if (val) {
+                handleSearchLogic(val); 
+            } else { 
+                workerResult = null; 
+                window.scrollTo({ top: 0, behavior: 'instant' }); 
+                applyFiltersAndRender(); 
+            } 
+            showSearchSuggestions(); 
         }, 150);
+
         searchInput.addEventListener('input', (e) => { $('q-x').style.display = e.target.value.trim() ? 'flex' : 'none'; handleSearchInput(); });
         searchInput.addEventListener('focus', showSearchSuggestions);
         function clearSearch() { searchInput.value = ''; $('q-x').style.display = 'none'; workerResult = null; currentSearchReqId++; window.scrollTo({ top: 0, behavior: 'instant' }); showSearchSuggestions(); applyFiltersAndRender(); searchInput.blur(); }
@@ -954,6 +970,29 @@
             } else { 
                 $('m-tit').innerText = "Tambah Barang"; b.value = b2.value = n.value = p1.value = p2.value = exp.dataset.rawDate = exp.value = t.value = u1.value = u2.value = iq.value = ''; 
             } 
+            
+            const getSafeChipData = (key, defaults) => {
+                try {
+                    let data = JSON.parse(localStorage.getItem(key));
+                    return Array.isArray(data) && data.length > 0 ? data : defaults;
+                } catch(e) { return defaults; }
+            };
+            const topU1 = getSafeChipData('CHIP_U1_HIST', ['Pcs', 'Bks', 'Renceng']);
+            const topU2 = getSafeChipData('CHIP_U2_HIST', ['Slop', 'Dus', 'Karton']);
+            
+            const renderChip = (u, isGrosir) => {
+                const safeHtml = escapeHTML(u);
+                const safeJs = String(u).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/[\r\n]+/g, ' '); 
+                const action = isGrosir ? `document.getElementById('i-u2').value='${safeJs}'; toggleIsiGrosir();` : `document.getElementById('i-u1').value='${safeJs}'`;
+                return `<div class="q-chip" onclick="${action}">${safeHtml}</div>`;
+            };
+
+            const chipRowU1 = $('chip-row-u1');
+            if (chipRowU1) chipRowU1.innerHTML = topU1.map(u => renderChip(u, false)).join('') + `<div class="q-chip q-chip-del" onclick="document.getElementById('i-u1').value=''">Kosong</div>`;
+            
+            const chipRowU2 = $('chip-row-u2');
+            if (chipRowU2) chipRowU2.innerHTML = topU2.map(u => renderChip(u, true)).join('') + `<div class="q-chip q-chip-del" onclick="document.getElementById('i-u2').value=''; toggleIsiGrosir();">Kosong</div>`;
+
             toggleIsiGrosir(); $('mod').style.display = 'flex'; document.body.classList.add('modal-open'); setTimeout(() => $('i-n').focus(), 100); trackModal('mod');
         }
 
@@ -1007,9 +1046,20 @@
         });
 
         function renderVirtualList(isScrolling = false) {
-            const rend = $('render-container'), empty = $('empty-message-container'); if (isScrolling && swipedCardElem) swipedCardElem = null; 
+            const rend = $('render-container'), empty = $('empty-message-container'); 
+            if (isScrolling && swipedCardElem) return; // PROTEKSI
+            
             if (filteredData.length === 0) { $('list').style.height = '0px'; rend.innerHTML = ''; empty.innerHTML = `<div class="empty-msg">${tab === 'fav' ? "Belum ada favorit" : (tab === 'exp' ? "Tidak ada barang expired" : "Belum ada data")}</div>`; empty.classList.remove('hidden'); return; }
-            let sy = window.scrollY, listTop = $('list').offsetTop || 188, offsetBuffer = $('sticky-roof-group').offsetHeight || 135, st = Math.max(0, sy - (listTop - offsetBuffer)), start = getDVSStartIndex(st), visH = window.innerHeight, end = start, curVisH = 0; start = Math.max(0, start - 15); 
+            
+            const now = Date.now();
+            if (now - layoutCache.lastUpdate > 2000) {
+                layoutCache.listTop = $('list').offsetTop || 188;
+                layoutCache.offsetBuffer = $('sticky-roof-group').offsetHeight || 135;
+                layoutCache.lastUpdate = now;
+            }
+            
+            let sy = window.scrollY, st = Math.max(0, sy - (layoutCache.listTop - layoutCache.offsetBuffer)), start = getDVSStartIndex(st), visH = window.innerHeight, end = start, curVisH = 0; start = Math.max(0, start - 15); 
+            
             while(end < filteredData.length && curVisH < visH + 1200) { curVisH += (filteredData[end]._cHeight || (tab === 'exp' ? 85 : 75)); end++; }
             if (isScrolling && start === lastStartIndex && end === lastEndIndex) return; lastStartIndex = start; lastEndIndex = end;
             rend.style.transform = `translateY(${listOffsets[start]}px)`; let html = ''; const today = Date.now(), sq = $('q').value.trim(); 
@@ -1054,9 +1104,19 @@
 
         let scrollTimeoutLock;
         window.addEventListener('scroll', () => { 
+            if (isMainSwiping) return; // PROTEKSI
+            
             let sy = window.scrollY; document.body.classList.add('is-scrolling'); clearTimeout(scrollTimeoutLock); scrollTimeoutLock = setTimeout(() => document.body.classList.remove('is-scrolling'), 150);
             if (!$('dropdown-menu').classList.contains('hidden')) $('dropdown-menu').classList.add('hidden');
-            let listTop = $('list').offsetTop || 188, offsetBuffer = $('sticky-roof-group').offsetHeight || 135, st = Math.max(0, sy - (listTop - offsetBuffer));
+            
+            const now = Date.now();
+            if (now - layoutCache.lastUpdate > 2000) {
+                layoutCache.listTop = $('list').offsetTop || 188;
+                layoutCache.offsetBuffer = $('sticky-roof-group').offsetHeight || 135;
+                layoutCache.lastUpdate = now;
+            }
+            
+            let st = Math.max(0, sy - (layoutCache.listTop - layoutCache.offsetBuffer));
             if (sortAZ && filteredData.length > 0) {
                 const sIdx = getDVSStartIndex(st);
                 if (filteredData[sIdx]) {
@@ -1107,8 +1167,8 @@
                 if (exName) return showAlert("Nama barang ini sudah terdaftar!", "Gagal"); 
                 
                 if (b !== '') { 
-                    const exB = db.find(x => !x.deleted && String(x.b) === b && String(x.id) !== String(activeId)); 
-                    if (exB) return showAlert("Barcode Satuan dipakai barang lain!", "Gagal"); 
+                    const exB = db.find(x => !x.deleted && (String(x.b) === b || String(x.b2) === b) && String(x.id) !== String(activeId)); 
+                    if (exB) return showAlert("Barcode Satuan bentrok / sudah dipakai barang lain!", "Gagal"); 
                 }
                 
                 let t = String($('i-t').value).trim().toLowerCase(); 
@@ -1141,6 +1201,25 @@
                     if (workerResult) workerResult.unshift(nIt); 
                 }
                 
+                try {
+                    const saveChipHist = (val, key, defaults) => {
+                        let clean = String(val).trim().toLowerCase();
+                        if(!clean || clean.length > 15) return; 
+                        clean = clean.charAt(0).toUpperCase() + clean.slice(1);
+                        
+                        let hist = [];
+                        try { hist = JSON.parse(localStorage.getItem(key)); } catch(e){}
+                        if (!Array.isArray(hist)) hist = defaults;
+                        
+                        hist = hist.filter(x => x !== clean); 
+                        hist.unshift(clean); 
+                        if(hist.length > 3) hist = hist.slice(0, 3); 
+                        localStorage.setItem(key, JSON.stringify(hist));
+                    };
+                    saveChipHist(u1, 'CHIP_U1_HIST', ['Pcs', 'Bks', 'Renceng']);
+                    saveChipHist(u2, 'CHIP_U2_HIST', ['Slop', 'Dus', 'Karton']);
+                } catch(chipErr) { console.warn("Chip memory terblokir sistem", chipErr); }
+
                 updateMaps(); 
                 hideMod(); 
                 applyFiltersAndRender(); 
@@ -1296,7 +1375,6 @@
                         
                         if (!rawRows || rawRows.length === 0) throw new Error("Data Kosong");
 
-                        // [Proteksi Mutlak 1] Mencegah error baris siluman (Ghost Rows) dan pemisah format kotor
                         rawRows = rawRows.map(row => {
                             if (row && Array.isArray(row) && row.length === 1 && typeof row[0] === 'string') {
                                 let text = row[0];
@@ -1320,7 +1398,6 @@
                         
                         let headerRowIndex = -1; let headerMap = {}; 
                         
-                        // [Proteksi Mutlak 2] Memperluas pemindaian Header jika ada teks sampah di atas tabel
                         for (let i = 0; i < Math.min(rawRows.length, 50); i++) {
                             let row = rawRows[i];
                             if (!row || row.length === 0) continue;
@@ -1344,7 +1421,7 @@
                         }
 
                         const tA = new Set(); 
-                        let baseTs = Date.now(); // [Perbaikan Logika] Mencegah tabrakan sorting (Timestamp Collision)
+                        let baseTs = Date.now(); 
                         let skippedCount = 0; let failedCount = 0; let processedItems = new Map(); 
                         let dbMapById = new Map(); let dbMapByName = new Map(); let dbMapByBarcode = new Map();
                         
@@ -1362,7 +1439,6 @@
                             let rowArr = rawRows[i];
                             if (!rowArr || rowArr.length === 0) continue;
                             
-                            // Deteksi murni baris kosong
                             let isEmpty = true; for(let cell of rowArr) { if(cell !== undefined && cell !== null && String(cell).trim() !== "") { isEmpty = false; break; } }
                             if(isEmpty) continue;
                             
@@ -1375,12 +1451,10 @@
                             if (norm.b !== '' && norm.b2 === norm.b) norm.b2 = ''; 
                             if (norm.b2 !== '' && norm.iq < 2) norm.b2 = ''; 
                             
-                            // [PERBAIKAN KRITIS 1] Lindungi ID Barang dari Excel agar tidak tertimpa!
                             if (!norm.id || norm.id === "undefined" || norm.id === "") {
                                 norm.id = "auto_" + btoa(unescape(encodeURIComponent(norm.n + "_" + norm.b))).replace(/[^a-zA-Z0-9]/g, '');
                             }
 
-                            // [PERBAIKAN KRITIS 2] Mencegah barcode ganda antar baris di dalam file Excel yang sama
                             let isCollision = false;
                             if (norm.b !== '') { 
                                 let c = dbMapByBarcode.get(norm.b); 
@@ -1392,21 +1466,16 @@
                             }
                             if (isCollision) { skippedCount++; continue; } 
                             
-                            // Daftarkan barcode ke radar sementara
                             if (norm.b !== '') dbMapByBarcode.set(norm.b, norm);
                             if (norm.b2 !== '') dbMapByBarcode.set(norm.b2, norm);
 
-                            // Penjadwalan Waktu: Tambahkan +1 milidetik per baris agar sorting selalu berurutan
                             let currentTs = baseTs + i;
                             
-                            // Cek apakah barang sudah ada di database (Berdasarkan ID atau Nama persis)
                             let existingItem = dbMapById.get(String(norm.id)) || dbMapByName.get(String(norm.n).toLowerCase());
                             
                             if (existingItem) { 
-                                // Update barang yang sudah ada
                                 processedItems.set(existingItem.id, { ...existingItem, ...norm, updatedAt: currentTs, deleted: false }); 
                             } else { 
-                                // Tambah barang baru
                                 norm.updatedAt = currentTs; 
                                 norm.deleted = false; 
                                 processedItems.set(norm.id, norm); 
