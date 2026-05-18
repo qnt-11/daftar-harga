@@ -88,7 +88,7 @@
             }, 3000); 
         }
 
-        // [PERBAIKAN KRITIS]: Mencegah Data Loss (Racing Condition) saat Reconnect
+        // Mencegah Data Loss (Racing Condition) saat Reconnect
         window.addEventListener('online', () => { 
             title.innerText = "✅ Sinyal Ditemukan!"; 
             title.style.color = "#3CB371"; 
@@ -172,6 +172,7 @@
             }, 500); 
         }
 
+        // --- SISTEM KALKULATOR ---
         const display = document.getElementById('calc-display'); 
         let calcVal = '0';
         let isResultDisplayed = false; 
@@ -236,6 +237,28 @@
                 setTimeout(calcClear, 1000); 
             }
         }
+
+        // --- DUKUNGAN KEYBOARD FISIK (BARU) ---
+        document.addEventListener('keydown', (e) => {
+            // Abaikan input keyboard jika pengguna sedang mengetik di dalam Buku Catatan
+            if (document.activeElement.tagName === 'TEXTAREA') return;
+
+            const key = e.key;
+            if (/[0-9]/.test(key)) {
+                calcNum(key);
+            } else if (key === '.' || key === ',') {
+                calcNum('.');
+            } else if (key === '+' || key === '-' || key === '*' || key === '/') {
+                calcOp(key);
+            } else if (key === 'Enter' || key === '=') {
+                e.preventDefault(); 
+                calcCalculate();
+            } else if (key === 'Backspace') {
+                calcBack();
+            } else if (key === 'Escape' || key === 'Delete') {
+                calcClear();
+            }
+        });
     </script>
 </body>
 </html>
