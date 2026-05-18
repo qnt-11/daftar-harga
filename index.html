@@ -71,11 +71,21 @@
                     <span style="font-size:10px; color:#888; font-weight:800; letter-spacing:1px;">TOTAL BELANJA</span>
                     <span id="cp-grand-total" style="font-size:18px; color:var(--danger); font-weight:800; font-family:'Montserrat', sans-serif;">Rp 0</span>
                 </div>
-                <div style="display: flex; gap: 12px; align-items: center;">
-                    <button class="icon-btn" onclick="openScanner('cart')">
-                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke="var(--mono-main)" stroke-width="1.5"></rect><line class="laser-beam-header" x1="5" y1="12" x2="19" y2="12" stroke="red" stroke-width="2" stroke-linecap="round"></line></svg>
+                <div style="display: flex; gap: 5px; align-items: center;">
+                    <button class="icon-btn" onclick="promptPrint()" style="color:var(--mono-main)">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                     </button>
-                    <button class="cp-btn reset" onclick="resetCart()">RESET</button>
+                    <button class="icon-btn" onclick="openHistory()" style="color:var(--text-light)">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                            <polyline points="3 3 3 8 8 8"></polyline>
+                            <polyline points="12 7 12 12 15 15"></polyline>
+                        </svg>
+                    </button>
+                    <button class="icon-btn" onclick="openScanner('cart')">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke="var(--text-light)" stroke-width="1.5"></rect><line class="laser-beam-header" x1="5" y1="12" x2="19" y2="12" stroke="red" stroke-width="2" stroke-linecap="round"></line></svg>
+                    </button>
+                    <button class="cp-btn reset" onclick="resetCart()" style="margin-left: 5px;">RESET</button>
                 </div>
             </div>
             <div id="cp-list" class="cp-list"></div>
@@ -140,11 +150,16 @@
                 </button>
             </div>
             
-            <label>Singkatan / Kode Cepat</label>
-            <input type="text" id="i-t" placeholder="Otomatis jika kosong" autocomplete="off" style="text-transform: lowercase;">
-            
-            <label>Expired (Bulan & Tahun)</label>
-            <input type="text" id="i-exp" placeholder="- Tidak Ada -" readonly onclick="openPicker('i-exp', 'date')" style="cursor: pointer; caret-color: transparent;">
+            <div class="form-grid">
+                <div class="col-price">
+                    <label>Expired</label>
+                    <input type="text" id="i-exp" placeholder="- Tidak Ada -" readonly onclick="openPicker('i-exp', 'date')" style="cursor: pointer; caret-color: transparent;">
+                </div>
+                <div class="col-unit">
+                    <label>Akronim</label>
+                    <input type="text" id="i-t" placeholder="Otomatis" autocomplete="off" style="text-transform: lowercase;">
+                </div>
+            </div>
             
             <div class="form-grid">
                 <div class="col-price">
@@ -297,6 +312,60 @@
         </div>
     </div>
 
+    <div id="history-modal" class="modal" onclick="if(event.target===this) closeHistory()">
+        <div class="modal-box" style="background: #000; border-color: #333; padding: 20px; max-width: 340px; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 15px;">
+                <h3 class="audiowide-regular" style="margin: 0; font-size: 16px; font-style: italic; color: #fff; display: flex; align-items: center; gap: 8px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                        <polyline points="3 3 3 8 8 8"></polyline>
+                        <polyline points="12 7 12 12 15 15"></polyline>
+                    </svg>
+                    RIWAYAT
+                </h3>
+                <svg onclick="closeHistory()" style="color: var(--danger); cursor: pointer;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <span style="font-size: 10px; color: #888; font-weight: 700;">OMZET HARI INI:</span>
+                <span id="hist-omzet" style="font-size: 15px; font-weight: 800; color: #fff;">Rp 0</span>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <div style="position: relative; flex: 1;" onclick="openFullDatePicker()">
+                    <div id="hist-date-display" style="background: transparent; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 12px; text-align: center; font-weight: 600; cursor: pointer;">Pilih Tanggal</div>
+                    <input type="hidden" id="hist-date">
+                </div>
+                <button class="btn-main" style="background: transparent!important; border: 1px solid #87CEFA!important; color: #87CEFA!important; padding: 0 15px; min-height: 40px; font-size: 10px; gap: 5px; flex: 0.8;" onclick="cariCloudHistory()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg> CARI STRUK
+                </button>
+            </div>
+
+            <div id="hist-list" style="flex: 1; min-height: 180px; max-height: 40vh; overflow-y: auto; border-bottom: 1px solid #333; margin-bottom: 15px;"></div>
+
+            <button class="btn-main" style="background: transparent!important; border: 1px solid var(--danger)!important; color: var(--danger)!important;" onclick="clearHistoryLocal()">BERSIHKAN RIWAYAT</button>
+        </div>
+    </div>
+
+    <div id="full-date-picker" class="modal" onclick="if(event.target===this) closeFullDatePicker()">
+        <div class="modal-box" style="background: #111; border-color: #333; padding: 20px; max-width: 320px; border-radius: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                <svg onclick="changeFDPMonth(-1)" style="cursor: pointer; padding: 5px;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                <div id="fdp-month-year" style="font-size: 15px; font-weight: 700; color: #fff; font-family: 'Montserrat', sans-serif; text-transform: capitalize;">Bulan Tahun</div>
+                <svg onclick="changeFDPMonth(1)" style="cursor: pointer; padding: 5px;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 11px; font-weight: 600; color: #888; margin-bottom: 12px;">
+                <div>Min</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
+            </div>
+            <div id="fdp-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; gap: 8px 0; margin-bottom: 10px;"></div>
+            <div style="display: flex; gap: 8px; justify-content: space-between; margin-top: 25px;">
+                <button class="btn-main" style="flex: 1; background: transparent!important; border: 1px solid #555!important; color: #fff!important; font-size: 11px; padding: 12px 0; border-radius: 8px;" onclick="closeFullDatePicker()">BATAL</button>
+                <button class="btn-main" style="flex: 1; background: transparent!important; border: 1px solid #555!important; color: #fff!important; font-size: 11px; padding: 12px 0; border-radius: 8px;" onclick="setFDPToday()">HARI INI</button>
+                <button class="btn-main" style="flex: 1; background: transparent!important; border: 1px solid #fff!important; color: #fff!important; font-size: 11px; padding: 12px 0; border-radius: 8px;" onclick="setFDPDate()">SETEL</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast-notification" class="hidden"><span id="toast-message"></span></div>
 
     <script>
@@ -309,7 +378,6 @@
 
         let db = [], idb, worker, workerResult = null, filteredData = [], listOffsets = [];
         
-        // --- INJEKSI CACHE LAYOUT ANTI-LAG ---
         let layoutCache = { listTop: 188, offsetBuffer: 135, lastUpdate: 0 };
         function invalidateLayoutCache() { layoutCache.lastUpdate = 0; }
         
@@ -741,7 +809,7 @@
 
         function resetCart() {
             if (Object.keys(cartState).length === 0) return;
-            showConfirm("Kosongkan semua keranjang?", "Reset", "var(--danger)", () => { cartState = {}; saveCartMem(); renderCartUI(); applyFiltersAndRender(); });
+            showConfirm("Kosongkan keranjang?", "Reset", "var(--danger)", () => { cartState = {}; saveCartMem(); renderCartUI(); applyFiltersAndRender(); });
         }
 
         let startX, startY;
@@ -778,7 +846,7 @@
             let diffX = mainStartX - e.changedTouches[0].clientX; elem.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
             if (isMainSwiping && diffX > 45) { elem.style.transform = `translateX(-80px)`; swipedCardElem = elem; } else { elem.style.transform = `translateX(0px)`; if (swipedCardElem === elem) swipedCardElem = null; }
             mainStartX = mainStartY = null;
-            setTimeout(() => { isMainSwiping = false; }, 50); // Reset after touch ends
+            setTimeout(() => { isMainSwiping = false; }, 50); 
         }
 
         $('q').addEventListener('focus', () => { if (isCartMode) document.body.classList.add('search-focus'); });
@@ -942,7 +1010,10 @@
             const c = applyModalColor(title, color); 
             $('alert-msg').innerHTML = String(msg).replace(/\n/g, '<br>'); 
             $('alert-btns').innerHTML = `<button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" onclick="closeCustomAlert()">OKE</button>`; 
+            
+            $('custom-alert').style.zIndex = '5500'; 
             $('custom-alert').style.display = 'flex'; 
+            
             document.body.classList.add('modal-open'); 
             trackModal('alert'); 
         }
@@ -953,6 +1024,7 @@
             $('alert-btns').innerHTML = `<button class="btn-main btn-cancel" id="confirm-cancel-btn">BATAL</button><button class="btn-main" style="border: 1px solid ${c}!important; color: ${c}!important; background:transparent!important;" id="confirm-ok-btn">${escapeHTML(String(confirmText))}</button>`; 
             $('confirm-ok-btn').onclick = () => { closeCustomAlert(); callbackOk(); }; 
             $('confirm-cancel-btn').onclick = () => { closeCustomAlert(); if(callbackCancel) callbackCancel(); }; 
+            $('custom-alert').style.zIndex = '5500';
             $('custom-alert').style.display = 'flex'; 
             document.body.classList.add('modal-open'); 
             trackModal('alert'); 
@@ -1047,7 +1119,7 @@
 
         function renderVirtualList(isScrolling = false) {
             const rend = $('render-container'), empty = $('empty-message-container'); 
-            if (isScrolling && swipedCardElem) return; // PROTEKSI
+            if (isScrolling && swipedCardElem) return; 
             
             if (filteredData.length === 0) { $('list').style.height = '0px'; rend.innerHTML = ''; empty.innerHTML = `<div class="empty-msg">${tab === 'fav' ? "Belum ada favorit" : (tab === 'exp' ? "Tidak ada barang expired" : "Belum ada data")}</div>`; empty.classList.remove('hidden'); return; }
             
@@ -1104,7 +1176,7 @@
 
         let scrollTimeoutLock;
         window.addEventListener('scroll', () => { 
-            if (isMainSwiping) return; // PROTEKSI
+            if (isMainSwiping) return; 
             
             let sy = window.scrollY; document.body.classList.add('is-scrolling'); clearTimeout(scrollTimeoutLock); scrollTimeoutLock = setTimeout(() => document.body.classList.remove('is-scrolling'), 150);
             if (!$('dropdown-menu').classList.contains('hidden')) $('dropdown-menu').classList.add('hidden');
@@ -1567,7 +1639,461 @@
         function clearOfflineLedger() { try { const req = indexedDB.open('KasirOfflineDB', 1); req.onsuccess = (e) => { const dbOff = e.target.result; const tx = dbOff.transaction('CatatanDarurat', 'readwrite'); tx.objectStore('CatatanDarurat').delete(1); tx.oncomplete = () => { closeOfflineLedger(); tampilkanToast("Catatan dihapus!", "var(--danger)"); }; }; } catch(err){} }
         function checkOfflineLedger() { try { const req = indexedDB.open('KasirOfflineDB', 1); req.onsuccess = (e) => { const dbOff = e.target.result; if (dbOff.objectStoreNames.contains('CatatanDarurat')) { const tx = dbOff.transaction('CatatanDarurat', 'readonly'); const store = tx.objectStore('CatatanDarurat'); const getReq = store.get(1); getReq.onsuccess = () => { if (getReq.result && getReq.result.text && getReq.result.text.trim().length > 0) { showConfirm("Terdapat catatan transaksi saat offline yang belum direkap.", "Info Offline", "var(--warning)", () => { showOfflineLedger(getReq.result.text); }, "LIHAT CATATAN"); } }; } }; } catch(err) {} }
 
-        /* --- INIT APP --- */
+        // --- HELPER DATE PICKER & FORMAT ---
+        function updateHistDateDisplay(val) {
+            if(!val) return;
+            let d = new Date(val);
+            if(isNaN(d.getTime())) return;
+            let display = `${String(d.getDate()).padStart(2,'0')} ${NamaBlnPendek[d.getMonth()]} ${d.getFullYear()}`;
+            let el = $('hist-date-display');
+            if(el) el.innerText = display;
+        }
+
+        let fdpDate = new Date(); 
+        let fdpSelected = new Date(); 
+
+        function openFullDatePicker() {
+            let val = $('hist-date').value;
+            if (val) {
+                let parts = val.split('-');
+                fdpSelected = new Date(parts[0], parts[1]-1, parts[2]);
+                fdpDate = new Date(parts[0], parts[1]-1, parts[2]);
+            } else {
+                fdpSelected = new Date();
+                fdpDate = new Date();
+            }
+            renderFDP();
+            $('full-date-picker').style.display = 'flex';
+            document.body.classList.add('modal-open');
+            trackModal('full-date-picker');
+        }
+
+        function closeFullDatePicker() {
+            untrackModal('full-date-picker');
+            $('full-date-picker').style.display = 'none';
+            checkModalOpen();
+        }
+
+        function changeFDPMonth(dir) {
+            fdpDate.setMonth(fdpDate.getMonth() + dir);
+            renderFDP();
+        }
+
+        function selectFDPDate(y, m, d) {
+            fdpSelected = new Date(y, m, d);
+            renderFDP();
+        }
+
+        function setFDPToday() {
+            fdpSelected = new Date();
+            fdpDate = new Date();
+            renderFDP();
+        }
+
+        function setFDPDate() {
+            let y = fdpSelected.getFullYear();
+            let m = String(fdpSelected.getMonth() + 1).padStart(2, '0');
+            let d = String(fdpSelected.getDate()).padStart(2, '0');
+            let val = `${y}-${m}-${d}`;
+            
+            $('hist-date').value = val;
+            updateHistDateDisplay(val);
+            renderHistory();
+            closeFullDatePicker();
+        }
+
+        function renderFDP() {
+            let y = fdpDate.getFullYear();
+            let m = fdpDate.getMonth();
+            $('fdp-month-year').innerText = `${NamaBlnPendek[m]} ${y}`;
+
+            let firstDay = new Date(y, m, 1).getDay(); 
+            let daysInMonth = new Date(y, m + 1, 0).getDate();
+
+            let html = '';
+            for (let i = 0; i < firstDay; i++) {
+                html += `<div></div>`; 
+            }
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                let isSelected = (fdpSelected.getFullYear() === y && fdpSelected.getMonth() === m && fdpSelected.getDate() === i);
+                
+                let style = isSelected 
+                    ? `background: #fff; color: #000; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; margin: 0 auto; box-shadow: 0 4px 10px rgba(255,255,255,0.2);` 
+                    : `color: #fff; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; margin: 0 auto;`;
+                    
+                html += `<div style="padding: 2px 0;"><div style="${style}" onclick="selectFDPDate(${y}, ${m}, ${i})">${i}</div></div>`;
+            }
+            $('fdp-grid').innerHTML = html;
+        }
+
+        // --- FITUR THERMAL PRINT, LIVE CALCULATOR & HISTORY ---
+        function promptPrint() {
+            if (Object.keys(cartState).length === 0) return tampilkanToast("Keranjang kosong, tidak ada yang dicetak!", "var(--danger)");
+            
+            let grandTotal = 0; let itemsPrint = [];
+            Object.keys(cartState).forEach(id => {
+                const item = db.find(x => String(x.id) === id);
+                if (item && !item.deleted) {
+                    const q = cartState[id].q; const iq = Math.max(1, item.iq || 1);
+                    let subTotal = (item.p2 > 0 && item.iq > 1 && q >= item.iq) ? Math.round((q * item.p2) / iq) : Math.round(q * item.p1);
+                    grandTotal += subTotal;
+                    itemsPrint.push({ n: item.n, q: q, u: String(item.u1||'Pcs').trim(), sub: subTotal });
+                }
+            });
+
+            // 1. TULISAN DIRAPIKAN: Tipografi, ukuran font, dan margin dikalibrasi (Ditulis 1 baris anti-<br>)
+            let msgHTML = `<div style="text-align:center; padding:0; margin:0;"><div style="font-size:10px;color:#888;text-transform:uppercase;font-weight:700;letter-spacing:1px;margin-bottom:6px;">Total Belanja</div><div style="font-size:28px;font-weight:900;color:var(--mono-main);font-family:'Montserrat', sans-serif;margin-bottom:14px;letter-spacing:-0.5px;">Rp ${fmt(grandTotal)}</div><input type="tel" id="input-bayar-struk" style="box-sizing:border-box;width:100%;border-color:var(--border-color);background:#000;color:var(--text-light);font-size:16px;text-align:center;padding:12px;margin:0 0 10px 0;border-radius:8px;border:1px solid #333;outline:none;font-family:'Montserrat', sans-serif;font-weight:600;" placeholder="Bayar" autocomplete="off"><div style="display:flex;justify-content:space-between;align-items:center;background:#111;padding:12px 16px;border-radius:8px;border:1px solid #333;box-sizing:border-box;margin:0;"><span id="live-label" style="font-size:10px;font-weight:800;color:#888;letter-spacing:0.5px;">KEMBALIAN:</span><span id="live-val" style="font-size:15px;font-weight:800;color:#888;">Rp 0</span></div></div>`;
+            
+            // 2. PROTOKOL RESET: Mengembalikan padding wadah utama ke asalnya
+            const resetPrintModalStyle = () => {
+                $('custom-alert').style.alignItems = '';
+                $('custom-alert').style.paddingTop = '';
+                $('alert-box').style.marginTop = '';
+                $('alert-box').style.alignSelf = '';
+                $('alert-title').style.cssText = 'margin-top:0; font-size:15px; text-transform:uppercase;';
+                $('alert-msg').style.cssText = 'font-size:13px; color:#ccc; line-height:1.5; margin-bottom:20px;';
+            };
+
+            showConfirm(msgHTML, "PRINT", "var(--mono-main)", () => {
+                // Di-override di bawah
+            }, "PRINT STRUK", () => {
+                resetPrintModalStyle(); 
+            });
+
+            // OVERRIDE TOMBOL PRINT UNTUK VALIDASI LOGIKA BAYAR KETAT
+            let btnOk = $('confirm-ok-btn');
+            if (btnOk) {
+                btnOk.onclick = () => {
+                    let inputBayarStr = $('input-bayar-struk').value.replace(/\D/g, '');
+                    let parsedBayar = parseInt(inputBayarStr, 10);
+
+                    // Validasi 1: Input Kosong
+                    if (isNaN(parsedBayar)) {
+                        tampilkanToast("Nominal bayar belum diisi!", "var(--warning)");
+                        $('input-bayar-struk').focus();
+                        return; // Hentikan proses, biarkan modal terbuka
+                    }
+
+                    // Validasi 2: Uang Kurang
+                    if (parsedBayar < grandTotal) {
+                        tampilkanToast("Uang bayar kurang! Tidak bisa cetak.", "var(--danger)");
+                        $('input-bayar-struk').focus();
+                        return; // Hentikan proses, biarkan modal terbuka
+                    }
+
+                    // Lolos Validasi (Pas / Ada Kembalian) -> Tutup modal & Cetak
+                    closeCustomAlert();
+                    executePrint(grandTotal, parsedBayar, itemsPrint);
+                    resetPrintModalStyle();
+                };
+            }
+
+            // 3. TARIK PAKSA WADAH UTAMA KE BATAS ATAS LAYAR (Mepet Atas)
+            $('custom-alert').style.setProperty('align-items', 'flex-start', 'important');
+            $('custom-alert').style.setProperty('padding-top', '15px', 'important'); // 15px aman dari poni kamera HP
+            
+            // 4. HAPUS SEMUA MARGIN BAWAAN
+            $('alert-box').style.setProperty('margin-top', '0px', 'important');
+            $('alert-title').style.setProperty('margin-bottom', '8px', 'important');
+            $('alert-msg').style.setProperty('margin-top', '0px', 'important');
+            $('alert-msg').style.setProperty('margin-bottom', '10px', 'important');
+            $('alert-msg').style.setProperty('padding', '0px', 'important');
+
+            // 5. FOKUS INSTAN KEYBOARD
+            let inp = $('input-bayar-struk');
+            if(inp) {
+                inp.focus(); 
+                inp.addEventListener('input', function() {
+                    formatRp(this);
+                    let val = parseInt(this.value.replace(/\D/g, ''), 10);
+                    if(isNaN(val)) val = grandTotal;
+                    let sisa = val - grandTotal;
+                    
+                    let l = $('live-label'); let v = $('live-val');
+                    if(sisa < 0) {
+                        l.innerText = "KURANG:"; l.style.color = "var(--danger)";
+                        v.innerText = `Rp ${fmt(Math.abs(sisa))}`; v.style.color = "var(--danger)";
+                    } else {
+                        l.innerText = "KEMBALIAN:"; l.style.color = "#888";
+                        v.innerText = `Rp ${fmt(sisa)}`; v.style.color = "var(--warning)";
+                    }
+                });
+            }
+        }
+
+        let isPrinting = false; // Tambahkan variabel global ini di luar fungsi cetak
+
+        function executePrint(total, bayar, items, timestamp = null, isReprint = false) {
+            if (isPrinting) return tampilkanToast("Mohon tunggu, printer sedang memproses...", "var(--warning)");
+            isPrinting = true;
+            
+            let kembali = bayar - total;
+            let labelKembali = kembali < 0 ? "KURANG" : "KEMBALIAN";
+            let valKembali = fmt(Math.abs(kembali));
+
+            let d = timestamp ? new Date(timestamp) : new Date();
+            let dateStr = `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getFullYear()).substring(2)} - ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+
+            let rawHTML = `
+            <div style="width: 58mm; margin: 0 auto; padding: 0; color: #000; font-family: monospace; font-size: 12px; line-height: 1.2;">
+                <div style="text-align: center; margin-bottom: 5px;">
+                    <b style="font-size:14px;">Toko Kelontong</b><br>
+                    Ps. Sunggingan Lt. 2
+                </div>
+                <div style="border-bottom: 1px dashed #000; margin-bottom: 5px;"></div>
+                <div style="text-align: right; margin-bottom: 5px;">${dateStr}${isReprint ? ' [Reprint]' : ''}</div>
+                <div style="border-bottom: 1px dashed #000; margin-bottom: 5px;"></div>
+                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            `;
+
+            items.forEach(i => {
+                let safeN = escapeHTML(i.n);
+                let n = safeN.length > 12 ? safeN.substring(0, 11) + '.' : safeN;
+                rawHTML += `<tr>
+                    <td style="text-align: left; padding: 2px 0; width:45%; white-space:nowrap; overflow:hidden;">${n}</td>
+                    <td style="text-align: center; padding: 2px 0; width:15%;">${i.q}</td>
+                    <td style="text-align: right; padding: 2px 0; width:40%;">${fmt(i.sub)}</td>
+                </tr>`;
+            });
+
+            rawHTML += `
+                </table>
+                <div style="border-bottom: 1px dashed #000; margin-top: 5px; margin-bottom: 5px;"></div>
+                <table style="width: 100%; font-size: 12px;">
+                    <tr><td style="text-align:left;">TOTAL</td><td style="text-align:right;">${fmt(total)}</td></tr>
+                    <tr><td style="text-align:left;">BAYAR</td><td style="text-align:right;">${fmt(bayar)}</td></tr>
+                    <tr><td colspan="2" style="padding-top:4px;"></td></tr>
+                    <tr><td style="text-align:left;">${labelKembali}</td><td style="text-align:right;">${valKembali}</td></tr>
+                </table>
+                <div style="border-bottom: 1px dashed #000; margin-top: 5px; margin-bottom: 5px;"></div>
+                <div style="text-align: center; margin-top: 5px;">
+                    Terimakasih Atas<br>Kunjungan Anda
+                </div>
+            </div>`;
+
+            if (!isReprint) {
+                let hist = JSON.parse(localStorage.getItem('DB_WA_HISTORY') || '[]');
+                hist.unshift({ id: 'TRX-' + Math.floor(Math.random() * 10000) + d.getTime().toString().slice(-4), ts: d.getTime(), total: total, bayar: bayar, items: items });
+                try {
+                    localStorage.setItem('DB_WA_HISTORY', JSON.stringify(hist.slice(0, 500)));
+                } catch (e) {
+                    console.warn("Storage penuh! Auto-shrink riwayat.");
+                    localStorage.setItem('DB_WA_HISTORY', JSON.stringify(hist.slice(0, 50)));
+                }
+                cartState = {}; saveCartMem(); renderCartUI(); applyFiltersAndRender();
+            }
+
+            let printFrame = document.getElementById('receipt-spooler-frame');
+            if (!printFrame) {
+                printFrame = document.createElement('iframe');
+                printFrame.id = 'receipt-spooler-frame';
+                printFrame.style.position = 'fixed'; printFrame.style.right = '0'; printFrame.style.bottom = '0';
+                printFrame.style.width = '0'; printFrame.style.height = '0'; printFrame.style.border = '0';
+                document.body.appendChild(printFrame);
+            }
+            
+            let doc = printFrame.contentWindow.document;
+            doc.open();
+            doc.write('<html><head><style>@page { size: 58mm auto; margin: 0; } body { margin:0; padding:0; background:#fff; }</style></head><body>' + rawHTML + '</body></html>');
+            doc.close();
+            
+            setTimeout(() => {
+                printFrame.contentWindow.focus();
+                printFrame.contentWindow.print();
+                tampilkanToast(isReprint ? "Struk Dicetak Ulang!" : "Struk Dicetak!", "var(--mono-main)");
+                
+                // Lepaskan kunci setelah proses print dipanggil
+                setTimeout(() => { isPrinting = false; }, 1000); 
+            }, 200);
+        }
+
+        function openHistory() {
+            let d = new Date();
+            let todayStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            if (!$('hist-date').value) {
+                $('hist-date').value = todayStr;
+                updateHistDateDisplay(todayStr); 
+            }
+            renderHistory();
+            $('history-modal').style.display = 'flex';
+            document.body.classList.add('modal-open');
+            trackModal('history'); 
+        }
+
+        function closeHistory() { untrackModal('history'); $('history-modal').style.display = 'none'; checkModalOpen(); }
+
+        function renderHistory() {
+            let hist = JSON.parse(localStorage.getItem('DB_WA_HISTORY') || '[]');
+            let dateVal = $('hist-date').value;
+            let totalOmzet = 0; let html = '';
+
+            hist.forEach(h => {
+                let d = new Date(h.ts);
+                let dStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                
+                if (dStr === dateVal) {
+                    totalOmzet += h.total;
+                    let timeStr = `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getFullYear()).substring(2)} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+
+                    let itemsHtml = '';
+                    if (Array.isArray(h.items)) {
+                        h.items.forEach(it => {
+                            itemsHtml += `
+                            <div style="display:flex; justify-content:space-between; font-size:11px; color:#ccc; margin-bottom:4px;">
+                                <span>${it.q}x ${escapeHTML(it.n)}</span>
+                                <span>Rp ${fmt(it.sub)}</span>
+                            </div>`;
+                        });
+                    } else {
+                        itemsHtml += `<div style="font-size:11px; color:#ccc;">${h.items} Item (Format Lama)</div>`;
+                    }
+
+                    html += `
+                    <div style="border: 1px solid #333; border-radius: 8px; padding: 12px; margin-bottom: 12px; background: transparent;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #222; padding-bottom:8px; margin-bottom:8px;">
+                            <span style="font-size:10px; color:#888;">${timeStr}</span>
+                            <span style="font-size:13px; font-weight:800; color:#fff;">Rp ${fmt(h.total)}</span>
+                        </div>
+                        ${itemsHtml}
+                        <div style="display:flex; gap:10px; margin-top:12px;">
+                                   <button class="btn-main" style="flex:1; background:transparent!important; border:1px solid #3CB371!important; color:#3CB371!important; min-height:36px; padding:0 15px; font-size:10px; display:flex; justify-content:center; align-items:center; gap:5px; outline:none;" onclick="waHistory('${h.id}')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#3CB371">
+                <path d="M12.031 0C5.385 0 .001 5.384.001 12.031c0 2.124.553 4.195 1.603 6.02L.055 23.951l6.046-1.587a11.965 11.965 0 0 0 5.93 1.579h.004c6.645 0 12.03-5.385 12.03-12.03C24.065 5.384 18.679 0 12.031 0zm0 21.932h-.003a9.97 9.97 0 0 1-5.084-1.39l-.364-.216-3.782.991 1.01-3.685-.237-.377a9.96 9.96 0 0 1-1.523-5.312c0-5.508 4.485-9.992 9.996-9.992 5.511 0 9.995 4.485 9.995 9.992 0 5.508-4.484 9.991-9.995 9.991zm5.485-7.481c-.301-.15-1.777-.878-2.052-.979-.275-.1-.476-.15-.676.15-.2.3-.778.979-.953 1.179-.175.2-.351.225-.651.075-.3-.15-1.269-.468-2.417-1.492-.892-.796-1.495-1.78-1.67-2.08-.175-.3-.018-.462.132-.612.135-.135.301-.351.451-.526.15-.175.2-.3.3-.5.1-.2.05-.375-.025-.525-.075-.15-.676-1.63-.926-2.23-.245-.586-.493-.506-.676-.516h-.576c-.2 0-.526.075-.801.375-.275.3-1.052 1.028-1.052 2.506 0 1.478 1.077 2.907 1.227 3.107.15.2 2.118 3.234 5.132 4.536.717.31 1.276.495 1.713.633.72.23 1.376.197 1.892.119.578-.087 1.777-.727 2.028-1.429.25-.702.25-1.303.175-1.429-.075-.125-.275-.2-.576-.35z"/>
+            </svg> WA
+        </button> 
+                            <button class="btn-main" style="flex:1; background:transparent!important; border:1px solid #666!important; color:#aaa!important; min-height:36px; padding:0; font-size:10px; display:flex; justify-content:center; align-items:center; gap:5px;" onclick="printHistory('${h.id}')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> CETAK
+                            </button>
+                        </div>
+                    </div>`;
+                }
+            });
+
+            $('hist-omzet').innerText = `Rp ${fmt(totalOmzet)}`;
+            $('hist-list').innerHTML = html || '<div style="text-align:center; color:#555; padding: 40px 0; font-size: 12px; font-weight: 600; letter-spacing:1px;">KOSONG</div>';
+        }
+
+        function printHistory(id) {
+            let hist = JSON.parse(localStorage.getItem('DB_WA_HISTORY') || '[]');
+            let h = hist.find(x => x.id === id);
+            if (!h) return tampilkanToast("Data tidak ditemukan!", "var(--danger)");
+            let itemsToPrint = Array.isArray(h.items) ? h.items : [{ n: "Item Historis", q: h.items, u: "Item", sub: h.total }];
+            executePrint(h.total, h.bayar, itemsToPrint, h.ts, true);
+        }
+
+        function waHistory(id) {
+            let hist = JSON.parse(localStorage.getItem('DB_WA_HISTORY') || '[]');
+            let h = hist.find(x => x.id === id);
+            if (!h) return tampilkanToast("Data tidak ditemukan!", "var(--danger)");
+
+            let d = new Date(h.ts);
+            let dateStr = `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getFullYear()).substring(2)} - ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+
+            let text = "```\n";
+            text += `Toko Kelontong\nPs. Sunggingan Lt. 2\n------------------------\n${dateStr}\n------------------------\n`;
+            
+            if (Array.isArray(h.items)) {
+                h.items.forEach(i => {
+                    let hrgSatuan = i.q > 0 ? Math.round(i.sub / i.q) : i.sub;
+                    let safeN = i.n.length > 20 ? i.n.substring(0, 19) + '…' : i.n;
+                    text += `${safeN}\n${i.q} x ${fmt(hrgSatuan)} = ${fmt(i.sub)}\n`;
+                });
+            } else {
+                text += `Item Terjual\n${h.items} Item = Rp ${fmt(h.total)}\n`;
+            }
+
+            let kembali = h.bayar - h.total;
+            let labelKembali = kembali < 0 ? "KURANG   " : "KEMBALIAN";
+
+            text += `------------------------\n`;
+            text += `TOTAL      Rp ${fmt(h.total)}\n`;
+            text += `BAYAR      Rp ${fmt(h.bayar)}\n`;
+            text += `${labelKembali}  Rp ${fmt(Math.abs(kembali))}\n`;
+            text += `------------------------\n`;
+            text += `Terimakasih\nAtas Kunjungan Anda\n\`\`\``;
+
+            let intentUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+            let a = document.createElement('a');
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            a.href = intentUrl;
+            a.click();
+        }
+
+        function cariCloudHistory() {
+            let dateVal = $('hist-date').value; 
+            let dStr = "HARI INI";
+            if(dateVal) {
+                let parts = dateVal.split('-');
+                if(parts.length === 3) dStr = `${parts[2]}.${parts[1]}.${parts[0].substring(2)}`;
+            } else {
+                return tampilkanToast("Pilih tanggal terlebih dahulu!", "var(--warning)");
+            }
+
+            let origTitle = $('loading-title').innerText;
+            let origStyle = $('loading-title').style.fontStyle;
+            $('loading-title').innerText = "MENCARI DATA";
+            $('loading-title').style.fontStyle = "italic";
+            showLoading(`<span style="font-size:10px; font-weight:700; color:#ccc; letter-spacing:0.5px; text-transform:uppercase;">MENCARI ${dStr} DI CLOUD...</span>`, "#87CEFA");
+            
+            fetchWithTimeout(CLOUD_URL + "?action=getHistory&date=" + dateVal + "&t=" + Date.now(), {}, 15000)
+            .then(r => r.json())
+            .then(response => {
+                hideLoading(); 
+                $('loading-title').innerText = origTitle;
+                $('loading-title').style.fontStyle = origStyle;
+
+                if (response.data && response.data.length > 0) {
+                    let localHist = JSON.parse(localStorage.getItem('DB_WA_HISTORY') || '[]');
+                    let localIds = new Set(localHist.map(h => h.id));
+                    let newItems = 0;
+                    
+                    response.data.forEach(cloudTx => {
+                        if (!localIds.has(cloudTx.id)) {
+                            localHist.push(cloudTx);
+                            newItems++;
+                        }
+                    });
+
+                    if (newItems > 0) {
+                        localHist.sort((a, b) => b.ts - a.ts);
+                        localStorage.setItem('DB_WA_HISTORY', JSON.stringify(localHist));
+                        renderHistory(); 
+                        tampilkanToast(`Ditemukan ${newItems} riwayat cloud tanggal ${dStr}!`, "var(--mono-main)");
+                    } else {
+                        tampilkanToast(`Riwayat tanggal ${dStr} sudah sinkron!`, "#87CEFA");
+                    }
+                } else {
+                    showAlert(`<div style="margin-top:5px; font-size:11px; font-weight:700; color:#aaa; letter-spacing:0.5px;">TIDAK ADA RIWAYAT CLOUD ${dStr}</div>`, "KOSONG", "var(--danger)");
+                    
+                    $('alert-title').style.fontStyle = 'italic';
+                    setTimeout(() => {
+                        const btn = $('alert-btns').querySelector('button');
+                        if (btn) {
+                            const oldClick = btn.onclick;
+                            btn.onclick = () => { $('alert-title').style.fontStyle = 'normal'; if (oldClick) oldClick(); };
+                        }
+                    }, 50);
+                }
+            })
+            .catch(err => {
+                hideLoading(); 
+                $('loading-title').innerText = origTitle;
+                $('loading-title').style.fontStyle = origStyle;
+                showAlert("Gagal terhubung ke Cloud. Periksa internetmu.", "KONEKSI GAGAL", "var(--danger)");
+            });
+        }
+
+        function clearHistoryLocal() {
+            showConfirm("Yakin menghapus Riwayat?", "Bersihkan", "var(--danger)", () => {
+                localStorage.removeItem('DB_WA_HISTORY');
+                renderHistory();
+                tampilkanToast("Riwayat Bersih!", "var(--danger)");
+            });
+        }
+
+        /* --- INIT APP & APP LIFECYCLE --- */
         let isDbReady = false, pendingLaunchFile = null; 
         async function initApp() { 
             try { 
@@ -1589,6 +2115,7 @@
         function trackModal(id) { activeModals.push(id); history.pushState({ modalOpen: true }, ''); }
         function untrackModal(id) { const idx = activeModals.lastIndexOf(id); if (idx > -1) activeModals.splice(idx, 1); }
         window.addEventListener('popstate', (e) => { if (activeModals.length > 0) { const topModal = activeModals.pop(); closeModalById(topModal); } });
+        
         function closeModalById(id) {
             if (id === 'mod') { activeId = null; $('mod').style.display = 'none'; checkModalOpen(); }
             else if (id === 'scanner') { isClosingScan = true; $('scanner-wrap').style.display = 'none'; checkModalOpen(); if(torchState) toggleFlashlight(); if(isScanning && html5QrCode){ html5QrCode.stop().catch(()=>{}); } isScanning=false; isClosingScan=false; requestWakeLock(); }
@@ -1598,6 +2125,8 @@
             else if (id === 'price') { $('price-popup').style.display = 'none'; checkModalOpen(); $('q').value=''; clearSearch(); }
             else if (id === 'sync') { $('sync-modal').style.display = 'none'; checkModalOpen(); }
             else if (id === 'offline') { $('offline-ledger-modal').style.display = 'none'; checkModalOpen(); }
+            else if (id === 'history') { closeHistory(); }
+            else if (id === 'full-date-picker') { closeFullDatePicker(); }
         }
     </script>
 </body>
