@@ -370,7 +370,7 @@
 
     <script>
         const $ = (id) => document.getElementById(id);
-        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbwZvOliz_DRc9SZZUvWlz-cl5IoSkTr7G2Uq8DHb5V2MH5S9EnJHV2CCq8ibeyCc4wD/exec";
+        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbxFIhX5t6lqOaj1M26QAUS5UUq59qn7ytbN8xjOdNxuBZq98LfN0Fzh397ckeAN2Awx/exec";
         const NamaBln = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         const NamaBlnPendek = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 
@@ -1351,29 +1351,85 @@
         function showLoading(msg, color="#87CEFA") { $('loading-text').innerHTML = msg; $('loading-spinner').style.borderTopColor = color; $('loading-title').style.color = $('loading-box').style.borderColor = color; $('loading-modal').style.display = 'flex'; document.body.classList.add('modal-open'); }
         function hideLoading() { $('loading-modal').style.display = 'none'; checkModalOpen(); }
         
+        // [SURGICAL FIX] Backup API dengan Promise Chain (Kirim Harga -> Kirim History -> Clear Zombie)
         function backupToCloud() { 
             if (db.length === 0 || isApiLoading) return;
-            showConfirm("<b>Peringatan Keamanan!</b>\n\nUntuk mencegah data tertimpa, aplikasi akan otomatis menarik data terbaru dari Cloud secara senyap sebelum diunggah.\n\nLanjutkan?", "Informasi", "#87CEFA", () => { 
-                isApiLoading = true; showLoading("Menyinkronkan & Mengunggah Data...<br>Mohon tunggu sebentar.", "#87CEFA"); 
+            
+            showConfirm("Upload data Harga dan Riwayat Transaksi ke Cloud sekarang?", "Upload Cloud", "#87CEFA", () => { 
+                isApiLoading = true; 
+                showLoading("Menyinkronkan & Mengunggah Data...<br>Mohon tunggu sebentar.", "#87CEFA"); 
+                
                 const lastSyncTime = parseInt(localStorage.getItem('DB_LAST_SYNC')) || 0;
-                fetchWithTimeout(CLOUD_URL + "?action=load&lastSync=" + lastSyncTime + "&t=" + Date.now(), {}, 30000).then(r => r.json()).then(dataResponse => { 
-                    const dataCloud = dataResponse.data || []; const serverTime = dataResponse.serverTime || Date.now(); localStorage.setItem('DB_LAST_SYNC', serverTime.toString()); 
+                
+                fetchWithTimeout(CLOUD_URL + "?action=load&lastSync=" + lastSyncTime + "&t=" + Date.now(), {}, 30000)
+                .then(r => r.json())
+                .then(dataResponse => { 
+                    const dataCloud = dataResponse.data || []; 
+                    const serverTime = dataResponse.serverTime || Date.now(); 
+                    localStorage.setItem('DB_LAST_SYNC', serverTime.toString()); 
+                    
                     if (dataCloud.length > 0) {
                         let tempMap = new Map(); db.forEach(item => tempMap.set(String(item.id), item));
                         dataCloud.forEach(rawItem => { 
-                            let itemCloud = { ...rawItem }; itemCloud.deleted = String(itemCloud.deleted).trim().toUpperCase() === 'TRUE' || itemCloud.deleted === true; itemCloud.f = String(itemCloud.f).trim().toUpperCase() === 'TRUE' || itemCloud.f === true; itemCloud.p1 = parseExcelPrice(itemCloud.p1) || 0; itemCloud.p2 = parseExcelPrice(itemCloud.p2) || null; itemCloud.iq = parseInt(String(itemCloud.iq || 0).replace(/[^0-9]/g, ''), 10) || 0; if(!itemCloud.id) itemCloud.id = generateUniqueId(); itemCloud.n = itemCloud.n || ""; itemCloud.b = String(itemCloud.b || "").replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toUpperCase(); if (itemCloud.b === '-' || itemCloud.b === '0') itemCloud.b = ''; itemCloud.b2 = String(itemCloud.b2 || "").replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toUpperCase(); if (itemCloud.b2 === '-' || itemCloud.b2 === '0') itemCloud.b2 = '';
+                            let itemCloud = { ...rawItem }; 
+                            itemCloud.deleted = String(itemCloud.deleted).trim().toUpperCase() === 'TRUE' || itemCloud.deleted === true; 
+                            itemCloud.f = String(itemCloud.f).trim().toUpperCase() === 'TRUE' || itemCloud.f === true; 
+                            itemCloud.p1 = parseExcelPrice(itemCloud.p1) || 0; 
+                            itemCloud.p2 = parseExcelPrice(itemCloud.p2) || null; 
+                            itemCloud.iq = parseInt(String(itemCloud.iq || 0).replace(/[^0-9]/g, ''), 10) || 0; 
+                            if(!itemCloud.id) itemCloud.id = generateUniqueId(); 
+                            itemCloud.n = itemCloud.n || ""; 
+                            itemCloud.b = String(itemCloud.b || "").replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toUpperCase(); 
+                            if (itemCloud.b === '-' || itemCloud.b === '0') itemCloud.b = ''; 
+                            itemCloud.b2 = String(itemCloud.b2 || "").replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toUpperCase(); 
+                            if (itemCloud.b2 === '-' || itemCloud.b2 === '0') itemCloud.b2 = '';
+                            
                             const existing = tempMap.get(String(itemCloud.id));
-                            if (existing) { if ((itemCloud.updatedAt || 0) >= (existing.updatedAt || 0)) { if (itemCloud.deleted) tempMap.delete(String(itemCloud.id)); else tempMap.set(String(itemCloud.id), itemCloud); } } else if (!itemCloud.deleted) { tempMap.set(String(itemCloud.id), itemCloud); } 
+                            if (existing) { 
+                                if ((itemCloud.updatedAt || 0) >= (existing.updatedAt || 0)) { 
+                                    if (itemCloud.deleted) tempMap.delete(String(itemCloud.id)); else tempMap.set(String(itemCloud.id), itemCloud); 
+                                } 
+                            } else if (!itemCloud.deleted) { 
+                                tempMap.set(String(itemCloud.id), itemCloud); 
+                            } 
                         }); 
                         db = Array.from(tempMap.values()); updateMaps(); 
                         if(worker) worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
                         if (isCartMode) renderCartUI(); applyFiltersAndRender();
                     }
+                    
                     return fetchWithTimeout(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backup', data: db }) }, 30000);
-                }).then(() => { 
-                    isApiLoading = false; hideLoading(); tampilkanToast("Berhasil Upload & Sinkronisasi!", "var(--mono-main)"); 
-                    const tx = idb.transaction('items', 'readwrite'); const store = tx.objectStore('items'); store.clear(); db.forEach(item => store.put(item));
-                }).catch(() => { isApiLoading = false; hideLoading(); showAlert("Koneksi lambat atau Gagal / Timeout. Silakan coba lagi.", "Error"); }); 
+                })
+                .then(r => r.json())
+                .then(backupRes => {
+                    if (backupRes.status !== 'success') throw new Error(backupRes.message);
+
+                    let historyData = [];
+                    try { historyData = JSON.parse(localStorage.getItem('DB_WA_HISTORY') || '[]'); } catch(e){}
+                    
+                    return fetchWithTimeout(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: 'backupHistory', data: historyData }) }, 30000);
+                })
+                .then(r => r.json())
+                .then(historyRes => {
+                    if (historyRes.status !== 'success') throw new Error(historyRes.message);
+
+                    localStorage.removeItem('DB_WA_HISTORY');
+                    
+                    isApiLoading = false; 
+                    hideLoading(); 
+                    tampilkanToast("Harga & Riwayat Struk Berhasil Diupload!", "var(--mono-main)"); 
+                    
+                    const tx = idb.transaction('items', 'readwrite'); 
+                    const store = tx.objectStore('items'); 
+                    store.clear(); 
+                    db.forEach(item => store.put(item));
+                })
+                .catch((err) => { 
+                    isApiLoading = false; 
+                    hideLoading(); 
+                    showAlert("Koneksi lambat atau Gagal / Timeout. Silakan coba lagi.", "Error"); 
+                    console.error("Upload Error:", err);
+                }); 
             }, "UPLOAD"); 
         }
 
@@ -1394,34 +1450,43 @@
                 if (dataCloud.length === 0 && !forceSync) { isApiLoading = false; hideLoading(); tampilkanToast("Data di HP sudah yang paling baru!", "var(--mono-main)"); localStorage.setItem('DB_LAST_SYNC', serverTime.toString()); return; } 
                 let tempMap = new Map(); if (!forceSync) { db.forEach(item => tempMap.set(String(item.id), item)); }
                 const chunkSize = 500; let currentIndex = 0; let rejectedCloudCount = 0; 
+                
+                // [SURGICAL FIX] Try-Catch pelindung UI agar tidak Freeze saat data korup
                 function processNextChunk() {
-                    const chunk = dataCloud.slice(currentIndex, currentIndex + chunkSize);
-                    if (chunk.length === 0) {
-                        localStorage.setItem('DB_LAST_SYNC', serverTime.toString()); currentSearchReqId++; $('q').value = ''; workerResult = null; $('q-x').style.display = 'none';
-                        if (isCartMode) renderCartUI(); applyFiltersAndRender(); isApiLoading = false; hideLoading(); 
-                        if (rejectedCloudCount > 0) { showAlert(`Update Selesai!<br><br><span style="color:var(--warning);">⚠️ ${rejectedCloudCount} data ditolak dari Cloud (Format rusak).</span>`, "Peringatan Sinkronisasi", "var(--warning)"); } else { tampilkanToast(forceSync ? "Berhasil memuat ulang semua data!" : `Berhasil update ${dataCloud.length} data!`, "var(--mono-main)"); }
-                        return;
-                    }
-                    const tx = idb.transaction('items', 'readwrite'); const store = tx.objectStore('items'); if (forceSync && currentIndex === 0) store.clear(); 
-                    chunk.forEach(rawItem => { 
-                        let norm = normalizeItemData(rawItem);
-                        if (!norm || !norm.n) { rejectedCloudCount++; return; } 
-                        
-                        if (!norm.id) norm.id = "auto_" + btoa(unescape(encodeURIComponent(norm.n + "_" + norm.b))).replace(/[^a-zA-Z0-9]/g, '');
-
-                        if (forceSync) {
-                            if (!norm.deleted) { tempMap.set(String(norm.id), norm); store.put(norm); }
-                        } else {
-                            const existing = tempMap.get(String(norm.id));
-                            if (existing) { if ((norm.updatedAt || 0) >= (existing.updatedAt || 0)) { if (norm.deleted) { store.delete(norm.id); tempMap.delete(String(norm.id)); } else { tempMap.set(String(norm.id), norm); store.put(norm); } } } else if (!norm.deleted) { tempMap.set(String(norm.id), norm); store.put(norm); } 
+                    try {
+                        const chunk = dataCloud.slice(currentIndex, currentIndex + chunkSize);
+                        if (chunk.length === 0) {
+                            localStorage.setItem('DB_LAST_SYNC', serverTime.toString()); currentSearchReqId++; $('q').value = ''; workerResult = null; $('q-x').style.display = 'none';
+                            if (isCartMode) renderCartUI(); applyFiltersAndRender(); isApiLoading = false; hideLoading(); 
+                            if (rejectedCloudCount > 0) { showAlert(`Update Selesai!<br><br><span style="color:var(--warning);">⚠️ ${rejectedCloudCount} data ditolak dari Cloud (Format rusak).</span>`, "Peringatan Sinkronisasi", "var(--warning)"); } else { tampilkanToast(forceSync ? "Berhasil memuat ulang semua data!" : `Berhasil update ${dataCloud.length} data!`, "var(--mono-main)"); }
+                            return;
                         }
-                    }); 
-                    tx.oncomplete = () => { 
-                        db = Array.from(tempMap.values()); updateMaps(); 
-                        if(worker) worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
-                        currentIndex += chunkSize; requestAnimationFrame(processNextChunk); 
-                    }; 
-                    tx.onerror = () => { isApiLoading = false; hideLoading(); showAlert("Gagal menyimpan ke memori HP. Data Anda sebelumnya tetap aman. Silakan coba lagi.", "Error"); };
+                        const tx = idb.transaction('items', 'readwrite'); const store = tx.objectStore('items'); if (forceSync && currentIndex === 0) store.clear(); 
+                        chunk.forEach(rawItem => { 
+                            let norm = normalizeItemData(rawItem);
+                            if (!norm || !norm.n) { rejectedCloudCount++; return; } 
+                            
+                            if (!norm.id) norm.id = "auto_" + btoa(unescape(encodeURIComponent(norm.n + "_" + norm.b))).replace(/[^a-zA-Z0-9]/g, '');
+
+                            if (forceSync) {
+                                if (!norm.deleted) { tempMap.set(String(norm.id), norm); store.put(norm); }
+                            } else {
+                                const existing = tempMap.get(String(norm.id));
+                                if (existing) { if ((norm.updatedAt || 0) >= (existing.updatedAt || 0)) { if (norm.deleted) { store.delete(norm.id); tempMap.delete(String(norm.id)); } else { tempMap.set(String(norm.id), norm); store.put(norm); } } } else if (!norm.deleted) { tempMap.set(String(norm.id), norm); store.put(norm); } 
+                            }
+                        }); 
+                        tx.oncomplete = () => { 
+                            db = Array.from(tempMap.values()); updateMaps(); 
+                            if(worker) worker.postMessage({ type: 'init', db: db.filter(i => !i.deleted) }); 
+                            currentIndex += chunkSize; requestAnimationFrame(processNextChunk); 
+                        }; 
+                        tx.onerror = () => { isApiLoading = false; hideLoading(); showAlert("Gagal menyimpan ke memori HP. Data Anda sebelumnya tetap aman. Silakan coba lagi.", "Error"); };
+                    } catch (error) {
+                        console.error("Chunk Error:", error);
+                        isApiLoading = false; 
+                        hideLoading(); 
+                        showAlert("Gagal memproses data sinkronisasi. Harap coba lagi.", "Error");
+                    }
                 }
                 processNextChunk();
             }).catch(() => { isApiLoading = false; hideLoading(); showAlert("Koneksi Gagal / Server Sibuk. Pastikan internet menyala.", "Error"); }); 
@@ -1639,7 +1704,6 @@
         function clearOfflineLedger() { try { const req = indexedDB.open('KasirOfflineDB', 1); req.onsuccess = (e) => { const dbOff = e.target.result; const tx = dbOff.transaction('CatatanDarurat', 'readwrite'); tx.objectStore('CatatanDarurat').delete(1); tx.oncomplete = () => { closeOfflineLedger(); tampilkanToast("Catatan dihapus!", "var(--danger)"); }; }; } catch(err){} }
         function checkOfflineLedger() { try { const req = indexedDB.open('KasirOfflineDB', 1); req.onsuccess = (e) => { const dbOff = e.target.result; if (dbOff.objectStoreNames.contains('CatatanDarurat')) { const tx = dbOff.transaction('CatatanDarurat', 'readonly'); const store = tx.objectStore('CatatanDarurat'); const getReq = store.get(1); getReq.onsuccess = () => { if (getReq.result && getReq.result.text && getReq.result.text.trim().length > 0) { showConfirm("Terdapat catatan transaksi saat offline yang belum direkap.", "Info Offline", "var(--warning)", () => { showOfflineLedger(getReq.result.text); }, "LIHAT CATATAN"); } }; } }; } catch(err) {} }
 
-        // --- HELPER DATE PICKER & FORMAT ---
         function updateHistDateDisplay(val) {
             if(!val) return;
             let d = new Date(val);
@@ -1727,7 +1791,6 @@
             $('fdp-grid').innerHTML = html;
         }
 
-        // --- FITUR THERMAL PRINT, LIVE CALCULATOR & HISTORY ---
         function promptPrint() {
             if (Object.keys(cartState).length === 0) return tampilkanToast("Keranjang kosong, tidak ada yang dicetak!", "var(--danger)");
             
@@ -1742,10 +1805,8 @@
                 }
             });
 
-            // 1. TULISAN DIRAPIKAN: Tipografi, ukuran font, dan margin dikalibrasi (Ditulis 1 baris anti-<br>)
             let msgHTML = `<div style="text-align:center; padding:0; margin:0;"><div style="font-size:10px;color:#888;text-transform:uppercase;font-weight:700;letter-spacing:1px;margin-bottom:6px;">Total Belanja</div><div style="font-size:28px;font-weight:900;color:var(--mono-main);font-family:'Montserrat', sans-serif;margin-bottom:14px;letter-spacing:-0.5px;">Rp ${fmt(grandTotal)}</div><input type="tel" id="input-bayar-struk" style="box-sizing:border-box;width:100%;border-color:var(--border-color);background:#000;color:var(--text-light);font-size:16px;text-align:center;padding:12px;margin:0 0 10px 0;border-radius:8px;border:1px solid #333;outline:none;font-family:'Montserrat', sans-serif;font-weight:600;" placeholder="Bayar" autocomplete="off"><div style="display:flex;justify-content:space-between;align-items:center;background:#111;padding:12px 16px;border-radius:8px;border:1px solid #333;box-sizing:border-box;margin:0;"><span id="live-label" style="font-size:10px;font-weight:800;color:#888;letter-spacing:0.5px;">KEMBALIAN:</span><span id="live-val" style="font-size:15px;font-weight:800;color:#888;">Rp 0</span></div></div>`;
             
-            // 2. PROTOKOL RESET: Mengembalikan padding wadah utama ke asalnya
             const resetPrintModalStyle = () => {
                 $('custom-alert').style.alignItems = '';
                 $('custom-alert').style.paddingTop = '';
@@ -1756,51 +1817,43 @@
             };
 
             showConfirm(msgHTML, "PRINT", "var(--mono-main)", () => {
-                // Di-override di bawah
             }, "PRINT STRUK", () => {
                 resetPrintModalStyle(); 
             });
 
-            // OVERRIDE TOMBOL PRINT UNTUK VALIDASI LOGIKA BAYAR KETAT
             let btnOk = $('confirm-ok-btn');
             if (btnOk) {
                 btnOk.onclick = () => {
                     let inputBayarStr = $('input-bayar-struk').value.replace(/\D/g, '');
                     let parsedBayar = parseInt(inputBayarStr, 10);
 
-                    // Validasi 1: Input Kosong
                     if (isNaN(parsedBayar)) {
                         tampilkanToast("Nominal bayar belum diisi!", "var(--warning)");
                         $('input-bayar-struk').focus();
-                        return; // Hentikan proses, biarkan modal terbuka
+                        return; 
                     }
 
-                    // Validasi 2: Uang Kurang
                     if (parsedBayar < grandTotal) {
                         tampilkanToast("Uang bayar kurang! Tidak bisa cetak.", "var(--danger)");
                         $('input-bayar-struk').focus();
-                        return; // Hentikan proses, biarkan modal terbuka
+                        return; 
                     }
 
-                    // Lolos Validasi (Pas / Ada Kembalian) -> Tutup modal & Cetak
                     closeCustomAlert();
                     executePrint(grandTotal, parsedBayar, itemsPrint);
                     resetPrintModalStyle();
                 };
             }
 
-            // 3. TARIK PAKSA WADAH UTAMA KE BATAS ATAS LAYAR (Mepet Atas)
             $('custom-alert').style.setProperty('align-items', 'flex-start', 'important');
-            $('custom-alert').style.setProperty('padding-top', '15px', 'important'); // 15px aman dari poni kamera HP
+            $('custom-alert').style.setProperty('padding-top', '15px', 'important'); 
             
-            // 4. HAPUS SEMUA MARGIN BAWAAN
             $('alert-box').style.setProperty('margin-top', '0px', 'important');
             $('alert-title').style.setProperty('margin-bottom', '8px', 'important');
             $('alert-msg').style.setProperty('margin-top', '0px', 'important');
             $('alert-msg').style.setProperty('margin-bottom', '10px', 'important');
             $('alert-msg').style.setProperty('padding', '0px', 'important');
 
-            // 5. FOKUS INSTAN KEYBOARD
             let inp = $('input-bayar-struk');
             if(inp) {
                 inp.focus(); 
@@ -1822,7 +1875,7 @@
             }
         }
 
-        let isPrinting = false; // Tambahkan variabel global ini di luar fungsi cetak
+        let isPrinting = false; 
 
         function executePrint(total, bayar, items, timestamp = null, isReprint = false) {
             if (isPrinting) return tampilkanToast("Mohon tunggu, printer sedang memproses...", "var(--warning)");
@@ -1872,14 +1925,15 @@
                 </div>
             </div>`;
 
+            // [SURGICAL FIX] Pelebaran batas slice penyimpanan struk di HP (slice(0, 4000))
             if (!isReprint) {
                 let hist = JSON.parse(localStorage.getItem('DB_WA_HISTORY') || '[]');
                 hist.unshift({ id: 'TRX-' + Math.floor(Math.random() * 10000) + d.getTime().toString().slice(-4), ts: d.getTime(), total: total, bayar: bayar, items: items });
                 try {
-                    localStorage.setItem('DB_WA_HISTORY', JSON.stringify(hist.slice(0, 500)));
+                    localStorage.setItem('DB_WA_HISTORY', JSON.stringify(hist.slice(0, 4000)));
                 } catch (e) {
                     console.warn("Storage penuh! Auto-shrink riwayat.");
-                    localStorage.setItem('DB_WA_HISTORY', JSON.stringify(hist.slice(0, 50)));
+                    localStorage.setItem('DB_WA_HISTORY', JSON.stringify(hist.slice(0, 4000)));
                 }
                 cartState = {}; saveCartMem(); renderCartUI(); applyFiltersAndRender();
             }
@@ -1903,7 +1957,6 @@
                 printFrame.contentWindow.print();
                 tampilkanToast(isReprint ? "Struk Dicetak Ulang!" : "Struk Dicetak!", "var(--mono-main)");
                 
-                // Lepaskan kunci setelah proses print dipanggil
                 setTimeout(() => { isPrinting = false; }, 1000); 
             }, 200);
         }
@@ -2013,7 +2066,7 @@
             text += `------------------------\n`;
             text += `Terimakasih\nAtas Kunjungan Anda\n\`\`\``;
 
-            let intentUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+            let intentUrl = `[https://api.whatsapp.com/send?text=$](https://api.whatsapp.com/send?text=$){encodeURIComponent(text)}`;
             let a = document.createElement('a');
             a.target = '_blank';
             a.rel = 'noopener noreferrer';
@@ -2085,12 +2138,15 @@
             });
         }
 
+        // [SURGICAL FIX] Pengaman Konfirmasi agar riwayat tidak asal terhapus sebelum diupload
         function clearHistoryLocal() {
-            showConfirm("Yakin menghapus Riwayat?", "Bersihkan", "var(--danger)", () => {
+            const msgWarning = "<span style='color:var(--danger); font-weight:bold;'>⚠️ AWAS DATA HILANG!</span><br><br>Pastikan Anda sudah menekan tombol <b style='color:#87CEFA;'>UPLOAD (Awan Biru)</b> di halaman depan sebelum membersihkan riwayat ini.<br><br>Lanjutkan hapus?";
+            
+            showConfirm(msgWarning, "Bersihkan Memori HP", "var(--danger)", () => {
                 localStorage.removeItem('DB_WA_HISTORY');
                 renderHistory();
-                tampilkanToast("Riwayat Bersih!", "var(--danger)");
-            });
+                tampilkanToast("Riwayat HP Telah Dikosongkan!", "var(--danger)");
+            }, "TETAP HAPUS");
         }
 
         /* --- INIT APP & APP LIFECYCLE --- */
