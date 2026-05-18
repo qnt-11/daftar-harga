@@ -1447,7 +1447,7 @@
             const lastSyncTime = forceSync ? 0 : (parseInt(localStorage.getItem('DB_LAST_SYNC')) || 0); 
             fetchWithTimeout(CLOUD_URL + "?action=load&lastSync=" + lastSyncTime + "&t=" + Date.now(), {}, 30000).then(r => r.json()).then(dataResponse => { 
                 const dataCloud = dataResponse.data || []; const serverTime = dataResponse.serverTime || Date.now(); 
-                if (dataCloud.length === 0 && !forceSync) { isApiLoading = false; hideLoading(); tampilkanToast("Data di HP sudah yang paling baru!", "var(--mono-main)"); localStorage.setItem('DB_LAST_SYNC', serverTime.toString()); return; } 
+                if (dataCloud.length === 0 && !forceSync) { isApiLoading = false; hideLoading(); tampilkanToast("Data harga sudah yang paling baru!", "var(--mono-main)"); localStorage.setItem('DB_LAST_SYNC', serverTime.toString()); return; } 
                 let tempMap = new Map(); if (!forceSync) { db.forEach(item => tempMap.set(String(item.id), item)); }
                 const chunkSize = 500; let currentIndex = 0; let rejectedCloudCount = 0; 
                 
@@ -1792,7 +1792,7 @@
         }
 
         function promptPrint() {
-            if (Object.keys(cartState).length === 0) return tampilkanToast("Keranjang kosong, tidak ada yang dicetak!", "var(--danger)");
+            if (Object.keys(cartState).length === 0) return tampilkanToast("Keranjang kosong!", "var(--danger)");
             
             let grandTotal = 0; let itemsPrint = [];
             Object.keys(cartState).forEach(id => {
@@ -1834,7 +1834,7 @@
                     }
 
                     if (parsedBayar < grandTotal) {
-                        tampilkanToast("Uang bayar kurang! Tidak bisa cetak.", "var(--danger)");
+                        tampilkanToast("Uang bayar kurang!", "var(--danger)");
                         $('input-bayar-struk').focus();
                         return; 
                     }
@@ -2140,13 +2140,13 @@
 
         // [SURGICAL FIX] Pengaman Konfirmasi agar riwayat tidak asal terhapus sebelum diupload
         function clearHistoryLocal() {
-            const msgWarning = "<span style='color:var(--danger); font-weight:bold;'>⚠️ AWAS DATA HILANG!</span><br><br>Pastikan Anda sudah menekan tombol <b style='color:#87CEFA;'>UPLOAD (Awan Biru)</b> di halaman depan sebelum membersihkan riwayat ini.<br><br>Lanjutkan hapus?";
+            const msgWarning = "<span style='color:var(--danger); font-weight:bold;'>⚠️ AWAS DATA HILANG!</span><br><br>Pastikan Anda sudah melakukan<b style='color:#87CEFA;'> UPLOAD CLOUD </b>sebelum membersihkan riwayat ini.<br><br>Yakin hapus?";
             
-            showConfirm(msgWarning, "Bersihkan Memori HP", "var(--danger)", () => {
+            showConfirm(msgWarning, "WARNING!", "var(--danger)", () => {
                 localStorage.removeItem('DB_WA_HISTORY');
                 renderHistory();
-                tampilkanToast("Riwayat HP Telah Dikosongkan!", "var(--danger)");
-            }, "TETAP HAPUS");
+                tampilkanToast("Berhasil Hapus Riwayat!", "var(--danger)");
+            }, "HAPUS");
         }
 
         /* --- INIT APP & APP LIFECYCLE --- */
