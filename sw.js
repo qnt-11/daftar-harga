@@ -3,7 +3,7 @@
 // ==========================================
 
 // PENTING: Naikkan angka APP_VERSION setiap kali Anda mengubah isi index.html atau CSS!
-const APP_VERSION = '11.5'; 
+const APP_VERSION = '11.6'; 
 const CACHE_CORE = 'core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
 const CACHE_CDN = 'cdn-v1'; 
