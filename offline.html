@@ -254,13 +254,15 @@
         }
 
         // --- DUKUNGAN KEYBOARD FISIK ---
-        document.addEventListener('keydown', (e) => {
+          document.addEventListener('keydown', (e) => {
             if (document.activeElement.tagName === 'TEXTAREA') return;
 
             const key = e.key;
-            if (/[0-9]/.test(key)) {
+            // Penambahan ^ dan $ untuk memastikan input wajib angka 0-9 murni
+            if (/^[0-9]$/.test(key)) {
                 calcNum(key);
             } else if (key === '.' || key === ',') {
+
                 calcNum('.');
             } else if (key === '+' || key === '-' || key === '*' || key === '/') {
                 calcOp(key);
