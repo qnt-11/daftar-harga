@@ -3,7 +3,7 @@
 // ==========================================
 
 // PENTING: Naikkan angka APP_VERSION setiap kali Anda mengubah isi index.html atau CSS!
-const APP_VERSION = '11.9'; 
+const APP_VERSION = '11.4'; 
 const CACHE_CORE = 'core-v' + APP_VERSION; 
 const CACHE_DYNAMIC = 'dyn-v' + APP_VERSION;
 const CACHE_CDN = 'cdn-v1'; 
@@ -120,7 +120,8 @@ self.addEventListener('fetch', event => {
   // ---------------------------------------------------------
   if (req.mode === 'navigate' || url.pathname === '/' || url.pathname.includes('index.html')) {
     const fetchPromiseHTML = fetch(req).then(res => {
-      if (res.ok) {
+      // Menolak halaman yang dialihkan (redirect) oleh WiFi Publik
+      if (res.ok && !res.redirected && res.type !== 'opaque') {
         const resClone = res.clone();
         caches.open(CACHE_CORE).then(cache => cache.put(req.url.split('?')[0], resClone));
       }
