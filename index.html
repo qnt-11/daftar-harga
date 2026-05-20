@@ -1376,9 +1376,9 @@
         function backupToCloud() { 
             if (db.length === 0 || isApiLoading) return;
             
-            showConfirm("Upload data Harga dan Riwayat Transaksi ke Cloud sekarang?", "Upload Cloud", "#87CEFA", () => { 
+            showConfirm("Upload data Harga dan Riwayat Transaksi", "Upload Cloud", "#87CEFA", () => { 
                 isApiLoading = true; 
-                showLoading("Menyinkronkan & Mengunggah Data...<br>Mohon tunggu sebentar.", "#87CEFA"); 
+                showLoading("Upload Data...<br>Mohon Tunggu sebentar.", "#87CEFA"); 
                 
                 const lastSyncTime = parseInt(localStorage.getItem('DB_LAST_SYNC')) || 0;
                 
@@ -2149,7 +2149,7 @@
                         tampilkanToast(`Riwayat tanggal ${dStr} sudah sinkron!`, "#87CEFA");
                     }
                 } else {
-                    showAlert(`<div style="margin-top:5px; font-size:11px; font-weight:700; color:#aaa; letter-spacing:0.5px;">TIDAK ADA RIWAYAT CLOUD ${dStr}</div>`, "KOSONG", "var(--danger)");
+                    showAlert(`<div style="margin-top:5px; font-size:11px; font-weight:700; color:#aaa; letter-spacing:0.5px;">TIDAK ADA RIWAYAT TRANSAKSI TGL ${dStr}</div>`, "KOSONG", "var(--danger)");
                     
                     $('alert-title').style.fontStyle = 'italic';
                     setTimeout(() => {
